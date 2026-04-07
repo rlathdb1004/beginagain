@@ -169,7 +169,7 @@
 
     /* 알림 */
     .alarm {
-      position: absolute;    
+      position: absolute;
       right: 30px;
     }
 
@@ -178,7 +178,7 @@
       font-size: 16px;
       color: rgba(255, 255, 255, 0.5);
       letter-spacing: 1px;
-      margin: 30px 0 20px 6px;
+      margin: 40px 0 15px 6px;
     }
 
     /* 메뉴 전체 */
@@ -238,6 +238,7 @@
     .submenu-item {
       border-radius: 12px;
       padding: 1px 0 1px 30px;
+      margin: 5px 3px 5px 0;
     }
 
     .submenu-item:hover {
@@ -246,7 +247,7 @@
     }
 
     .submenu-item.active {
-      background: linear-gradient(90deg, rgba(0, 71, 171, 0.5), rgba(0, 71, 171, 0.1));
+      background: rgba(0, 71, 171, 0.3);
       color: #fff;
     }
 
@@ -384,7 +385,8 @@
             <span class="menu-icon">📦</span><span>자재관리</span>
           </div>
           <div class="submenu">
-            <div class="submenu-item" data-page="material-inout">입출고 관리</div>
+            <div class="submenu-item" data-page="material-inout">입출고 등록/관리</div>
+            <div class="submenu-item" data-page="inout-history">입출고 조회</div>
             <div class="submenu-item" data-page="inventory">재고 조회</div>
           </div>
 
@@ -394,6 +396,8 @@
           <div class="submenu">
             <div class="submenu-item" data-page="production-plan">생산계획관리</div>
             <div class="submenu-item" data-page="production-result">생산실적관리</div>
+            <div class="submenu-item" data-page="production-result-add">생산실적등록</div>
+            <div class="submenu-item" data-page="production-result-view">생산실적조회</div>
           </div>
 
           <div class="menu-item has-sub" data-page="work">
@@ -402,7 +406,6 @@
           <div class="submenu">
             <div class="submenu-item" data-page="work-order">작업지시관리</div>
             <div class="submenu-item" data-page="work-status">작업현황조회</div>
-            <div class="submenu-item" data-page="loss">로스관리</div>
           </div>
 
           <div class="menu-item has-sub" data-page="quality">
@@ -426,6 +429,8 @@
           </div>
           <div class="submenu">
             <div class="submenu-item" data-page="equipment">설비관리</div>
+            <div class="submenu-item" data-page="equipment-history">설비정비내역 관리</div>
+            <div class="submenu-item" data-page="equipment-work">설비가동률 관리</div>
           </div>
 
           <div class="menu-item has-sub" data-page="master">
@@ -463,16 +468,16 @@
         </div>
 
         <div class="global-clock">
-          <div class="label">현재 시각</div>
-          <div class="value" id="liveClock">2026-04-06 09:00:00</div>
+          <div class="value" id="liveCalendar">2026-04-06</div>
+          <div class="value" id="liveClock">09:00:00</div>
         </div>
       </section>
     </main>
   </div>
 
   <script>
-
     /* 실시간 시계 */
+    const liveCalendar = document.getElementById('liveCalendar');
     const liveClock = document.getElementById('liveClock');
 
     function updateClock() {
@@ -483,7 +488,12 @@
       const h = String(now.getHours()).padStart(2, '0');
       const mi = String(now.getMinutes()).padStart(2, '0');
       const s = String(now.getSeconds()).padStart(2, '0');
-      liveClock.textContent = `${y}-${m}-${d} ${h}:${mi}:${s}`;
+
+      const week = ['일', '월', '화', '수', '목', '금', '토']
+      const w = week[now.getDay()]
+
+      liveCalendar.textContent = `${y}-${m}-${d} (${w})`
+      liveClock.textContent = `${h} : ${mi} : ${s}`
     }
     updateClock();
     setInterval(updateClock, 1000);
@@ -491,15 +501,27 @@
 
     // 페이지 타이틀 설정용
     const pageMeta = {
+      // 대시보드
+      "dashboard": {
+        title: "대시보드",
+        sub: "대시보드"
+      },
+
+      // 자재관리
       "material-inout": {
         title: "자재관리",
-        sub: "입출고 관리"
+        sub: "입출고 등록/관리"
+      },
+      "inout-history":{
+        title: "자재관리",
+        sub: "입출고 조회"
       },
       "inventory": {
         title: "자재관리",
         sub: "재고 조회"
       },
 
+      // 생산관리
       "production-plan": {
         title: "생산관리",
         sub: "생산계획관리"
@@ -508,7 +530,16 @@
         title: "생산관리",
         sub: "생산실적관리"
       },
+      "production-result-add": {
+        title: "생산관리",
+        sub: "생산실적등록"
+      },
+      "production-result-view": {
+        title: "생산관리",
+        sub: "생산실적조회"
+      },
 
+      // 작업관리
       "work-order": {
         title: "작업관리",
         sub: "작업지시관리"
@@ -517,11 +548,8 @@
         title: "작업관리",
         sub: "작업현황조회"
       },
-      "loss": {
-        title: "작업관리",
-        sub: "로스관리"
-      },
 
+      // 품질관리
       "material-quality": {
         title: "품질관리",
         sub: "자재검사관리"
@@ -535,16 +563,27 @@
         sub: "불량관리"
       },
 
+      // 리포트
       "report": {
         title: "리포트",
         sub: "리포트"
       },
 
+      // 설비관리
       "equipment": {
         title: "설비관리",
         sub: "설비관리"
       },
+      "equipment-history": {
+        title: "설비관리",
+        sub: "설비정비내역 관리"
+      },
+      "equipment-work": {
+        title: "설비관리",
+        sub: "설비가동률 관리"
+      },
 
+      // 기준관리
       "item": {
         title: "기준관리",
         sub: "품목관리"
@@ -556,20 +595,33 @@
       "bom": {
         title: "기준관리",
         sub: "BOM관리"
+      },
+      "defect-master": {
+        title: "기준관리",
+        sub: "불량등록"
+      },
+      "equipment-master": {
+        title: "기준관리",
+        sub: "설비등록"
+      },
+      "employee": {
+        title: "기준관리",
+        sub: "직원등록"
+      },
+      "menu": {
+        title: "기준관리",
+        sub: "메뉴관리"
       }
-    };
+    }
 
     //페이지 이동 준비
     function openPage(pageKey) {
-      if (!pageKey) return;
-
       const meta = pageMeta[pageKey];
       if (!meta) return;
 
       pageTitle.textContent = meta.title;
       pageSub.textContent = meta.sub;
 
-      console.log("페이지 이동:", pageKey);
       // location.href 연결
     }
 
@@ -577,49 +629,49 @@
     document.querySelectorAll(".menu-item.has-sub").forEach(item => {
       item.addEventListener("click", () => {
 
-        const submenu = item.nextElementSibling;
+        const submenu = item.nextElementSibling
 
         // 다른 메뉴/서브 초기화
-        document.querySelectorAll(".menu-item").forEach(mi => mi.classList.remove("active"));
+        document.querySelectorAll(".menu-item").forEach(mi => mi.classList.remove("active"))
         document.querySelectorAll(".submenu").forEach(sm => {
-          if (sm !== submenu) sm.classList.remove("open");
+          if (sm !== submenu) sm.classList.remove("open")
         });
-        document.querySelectorAll(".submenu-item").forEach(si => si.classList.remove("active"));
+        document.querySelectorAll(".submenu-item").forEach(si => si.classList.remove("active"))
 
         // 현재 메뉴 active
-        item.classList.add("active");
+        item.classList.add("active")
 
         // 서브메뉴 열기
-        submenu.classList.toggle("open");
+        submenu.classList.toggle("open")
 
         // 첫 번째 서브 자동 선택
-        const firstSub = submenu.querySelector(".submenu-item");
+        const firstSub = submenu.querySelector(".submenu-item")
         if (firstSub) {
-          firstSub.classList.add("active");
-          openPage(firstSub.dataset.page);
+          firstSub.classList.add("active")
+          openPage(firstSub.dataset.page)
         }
-      });
-    });
+      })
+    })
 
     //서브메뉴 클릭시
     document.querySelectorAll(".submenu-item").forEach(item => {
       item.addEventListener("click", (e) => {
-        e.stopPropagation();
+        e.stopPropagation()
 
         // 서브 active 초기화
-        document.querySelectorAll(".submenu-item").forEach(si => si.classList.remove("active"));
+        document.querySelectorAll(".submenu-item").forEach(si => si.classList.remove("active"))
 
         // 현재 서브 active
-        item.classList.add("active");
+        item.classList.add("active")
 
         // 부모 메뉴 active 유지
-        document.querySelectorAll(".menu-item").forEach(mi => mi.classList.remove("active"));
-        item.parentElement.previousElementSibling.classList.add("active");
+        document.querySelectorAll(".menu-item").forEach(mi => mi.classList.remove("active"))
+        item.parentElement.previousElementSibling.classList.add("active")
 
         // 페이지 이동
-        openPage(item.dataset.page);
-      });
-    });
+        openPage(item.dataset.page)
+      })
+    })
   </script>
 </body>
 
