@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sidebar</title>
+  <style>
+    :root {
+      --main: #0A1E3C;
+      --main-2: #11284B;
+      --symbol: #0047AB;
+      --symbol-soft: #EAF3FF;
+      --symbol-soft-2: #F4F8FF;
+      --point: #FF4500;
+      --point-soft: #FFF4EE;
+      --bg: #F5F8FC;
+      --panel: #FFFFFF;
+      --line: #E2EAF3;
+      --text: #1D2A3D;
+      --sub: #7A8799;
+      --success: #22A06B;
+      --success-soft: #EAF9F2;
+      --warning: #F5A524;
+      --warning-soft: #FFF7E8;
+      --danger: #E5484D;
+      --danger-soft: #FFF1F2;
+      --shadow: 0 14px 32px rgba(10, 30, 60, 0.08);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top right, rgba(0, 71, 171, 0.05), transparent 18%),
+        linear-gradient(180deg, #F8FBFF 0%, var(--bg) 100%);
+    }
+
+    body {
+      min-width: 1480px;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 240px 1fr;
+    }
+
+    /* 사이드바 */
+    .sidebar {
+      background: linear-gradient(180deg, var(--main) 0%, var(--main-2) 100%);
+      color: #fff;
+      padding: 18px 14px;
+      box-shadow: 8px 0 24px rgba(10, 30, 60, 0.12);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 로그아웃 제외한 사이드바 영역 */
+    .sidebar-top {
+      flex: 1;
+    }
+
+    /* 로고영역 */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      margin-bottom: 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* 로고 */
+    .brand-logo {
+      width: 50px;
+      height: 42px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--symbol), #4A9DFF);
+    }
+
+    /* begin again */
+    .brand-title {
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    /* 2차전지 */
+    .brand-sub {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.72);
+      margin-top: 3px;
+    }
+
+    /* 프로필 영역 */
+    .profile-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .profile-card:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    /* 사람 이미지 */
+    .profile-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .profile-icon svg {
+      width: 18px;
+      height: 18px;
+      color: white;
+    }
+
+    /* id */
+    .profile-text .name {
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    /* 역할 */
+    .profile-text .role {
+      color: #94a3b8;
+      font-size: 12px;
+    }
+
+    /* 알림 */
+    .alarm {
+      position: absolute;    
+      right: 30px;
+    }
+
+    /* 메인메뉴 */
+    .menu-caption {
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 1px;
+      margin: 30px 0 20px 6px;
+    }
+
+    /* 메뉴 전체 */
+    .menu-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* 개별 메뉴 */
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.86);
+      background: transparent;
+      transition: 0.2s ease;
+      cursor: pointer;
+    }
+
+    .menu-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateX(3px);
+    }
+
+    .menu-item.active {
+      background: linear-gradient(90deg, rgba(0, 71, 171, 0.98), rgba(0, 71, 171, 0.70));
+      color: #fff;
+    }
+
+    .menu-icon {
+      width: 18px;
+      text-align: center;
+      font-size: 12px;
+    }
+
+    /* 클릭했을때 보이는 메뉴 */
+    .submenu {
+      max-height: 0;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 1px;
+      cursor: pointer;
+    }
+
+    .submenu.open {
+      max-height: 200px;
+    }
+
+    /* 개별 서브메뉴 */
+    .submenu-item {
+      border-radius: 12px;
+      padding: 1px 0 1px 30px;
+    }
+
+    .submenu-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateX(3px);
+    }
+
+    .submenu-item.active {
+      background: linear-gradient(90deg, rgba(0, 71, 171, 0.5), rgba(0, 71, 171, 0.1));
+      color: #fff;
+    }
+
+    /* 로그아웃 */
+    .logout {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 12px;
+    }
+
+    /* 로그아웃 아이콘 */
+    .logout button {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: #6fa8ff;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .logout button svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .logout button:hover {
+      background: rgba(245, 37, 37, 0.05);
+      color: var(--danger);
+    }
+
+    /* 메인화면 */
+    .main {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* 탑 바 전체 */
+    .global-topbar {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr auto;
+      gap: 12px;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 9;
+      background: var(--bg);
+    }
+
+    /* 페이지 제목, 상세페이지 */
+    .global-box {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(10, 30, 60, 0.06);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      padding: 16px 18px;
+    }
+
+    /* 페이지 제목 */
+    .global-title {
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--main);
+      margin-bottom: 6px;
+    }
+
+    /* 상세페이지 */
+    .global-sub {
+      font-size: 16px;
+      line-height: 1.55;
+      color: var(--sub);
+    }
+
+    /* 시계 */
+    .global-clock {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(10, 30, 60, 0.06);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      padding: 17px 18px;
+      width: 300px;
+      font-size: 24px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="brand">
+          <img class="brand-logo" src="logo.png">
+          <div>
+            <div class="brand-title">Begin Again</div>
+            <div class="brand-sub">2차전지 양극재 가공</div>
+          </div>
+        </div>
+
+        <div class="profile-card">
+          <div class="profile-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+            </svg>
+          </div>
+          <div class="profile-text">
+            <div class="name">CEO</div>
+            <div class="role">최고경영자</div>
+          </div>
+          <svg class="alarm" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            class="lucide lucide-bell w-4 h-4">
+            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
+            <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
+          </svg>
+        </div>
+
+        <div class="menu-caption">MAIN MENU</div>
+        <div class="menu-list">
+          <div class="menu-item has-sub active" data-page="dashboard">
+            <span class="menu-icon">📊</span><span>대시보드</span>
+          </div>
+          <div class="submenu open">
+            <div class="submenu-item active" data-page="dashboard">대시보드</div>
+          </div>
+
+          <div class="menu-item has-sub" data-page="materials">
+            <span class="menu-icon">📦</span><span>자재관리</span>
+          </div>
+          <div class="submenu">
+            <div class="submenu-item" data-page="material-inout">입출고 관리</div>
+            <div class="submenu-item" data-page="inventory">재고 조회</div>
+          </div>
+
+          <div class="menu-item has-sub" data-page="production">
+            <span class="menu-icon">🏭</span><span>생산관리</span>
+          </div>
+          <div class="submenu">
+            <div class="submenu-item" data-page="production-plan">생산계획관리</div>
+            <div class="submenu-item" data-page="production-result">생산실적관리</div>
+          </div>
+
+          <div class="menu-item has-sub" data-page="work">
+            <span class="menu-icon">🛠</span><span>작업관리</span>
+          </div>
+          <div class="submenu">
+            <div class="submenu-item" data-page="work-order">작업지시관리</div>
+            <div class="submenu-item" data-page="work-status">작업현황조회</div>
+            <div class="submenu-item" data-page="loss">로스관리</div>
+          </div>
+
+          <div class="menu-item has-sub" data-page="quality">
+            <span class="menu-icon">⚠</span><span>품질관리</span>
+          </div>
+          <div class="submenu">
+            <div class="submenu-item" data-page="material-quality">자재검사관리</div>
+            <div class="submenu-item" data-page="process-quality">공정검사관리</div>
+            <div class="submenu-item" data-page="defect">불량관리</div>
+          </div>
+
+          <div class="menu-item has-sub" data-page="report">
+            <span class="menu-icon">📄</span><span>리포트</span>
+          </div>
+          <div class="submenu">
+            <div class="submenu-item" data-page="report">리포트</div>
+          </div>
+
+          <div class="menu-item has-sub" data-page="equipment">
+            <span class="menu-icon">⚙</span><span>설비관리</span>
+          </div>
+          <div class="submenu">
+            <div class="submenu-item" data-page="equipment">설비관리</div>
+          </div>
+
+          <div class="menu-item has-sub" data-page="master">
+            <span class="menu-icon">🧩</span><span>기준관리</span>
+          </div>
+          <div class="submenu">
+            <div class="submenu-item" data-page="item">품목관리</div>
+            <div class="submenu-item" data-page="process">공정관리</div>
+            <div class="submenu-item" data-page="bom">BOM관리</div>
+            <div class="submenu-item" data-page="defect-master">불량등록</div>
+            <div class="submenu-item" data-page="equipment-master">설비등록</div>
+            <div class="submenu-item" data-page="employee">직원등록</div>
+            <div class="submenu-item" data-page="menu">메뉴관리</div>
+          </div>
+        </div>
+      </div>
+      <div class="logout">
+        <button>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 3h8a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-8" />
+            <path d="M15 12H3" />
+            <path d="M7 8l-4 4 4 4" />
+          </svg>
+          로그아웃
+        </button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="global-topbar">
+        <div class="global-box">
+          <div class="global-title" id="pageTitle">대시보드</div>
+          <div class="global-sub" id="pageSub">대시보드</div>
+        </div>
+
+        <div class="global-clock">
+          <div class="label">현재 시각</div>
+          <div class="value" id="liveClock">2026-04-06 09:00:00</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+
+    /* 실시간 시계 */
+    const liveClock = document.getElementById('liveClock');
+
+    function updateClock() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      const h = String(now.getHours()).padStart(2, '0');
+      const mi = String(now.getMinutes()).padStart(2, '0');
+      const s = String(now.getSeconds()).padStart(2, '0');
+      liveClock.textContent = `${y}-${m}-${d} ${h}:${mi}:${s}`;
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+
+    // 페이지 타이틀 설정용
+    const pageMeta = {
+      "material-inout": {
+        title: "자재관리",
+        sub: "입출고 관리"
+      },
+      "inventory": {
+        title: "자재관리",
+        sub: "재고 조회"
+      },
+
+      "production-plan": {
+        title: "생산관리",
+        sub: "생산계획관리"
+      },
+      "production-result": {
+        title: "생산관리",
+        sub: "생산실적관리"
+      },
+
+      "work-order": {
+        title: "작업관리",
+        sub: "작업지시관리"
+      },
+      "work-status": {
+        title: "작업관리",
+        sub: "작업현황조회"
+      },
+      "loss": {
+        title: "작업관리",
+        sub: "로스관리"
+      },
+
+      "material-quality": {
+        title: "품질관리",
+        sub: "자재검사관리"
+      },
+      "process-quality": {
+        title: "품질관리",
+        sub: "공정검사관리"
+      },
+      "defect": {
+        title: "품질관리",
+        sub: "불량관리"
+      },
+
+      "report": {
+        title: "리포트",
+        sub: "리포트"
+      },
+
+      "equipment": {
+        title: "설비관리",
+        sub: "설비관리"
+      },
+
+      "item": {
+        title: "기준관리",
+        sub: "품목관리"
+      },
+      "process": {
+        title: "기준관리",
+        sub: "공정관리"
+      },
+      "bom": {
+        title: "기준관리",
+        sub: "BOM관리"
+      }
+    };
+
+    //페이지 이동 준비
+    function openPage(pageKey) {
+      if (!pageKey) return;
+
+      const meta = pageMeta[pageKey];
+      if (!meta) return;
+
+      pageTitle.textContent = meta.title;
+      pageSub.textContent = meta.sub;
+
+      console.log("페이지 이동:", pageKey);
+      // location.href 연결
+    }
+
+    //메뉴 클릭시 
+    document.querySelectorAll(".menu-item.has-sub").forEach(item => {
+      item.addEventListener("click", () => {
+
+        const submenu = item.nextElementSibling;
+
+        // 다른 메뉴/서브 초기화
+        document.querySelectorAll(".menu-item").forEach(mi => mi.classList.remove("active"));
+        document.querySelectorAll(".submenu").forEach(sm => {
+          if (sm !== submenu) sm.classList.remove("open");
+        });
+        document.querySelectorAll(".submenu-item").forEach(si => si.classList.remove("active"));
+
+        // 현재 메뉴 active
+        item.classList.add("active");
+
+        // 서브메뉴 열기
+        submenu.classList.toggle("open");
+
+        // 첫 번째 서브 자동 선택
+        const firstSub = submenu.querySelector(".submenu-item");
+        if (firstSub) {
+          firstSub.classList.add("active");
+          openPage(firstSub.dataset.page);
+        }
+      });
+    });
+
+    //서브메뉴 클릭시
+    document.querySelectorAll(".submenu-item").forEach(item => {
+      item.addEventListener("click", (e) => {
+        e.stopPropagation();
+
+        // 서브 active 초기화
+        document.querySelectorAll(".submenu-item").forEach(si => si.classList.remove("active"));
+
+        // 현재 서브 active
+        item.classList.add("active");
+
+        // 부모 메뉴 active 유지
+        document.querySelectorAll(".menu-item").forEach(mi => mi.classList.remove("active"));
+        item.parentElement.previousElementSibling.classList.add("active");
+
+        // 페이지 이동
+        openPage(item.dataset.page);
+      });
+    });
+  </script>
+</body>
+
+</html>
