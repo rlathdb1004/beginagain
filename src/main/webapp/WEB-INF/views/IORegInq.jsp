@@ -4,9 +4,11 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
+<jsp:include page="/WEB-INF/views/common/modal/modal_register.jsp" />
+
 <!-- 상단 버튼 영역 -->
 <div class="taPageActions">
-  <button type="button" class="taBtn taBtnPrimary">등록</button>
+  <button type="button" class="taBtn taBtnPrimary" onclick="openModal('registerModal')">등록</button>
   <button type="button" class="taBtn taBtnOutline">삭제</button>
 </div>
 
@@ -163,3 +165,26 @@
     <p><strong>비고 :</strong> ${ioRegInqDTO.remark}</p>
   </div>
 </c:if>
+
+<script>
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = "flex";
+    }
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = "none";
+    }
+}
+
+window.addEventListener("click", function(e) {
+    const modal = document.getElementById("registerModal");
+    if (modal && e.target === modal) {
+        modal.style.display = "none";
+    }
+});
+</script>

@@ -5,29 +5,40 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>공통테이블화면</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${pageTitle}</title>
 
-<!-- 공통 테이블 CSS 연결 -->
-<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/table.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/common.css">
+	<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/table.css">
+	<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/modal.css">
+	<script src="${pageContext.request.contextPath}/assets/js/layout.js"></script>
+
 </head>
-<body class="taBody">
+<body>
+    <div class="app">
 
-  <section
-    id="${empty pageId ? 'page-common-table' : pageId}"
-    class="page-section active"
-    data-title="${empty pageTitle ? '공통 테이블 화면' : pageTitle}"
-    data-subtitle="${empty pageSubTitle ? '공통 테이블 화면입니다.' : pageSubTitle}"
-  >
-    <div class="taMaterialsInoutOnly">
+        <jsp:include page="/WEB-INF/views/common/sidebar.jsp" />
 
-      <!-- 여기 한 군데에 페이지 JSP 하나만 끼워 넣는다 -->
-      <jsp:include page="${contentPage}" />
+        <main class="main">
+            <section class="global-topbar">
+                <div class="global-box">
+                    <div class="global-title" id="pageMainTitle">${pageTitle}</div>
+                    <div class="global-sub" id="pageSubTitle">${pageSubTitle}</div>
+                </div>
 
+                <div class="global-clock">
+                    <div class="value" id="liveCalendar"></div>
+                    <div class="value" id="liveClock"></div>
+                </div>
+            </section>
+
+            <div id="content-area" class="page-wrap">
+                <jsp:include page="${contentPage}" />
+            </div>
+        </main>
     </div>
-  </section>
-
 </body>
 </html>

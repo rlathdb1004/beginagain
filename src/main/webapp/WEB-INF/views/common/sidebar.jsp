@@ -56,7 +56,8 @@
 			<div class="menu-group">
 				<button class="menu-title open" type="button">2. 자재관리</button>
 				<div class="menu-items open">
-					<a href="#">입출고 등록/조회</a> <a href="#">재고 등록/조회</a>
+					<a href="${pageContext.request.contextPath}/ioRegInq">입출고 등록 /조회</a> 
+					<a href="${pageContext.request.contextPath}/invRegInq">재고등록 / 조회</a>
 				</div>
 			</div>
 
@@ -64,7 +65,8 @@
 			<div class="menu-group">
 				<button class="menu-title open" type="button">3. 생산관리</button>
 				<div class="menu-items open">
-					<a href="#">생산 계획 등록/조회</a> <a href="#">생산 실적 등록/조회</a>
+					<a href="#">생산 계획 등록/조회</a> 
+					<a href="#">생산 실적 등록/조회</a>
 				</div>
 			</div>
 
@@ -81,8 +83,9 @@
 			<div class="menu-group">
 				<button class="menu-title open" type="button">5. 품질관리</button>
 				<div class="menu-items open">
-					<a href="#">자재 검사 등록/조회</a> <a href="#">완제품 검사 등록/조회</a> <a
-						href="#">불량 등록/조회</a>
+					<a href="${pageContext.request.contextPath}/matInspRegInq">자재 검사 등록/조회</a> 
+					<a href="${pageContext.request.contextPath}/fpInspRegInq">완제품 검사 등록/조회</a> 
+					<a href="${pageContext.request.contextPath}/defectRegInq">불량 등록/조회</a>
 				</div>
 			</div>
 
