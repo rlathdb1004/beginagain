@@ -16,24 +16,40 @@ public class ItemMgmtCon extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		request.setCharacterEncoding("UTF-8");
-		response.setContentType("text/html; charset=utf-8;");
 
-		String type = request.getParameter("type");
+		request.setCharacterEncoding("utf-8");
+		response.setContentType("text/html; charset=utf-8");
 
-	    ItemMgmtService service = new ItemMgmtService();
-	    List<ItemMgmtDTO> list = service.getItemList(); 
-	   
+		String type = request.getParameter("itemType");
+		String dateType = request.getParameter("dateType");
+		String startDate = request.getParameter("startDate");
+		String endDate = request.getParameter("endDate");
+		String field = request.getParameter("searchField");
+		String keyword = request.getParameter("keyword");
 
-	    request.setAttribute("itemList", list);
-	    request.getRequestDispatcher("/ItemMgmt.jsp").forward(request, response);
-	 
+		
+		ItemMgmtSearchDTO dto = new ItemMgmtSearchDTO();
+		dto.setType(type);
+		dto.setDateType(dateType);
+		dto.setStartDate(startDate);
+		dto.setEndDate(endDate);
+		dto.setField(field);
+		dto.setKeyword(keyword);
+
+		ItemMgmtService service = new ItemMgmtService();
+
+		
+		List<ItemMgmtDTO> list = service.getItemList(dto);
+
+		request.setAttribute("itemList", list);
+		request.setAttribute("contentPage", "/WEB-INF/views/item/ItemMgmt.jsp");
+
+		request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
-		// 한글 처리
+		
 		request.setCharacterEncoding("utf-8");
 		response.setContentType("text/html; charset=utf-8");
 
@@ -44,10 +60,10 @@ public class ItemMgmtCon extends HttpServlet {
 		String unit = request.getParameter("unit");
 		String spec = request.getParameter("spec");
 		String supplier_name = request.getParameter("supplier_name");
-
+		String use_yn = request.getParameter("use_yn");
 		int safety_stock = 0;
 		if (request.getParameter("safety_stock") != null && !request.getParameter("safety_stock").equals("")) {
-		    safety_stock = Integer.parseInt(request.getParameter("safety_stock"));
+			safety_stock = Integer.parseInt(request.getParameter("safety_stock"));
 		}
 
 		// DTO 세팅
@@ -59,15 +75,14 @@ public class ItemMgmtCon extends HttpServlet {
 		dto.setSpec(spec);
 		dto.setSupplier_name(supplier_name);
 		dto.setSafety_stock(safety_stock);
+		dto.setUse_yn(use_yn);
 
 		// DAO 호출
 		ItemMgmtDAO dao = new ItemMgmtDAO();
 		dao.insertItem(dto);
 
-		System.out.println("등록 완료");
-
 		// 🔥 다시 목록으로 이동
-		response.sendRedirect("/master-item");
+		response.sendRedirect(request.getContextPath() + "/master-item");
 	}
 
 }
