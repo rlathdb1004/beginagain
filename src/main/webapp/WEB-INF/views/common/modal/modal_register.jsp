@@ -1,8 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
-    <button type="button" class="btn-primary" onclick="openModal('registerModal')">
-        등록
-    </button>
+<!-- 모달연결 시 상단에 등록버튼이 튀어나와서 주석처리함  -->
+<!--     <button type="button" class="btn-primary" onclick="openModal('registerModal')"> -->
+<!--         등록 -->
+<!--     </button> -->
 
     <div id="registerModal" class="modal-overlay">
         <div class="modal-box">

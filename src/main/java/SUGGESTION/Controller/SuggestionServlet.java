@@ -63,6 +63,7 @@ public class SuggestionServlet extends HttpServlet {
      * - write      : 등록 모달 열기
      * - detail     : 상세 모달 열기
      * - edit       : 수정 모달 열기
+     * 페이징 포함
      */
     private void list(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -73,15 +74,61 @@ public class SuggestionServlet extends HttpServlet {
         String mode = request.getParameter("mode");
         String idParam = request.getParameter("id");
 
-        List<SuggestionDTO> suggestionList =
+        int size = 10;   // 한 페이지당 10개
+        int page = 1;    // 현재 페이지
+
+        String sSize = request.getParameter("size");
+        String sPage = request.getParameter("page");
+
+        try {
+            size = Integer.parseInt(sSize);
+        } catch (Exception e) {
+        }
+
+        try {
+            page = Integer.parseInt(sPage);
+        } catch (Exception e) {
+        }
+
+        if (page < 1) {
+            page = 1;
+        }
+
+        // 기존 전체 목록 조회 유지
+        List<SuggestionDTO> fullList =
                 suggestionService.getSuggestionList(keyword, status, deptCode);
+
+        int totalCount = fullList.size();
+        int totalPage = (int) Math.ceil((double) totalCount / size);
+
+        if (totalPage == 0) {
+            totalPage = 1;
+        }
+
+        if (page > totalPage) {
+            page = totalPage;
+        }
+
+        int startIndex = (page - 1) * size;
+        int endIndex = Math.min(startIndex + size, totalCount);
+
+        List<SuggestionDTO> suggestionList;
+        if (totalCount == 0) {
+            suggestionList = new java.util.ArrayList<>();
+        } else {
+            suggestionList = fullList.subList(startIndex, endIndex);
+        }
+
+        // 페이지 번호 묶음
+        int pageGroupSize = 5;
+        int startPage = ((page - 1) / pageGroupSize) * pageGroupSize + 1;
+        int endPage = Math.min(startPage + pageGroupSize - 1, totalPage);
 
         SuggestionDTO selectedSuggestion = null;
 
         if (idParam != null && !idParam.trim().isEmpty()) {
             long suggestionId = Long.parseLong(idParam);
 
-            // 상세만 조회수 증가 / 수정모드는 조회수 증가 안 함
             boolean increaseViewCount = "detail".equals(mode);
             selectedSuggestion = suggestionService.getSuggestionDetail(suggestionId, increaseViewCount);
         }
@@ -93,8 +140,16 @@ public class SuggestionServlet extends HttpServlet {
         request.setAttribute("mode", mode);
         request.setAttribute("selectedSuggestion", selectedSuggestion);
 
-        request.getRequestDispatcher("/WEB-INF/views/suggestion/suggestionList.jsp")
-               .forward(request, response);
+        // 페이징 정보
+        request.setAttribute("size", size);
+        request.setAttribute("page", page);
+        request.setAttribute("totalCount", totalCount);
+        request.setAttribute("totalPage", totalPage);
+        request.setAttribute("startPage", startPage);
+        request.setAttribute("endPage", endPage);
+
+        request.setAttribute("contentPage", "/WEB-INF/views/Suggestion.jsp");
+        request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
     }
 
     /**
