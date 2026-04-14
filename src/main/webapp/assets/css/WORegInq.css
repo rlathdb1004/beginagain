@@ -1,0 +1,296 @@
+/* =========================
+   WORegInq.css
+   ========================= */
+
+/* 전체 화면 */
+.workorder-page {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* 상단 버튼 영역 */
+.workorder-page .taPageActions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 검색 영역 */
+.workorder-page .taToolbarRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.workorder-page .taToolbarField {
+    display: flex;
+    align-items: center;
+}
+
+.workorder-page .taToolbarFieldGrow {
+    flex: 1;
+    min-width: 260px;
+}
+
+.workorder-page .taSearchBox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.workorder-page .taSearchInput {
+    min-width: 0;
+}
+
+.workorder-page .taToolbarFieldGrow .taSearchInput {
+    flex: 1;
+    width: 100%;
+}
+
+.workorder-page .taSelect {
+    min-width: 140px;
+}
+
+/* 테이블 영역 */
+.workorder-page .workorder-table-shell {
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.workorder-page .taTableScroll {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+}
+
+.workorder-page .taMesTable {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+/* 말줄임 */
+.workorder-page .taTableHeadCell,
+.workorder-page .taTableBodyCell {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+
+/* 일반 컬럼 폭 */
+.workorder-page .taColFit {
+    width: 90px;
+    min-width: 90px;
+}
+
+.workorder-page .taColDate {
+    width: 110px;
+    min-width: 110px;
+}
+
+.workorder-page .taColGrow {
+    width: auto;
+}
+
+/* 마지막 컬럼 정렬 */
+.workorder-page .taLastCol {
+    text-align: center;
+}
+
+/* 선택된 행 */
+.workorder-page .taTableBodyRow.selected-row td {
+    background-color: #eef5ff;
+}
+
+/* 행 hover */
+.workorder-page .taTableBodyRow {
+    cursor: pointer;
+}
+
+.workorder-page .taTableBodyRow:hover td {
+    background-color: #f8fbff;
+}
+
+/* 페이징 */
+.workorder-page .taPagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    padding-top: 4px;
+    flex-wrap: wrap;
+}
+
+.workorder-page .taPageBtn {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+.workorder-page .taPageBtn.active {
+    font-weight: 700;
+}
+
+/* form 기본 여백 제거 */
+.workorder-page form {
+    margin: 0;
+}
+
+/* 결과 숨김 상태에서 빈 공간 안 생기게 */
+.workorder-page .taPagination:empty {
+    display: none;
+}
+
+/* =========================
+   등록 모달
+   ========================= */
+.workorder-page .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.35);
+    box-sizing: border-box;
+}
+
+.workorder-page .modal-box {
+    width: 100%;
+    max-width: 760px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 12px;
+    box-sizing: border-box;
+}
+
+.workorder-page .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.workorder-page .modal-title {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.workorder-page .modal-close {
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.workorder-page .modal-body {
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.workorder-page .modal-body form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 20px;
+}
+
+.workorder-page .modal-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.workorder-page .modal-form-group label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.workorder-page .modal-form-group input,
+.workorder-page .modal-form-group select,
+.workorder-page .modal-form-group textarea {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.workorder-page .modal-form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.workorder-page .modal-footer {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding-top: 4px;
+}
+
+/* 반응형 */
+@media (max-width: 1200px) {
+    .workorder-page .taToolbarFieldGrow {
+        min-width: 220px;
+    }
+
+    .workorder-page .taColFit {
+        width: 84px;
+        min-width: 84px;
+    }
+
+    .workorder-page .taColDate {
+        width: 104px;
+        min-width: 104px;
+    }
+}
+
+@media (max-width: 768px) {
+    .workorder-page .taToolbarRow {
+        align-items: stretch;
+    }
+
+    .workorder-page .taToolbarField,
+    .workorder-page .taToolbarFieldGrow {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .workorder-page .taSearchBox {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .workorder-page .taSelect,
+    .workorder-page .taSearchInput {
+        width: 100%;
+    }
+
+    .workorder-page .modal-body form {
+        grid-template-columns: 1fr;
+    }
+
+    .workorder-page .modal-box {
+        max-width: 100%;
+    }
+}
