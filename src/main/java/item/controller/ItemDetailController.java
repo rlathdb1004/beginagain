@@ -37,6 +37,9 @@ public class ItemDetailController extends HttpServlet {
 		}
 
 		request.setAttribute("item", item);
-		request.getRequestDispatcher("/WEB-INF/views/item/itemDetail.jsp").forward(request, response);
+		request.setAttribute("pageTitle", "품목관리");
+		request.setAttribute("pageSubTitle", "품목 상세 / 수정");
+		request.setAttribute("contentPage", "/WEB-INF/views/item/itemDetail.jsp");
+		request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
 	}
 }

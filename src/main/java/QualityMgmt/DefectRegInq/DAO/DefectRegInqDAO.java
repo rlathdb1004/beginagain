@@ -306,4 +306,29 @@ public class DefectRegInqDAO {
 
         return dto;
     }
+
+
+public int insertDefectRegInq(DefectRegInqDTO dto) {
+    Connection conn = null; PreparedStatement ps = null;
+    try {
+        Context ctx = new InitialContext(); DataSource dataFactory = (DataSource) ctx.lookup("java:/comp/env/jdbc/oracle"); conn = dataFactory.getConnection();
+        String sql = "INSERT INTO DEFECT_PRODUCT (DEFECT_PRODUCT_ID, FINAL_INSPECTION_ID, DEFECT_CODE_ID, REMARK, CREATED_AT, UPDATED_AT) VALUES ((SELECT NVL(MAX(DEFECT_PRODUCT_ID),0)+1 FROM DEFECT_PRODUCT), ?, ?, ?, SYSDATE, SYSDATE)";
+        ps = conn.prepareStatement(sql); ps.setInt(1, dto.getFinalInspectionId()); ps.setInt(2, dto.getDefectCodeId()); ps.setString(3, dto.getRemark()); return ps.executeUpdate();
+    } catch (Exception e) { e.printStackTrace(); } finally { try { if (ps != null) ps.close(); } catch (Exception e) {} try { if (conn != null) conn.close(); } catch (Exception e) {} }
+    return 0;
+}
+
+public int deleteDefectRegInq(int[] ids) {
+    Connection conn = null; PreparedStatement ps = null; int result = 0;
+    try {
+        if (ids == null || ids.length == 0) return 0;
+        Context ctx = new InitialContext(); DataSource dataFactory = (DataSource) ctx.lookup("java:/comp/env/jdbc/oracle"); conn = dataFactory.getConnection();
+        StringBuilder sql = new StringBuilder("DELETE FROM DEFECT_PRODUCT WHERE DEFECT_PRODUCT_ID IN (");
+        for (int i = 0; i < ids.length; i++) { if (i > 0) sql.append(","); sql.append("?"); }
+        sql.append(")");
+        ps = conn.prepareStatement(sql.toString()); for (int i = 0; i < ids.length; i++) ps.setInt(i + 1, ids[i]); result = ps.executeUpdate();
+    } catch (Exception e) { e.printStackTrace(); } finally { try { if (ps != null) ps.close(); } catch (Exception e) {} try { if (conn != null) conn.close(); } catch (Exception e) {} }
+    return result;
+}
+
 }

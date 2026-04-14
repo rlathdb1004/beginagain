@@ -14,8 +14,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/common.css">
 	<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/table.css">
 	<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/modal.css">
-	<script src="${pageContext.request.contextPath}/assets/js/layout.js"></script>
-
+	
 </head>
 <body>
     <div class="app">
@@ -23,22 +22,14 @@
         <jsp:include page="/WEB-INF/views/common/sidebar.jsp" />
 
         <main class="main">
-            <section class="global-topbar">
-                <div class="global-box">
-                    <div class="global-title" id="pageMainTitle">${pageTitle}</div>
-                    <div class="global-sub" id="pageSubTitle">${pageSubTitle}</div>
-                </div>
-
-                <div class="global-clock">
-                    <div class="value" id="liveCalendar"></div>
-                    <div class="value" id="liveClock"></div>
-                </div>
-            </section>
+            <jsp:include page="/WEB-INF/views/common/topbar.jsp" />
 
             <div id="content-area" class="page-wrap">
                 <jsp:include page="${contentPage}" />
             </div>
         </main>
     </div>
+    <script src="${pageContext.request.contextPath}/assets/js/layout.js?v=4"></script>
+    <script src="${pageContext.request.contextPath}/assets/js/common.js?v=4"></script>
 </body>
 </html>

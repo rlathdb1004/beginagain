@@ -260,4 +260,29 @@ public class MatInspRegInqDAO {
 
         return dto;
     }
+
+
+public int insertMatInspRegInq(MatInspRegInqDTO dto) {
+    Connection conn = null; PreparedStatement ps = null;
+    try {
+        Context ctx = new InitialContext(); DataSource dataFactory = (DataSource) ctx.lookup("java:/comp/env/jdbc/oracle"); conn = dataFactory.getConnection();
+        String sql = "INSERT INTO MATERIAL_INSPECTION (MATERIAL_INSPECTION_ID, ITEM_ID, INSPECT_QTY, GOOD_QTY, DEFECT_QTY, INSPECTION_RESULT, INSPECTION_DATE, REMARK, USE_YN, CREATED_AT, UPDATED_AT) VALUES ((SELECT NVL(MAX(MATERIAL_INSPECTION_ID),0)+1 FROM MATERIAL_INSPECTION), (SELECT ITEM_ID FROM ITEM WHERE ITEM_CODE = ?), ?, ?, ?, ?, ?, ?, 'Y', SYSDATE, SYSDATE)";
+        ps = conn.prepareStatement(sql); ps.setString(1, dto.getItemCode()); ps.setDouble(2, dto.getInspectQty()); ps.setDouble(3, dto.getGoodQty()); ps.setDouble(4, dto.getDefectQty()); ps.setString(5, dto.getResult()); ps.setDate(6, dto.getInspectionDate()); ps.setString(7, dto.getRemark()); return ps.executeUpdate();
+    } catch (Exception e) { e.printStackTrace(); } finally { try { if (ps != null) ps.close(); } catch (Exception e) {} try { if (conn != null) conn.close(); } catch (Exception e) {} }
+    return 0;
+}
+
+public int deleteMatInspRegInq(int[] ids) {
+    Connection conn = null; PreparedStatement ps = null; int result = 0;
+    try {
+        if (ids == null || ids.length == 0) return 0;
+        Context ctx = new InitialContext(); DataSource dataFactory = (DataSource) ctx.lookup("java:/comp/env/jdbc/oracle"); conn = dataFactory.getConnection();
+        StringBuilder sql = new StringBuilder("UPDATE MATERIAL_INSPECTION SET USE_YN='N', UPDATED_AT=SYSDATE WHERE MATERIAL_INSPECTION_ID IN (");
+        for (int i = 0; i < ids.length; i++) { if (i > 0) sql.append(","); sql.append("?"); }
+        sql.append(")");
+        ps = conn.prepareStatement(sql.toString()); for (int i = 0; i < ids.length; i++) ps.setInt(i + 1, ids[i]); result = ps.executeUpdate();
+    } catch (Exception e) { e.printStackTrace(); } finally { try { if (ps != null) ps.close(); } catch (Exception e) {} try { if (conn != null) conn.close(); } catch (Exception e) {} }
+    return result;
+}
+
 }

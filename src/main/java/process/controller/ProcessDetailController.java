@@ -36,6 +36,9 @@ public class ProcessDetailController extends HttpServlet {
 		}
 
 		request.setAttribute("p", p);
-		request.getRequestDispatcher("/WEB-INF/views/process/processDetail.jsp").forward(request, response);
+		request.setAttribute("pageTitle", "공정관리");
+		request.setAttribute("pageSubTitle", "공정 상세 / 수정");
+		request.setAttribute("contentPage", "/WEB-INF/views/process/processDetail.jsp");
+		request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
 	}
 }

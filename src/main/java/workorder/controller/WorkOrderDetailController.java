@@ -50,6 +50,9 @@ public class WorkOrderDetailController extends HttpServlet {
 		request.setAttribute("bomList", bomList);
 		request.setAttribute("routingList", routingList);
 
-		request.getRequestDispatcher("/WEB-INF/views/workorder/workOrderDetail.jsp").forward(request, response);
+		request.setAttribute("pageTitle", "작업지시");
+		request.setAttribute("pageSubTitle", "작업지시 상세 / BOM / 라우팅");
+		request.setAttribute("contentPage", "/WEB-INF/views/workorder/workOrderDetail.jsp");
+		request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
 	}
 }

@@ -35,6 +35,9 @@ public class MemberDetailController extends HttpServlet {
 		}
 
 		request.setAttribute("member", member);
-		request.getRequestDispatcher("/WEB-INF/views/member/memberDetail.jsp").forward(request, response);
+		request.setAttribute("pageTitle", "사원관리");
+		request.setAttribute("pageSubTitle", "사원 상세 / 수정");
+		request.setAttribute("contentPage", "/WEB-INF/views/member/memberDetail.jsp");
+		request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
 	}
 }

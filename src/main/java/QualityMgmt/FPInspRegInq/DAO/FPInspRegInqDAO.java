@@ -280,4 +280,29 @@ public class FPInspRegInqDAO {
 
         return dto;
     }
+
+
+public int insertFPInspRegInq(FPInspRegInqDTO dto) {
+    Connection conn = null; PreparedStatement ps = null;
+    try {
+        Context ctx = new InitialContext(); DataSource dataFactory = (DataSource) ctx.lookup("java:/comp/env/jdbc/oracle"); conn = dataFactory.getConnection();
+        String sql = "INSERT INTO FINAL_INSPECTION (FINAL_INSPECTION_ID, RESULT_ID, INSPECT_QTY, STATUS, INSPECTION_DATE, REMARK, USE_YN, CREATED_AT, UPDATED_AT) VALUES ((SELECT NVL(MAX(FINAL_INSPECTION_ID),0)+1 FROM FINAL_INSPECTION), ?, ?, ?, ?, ?, 'Y', SYSDATE, SYSDATE)";
+        ps = conn.prepareStatement(sql); ps.setInt(1, dto.getResultId()); ps.setDouble(2, dto.getInspectQty()); ps.setString(3, dto.getResult()); ps.setDate(4, dto.getInspectionDate()); ps.setString(5, dto.getRemark()); return ps.executeUpdate();
+    } catch (Exception e) { e.printStackTrace(); } finally { try { if (ps != null) ps.close(); } catch (Exception e) {} try { if (conn != null) conn.close(); } catch (Exception e) {} }
+    return 0;
+}
+
+public int deleteFPInspRegInq(int[] ids) {
+    Connection conn = null; PreparedStatement ps = null; int result = 0;
+    try {
+        if (ids == null || ids.length == 0) return 0;
+        Context ctx = new InitialContext(); DataSource dataFactory = (DataSource) ctx.lookup("java:/comp/env/jdbc/oracle"); conn = dataFactory.getConnection();
+        StringBuilder sql = new StringBuilder("UPDATE FINAL_INSPECTION SET USE_YN='N', UPDATED_AT=SYSDATE WHERE FINAL_INSPECTION_ID IN (");
+        for (int i = 0; i < ids.length; i++) { if (i > 0) sql.append(","); sql.append("?"); }
+        sql.append(")");
+        ps = conn.prepareStatement(sql.toString()); for (int i = 0; i < ids.length; i++) ps.setInt(i + 1, ids[i]); result = ps.executeUpdate();
+    } catch (Exception e) { e.printStackTrace(); } finally { try { if (ps != null) ps.close(); } catch (Exception e) {} try { if (conn != null) conn.close(); } catch (Exception e) {} }
+    return result;
+}
+
 }

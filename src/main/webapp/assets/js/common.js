@@ -1,143 +1,169 @@
-window.addEventListener('load', init)
+document.addEventListener("DOMContentLoaded", function () {
+    const allModals = Array.from(document.querySelectorAll(".taModal"));
 
-function init() {
+    function syncBodyState() {
+        const hasOpen = document.querySelector(".taModal.open:not([hidden])");
+        document.body.classList.toggle("modal-open", !!hasOpen);
+    }
 
-    const logoutBtn = document.getElementById('logoutBtn');
-    const pageMainTitle = document.getElementById('pageMainTitle');
-    const pageSubTitle = document.getElementById('pageSubTitle');
+    function hideModal(modal) {
+        if (!modal) return;
+        modal.classList.remove("open");
+        modal.setAttribute("hidden", "hidden");
+        modal.setAttribute("aria-hidden", "true");
+        syncBodyState();
+    }
 
-    const navHome = document.querySelector('.nav-home');
-    const menuTitles = document.querySelectorAll('.menu-title');
-    const pageSections = document.querySelectorAll('.page-section');
-    const submenuButtons = document.querySelectorAll('.menu-items button');
-
-    const profileModal = document.getElementById('profileModal');
-    const openProfileBtn = document.getElementById('openProfileBtn');
-    const closeProfileBtn = document.getElementById('closeProfileBtn');
-    const toast = document.getElementById('toast');
-
-
-    /* 실시간 시계 */
-    const liveCalendar = document.getElementById('liveCalendar');
-    const liveClock = document.getElementById('liveClock');
+    function showModal(modal) {
+        if (!modal) return;
+        modal.removeAttribute("hidden");
+        modal.setAttribute("aria-hidden", "false");
+        modal.classList.add("open");
+        syncBodyState();
+    }
 
     function updateClock() {
+        const calendarEl = document.getElementById("liveCalendar");
+        const clockEl = document.getElementById("liveClock");
+        if (!calendarEl && !clockEl) return;
+
         const now = new Date();
-        const y = now.getFullYear();
-        const m = String(now.getMonth() + 1).padStart(2, '0');
-        const d = String(now.getDate()).padStart(2, '0');
-        const h = String(now.getHours()).padStart(2, '0');
-        const mi = String(now.getMinutes()).padStart(2, '0');
-        const s = String(now.getSeconds()).padStart(2, '0');
+        const days = ["일", "월", "화", "수", "목", "금", "토"];
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, "0");
+        const dd = String(now.getDate()).padStart(2, "0");
+        const day = days[now.getDay()];
+        const hh = String(now.getHours()).padStart(2, "0");
+        const mi = String(now.getMinutes()).padStart(2, "0");
+        const ss = String(now.getSeconds()).padStart(2, "0");
 
-        const week = ['일', '월', '화', '수', '목', '금', '토']
-        const w = week[now.getDay()]
-
-        liveCalendar.textContent = `${y}-${m}-${d} ${w}요일`
-        liveClock.textContent = `${h} : ${mi} : ${s}`
+        if (calendarEl) calendarEl.textContent = `${yyyy}-${mm}-${dd} ${day}요일`;
+        if (clockEl) clockEl.textContent = `${hh} : ${mi} : ${ss}`;
     }
+
+    allModals.forEach(hideModal);
     updateClock();
-    setInterval(updateClock, 1000);
+    window.setInterval(updateClock, 1000);
 
-    document.getElementById('menuToggle').addEventListener('click', () => {        
-        document.querySelector('.sidebar').classList.toggle('open')
-    })
+    document.addEventListener("click", function (e) {
+        const closeBtn = e.target.closest(".taModalClose");
+        if (closeBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            hideModal(closeBtn.closest(".taModal"));
+            return;
+        }
 
-    /*  
-        토스트 알림 함수
-        로그인 성공, 메뉴 이동 등 짧은 알림 메시지를 우측 하단에 띄운다.       
-    */
-    let toastTimer = null;
-    function showToast(message) {
-        toast.textContent = message;
-        toast.classList.add('show');
-
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => {
-            toast.classList.remove('show');
-        }, 2200);
-    }
-
-    /*
-       페이지 전환 함수
-        - 좌측 메뉴를 눌렀을 때 해당 섹션만 보이게 처리한다.
-        - 상단 제목 / 부제목도 섹션 dataset 값으로 자동 교체한다.        
-    */
-    function activatePage(pageKey) {
-        pageSections.forEach(section => {
-            section.classList.remove('active');
-        });
-
-        const target = document.getElementById(`page-${pageKey}`);
-        if (!target) return;
-
-        target.classList.add('active');
-
-        pageMainTitle.textContent = target.dataset.title || 'Begin Again MES';
-        pageSubTitle.textContent = target.dataset.subtitle || '';
-
-        navHome.classList.toggle('active', pageKey === 'dashboard');
-
-        submenuButtons.forEach(button => {
-            button.classList.toggle('active', button.dataset.page === pageKey);
-        });
-
-        const sectionTop = document.querySelector('.content-area');
-        if (sectionTop) sectionTop.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-        requestAnimationFrame(refreshTableCellTooltips);
-        showToast(`${pageMainTitle.textContent} 화면으로 이동했습니다.`);
-    }
-
-    /* 로그아웃 버튼 눌렀을 때   */
-
-    logoutBtn.addEventListener('click', () => {
-        document.querySelector('.app').classList.add('hidden');        
-        showToast('로그아웃되었습니다.');
-    });
-
-    /*
-        좌측 메뉴 클릭 이벤트
-        대시보드 단일 버튼
-        각 소메뉴 버튼       
-    */
-    navHome.addEventListener('click', () => {
-        activatePage('dashboard');
-    });
-
-    submenuButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            activatePage(button.dataset.page);
-        });
-    });
-
-    /*
-        메뉴 그룹 열기 / 닫기       
-    */
-    menuTitles.forEach(titleBtn => {
-        titleBtn.addEventListener('click', () => {
-            titleBtn.classList.toggle('open');
-            const menuItems = titleBtn.nextElementSibling;
-            if (menuItems) {
-                menuItems.classList.toggle('open');
+        const openBtn = e.target.closest("[data-modal-target]");
+        if (openBtn) {
+            const targetId = openBtn.getAttribute("data-modal-target");
+            if (targetId) {
+                const modal = document.getElementById(targetId);
+                if (modal && modal.classList.contains("taModal")) {
+                    e.preventDefault();
+                    showModal(modal);
+                }
             }
-        });
-    });
+            return;
+        }
 
-    /* 내 정보 모달 */
-    openProfileBtn.addEventListener('click', () => {
-        profileModal.classList.remove('hidden');
-    });
-
-    closeProfileBtn.addEventListener('click', () => {
-        profileModal.classList.add('hidden');
-    });
-
-    profileModal.addEventListener('click', (event) => {
-        if (event.target === profileModal) {
-            profileModal.classList.add('hidden');
+        if (e.target.classList && e.target.classList.contains("taModal")) {
+            hideModal(e.target);
         }
     });
-}
 
+    document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+            document.querySelectorAll(".taModal.open").forEach(hideModal);
+        }
+    });
 
+    document.querySelectorAll("input[id='checkAll']").forEach(function (checkAll) {
+        const scope = checkAll.closest("form") || checkAll.closest(".taTableShell") || document;
+        const itemBoxes = Array.from(scope.querySelectorAll("tbody input[type='checkbox']"));
+
+        checkAll.addEventListener("change", function () {
+            itemBoxes.forEach(function (box) {
+                box.checked = checkAll.checked;
+            });
+        });
+
+        itemBoxes.forEach(function (box) {
+            box.addEventListener("change", function () {
+                checkAll.checked = itemBoxes.length > 0 && itemBoxes.every(function (item) { return item.checked; });
+            });
+        });
+    });
+
+    document.querySelectorAll(".taLocalSearchForm").forEach(function (searchForm) {
+        const tableId = searchForm.getAttribute("data-table-id");
+        const table = tableId ? document.getElementById(tableId) : null;
+        if (!table) return;
+
+        const tbody = table.querySelector("tbody");
+        const keywordInput = searchForm.querySelector("input[name='keyword']");
+        const searchTypeSelect = searchForm.querySelector("select[name='searchType']");
+        const resetBtn = searchForm.querySelector(".taSearchReset");
+        if (!tbody || !keywordInput || !searchTypeSelect) return;
+
+        function getDataRows() {
+            return Array.from(tbody.querySelectorAll("tr")).filter(function (row) {
+                return !row.classList.contains("taSearchEmptyRow");
+            });
+        }
+
+        function getOrCreateEmptyRow() {
+            let emptyRow = tbody.querySelector(".taSearchEmptyRow");
+            if (!emptyRow) {
+                emptyRow = document.createElement("tr");
+                emptyRow.className = "taTableBodyRow taSearchEmptyRow";
+                emptyRow.style.display = "none";
+                const td = document.createElement("td");
+                td.className = "taTableBodyCell taLastCol";
+                td.colSpan = table.querySelectorAll("thead th").length || 1;
+                td.style.textAlign = "center";
+                td.textContent = "검색 결과가 없습니다.";
+                emptyRow.appendChild(td);
+                tbody.appendChild(emptyRow);
+            }
+            return emptyRow;
+        }
+
+        function applyLocalSearch() {
+            const keyword = (keywordInput.value || "").trim().toLowerCase();
+            const searchType = searchTypeSelect.value || "all";
+            const rows = getDataRows();
+            const emptyRow = getOrCreateEmptyRow();
+            let visibleCount = 0;
+
+            rows.forEach(function (row) {
+                const targetCell = searchType === "all" ? null : row.querySelector("[data-search-key='" + searchType + "']");
+                const text = searchType === "all"
+                    ? row.textContent.toLowerCase()
+                    : ((targetCell && targetCell.textContent) || "").toLowerCase();
+
+                const matched = !keyword || text.indexOf(keyword) > -1;
+                row.style.display = matched ? "" : "none";
+                if (matched) visibleCount++;
+            });
+
+            emptyRow.style.display = visibleCount === 0 ? "" : "none";
+        }
+
+        searchForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+            applyLocalSearch();
+        });
+
+        if (resetBtn) {
+            resetBtn.addEventListener("click", function () {
+                keywordInput.value = "";
+                searchTypeSelect.value = "all";
+                applyLocalSearch();
+            });
+        }
+
+        keywordInput.addEventListener("search", applyLocalSearch);
+    });
+
+});

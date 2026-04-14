@@ -23,6 +23,9 @@ public class ProcessListController extends HttpServlet {
 		List<ProcessDTO> list = service.getList();
 
 		request.setAttribute("list", list);
-		request.getRequestDispatcher("/WEB-INF/views/process/processList.jsp").forward(request, response);
+		request.setAttribute("pageTitle", "공정관리");
+		request.setAttribute("pageSubTitle", "공정 등록 / 조회 / 수정 / 삭제");
+		request.setAttribute("contentPage", "/WEB-INF/views/process/processList.jsp");
+		request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
 	}
 }

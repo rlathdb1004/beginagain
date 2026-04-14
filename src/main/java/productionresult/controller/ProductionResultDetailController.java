@@ -35,7 +35,9 @@ public class ProductionResultDetailController extends HttpServlet {
 		}
 
 		request.setAttribute("productionResult", productionResult);
-		request.getRequestDispatcher("/WEB-INF/views/productionresult/productionResultDetail.jsp").forward(request,
-				response);
+		request.setAttribute("pageTitle", "생산실적");
+		request.setAttribute("pageSubTitle", "생산실적 상세 / 수정");
+		request.setAttribute("contentPage", "/WEB-INF/views/productionresult/productionResultDetail.jsp");
+		request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
 	}
 }

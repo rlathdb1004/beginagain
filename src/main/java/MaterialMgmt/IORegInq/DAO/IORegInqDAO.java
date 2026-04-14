@@ -323,4 +323,35 @@ public class IORegInqDAO {
 
 		return dto;
 	}
+
+
+public int insertIORegInq(IORegInqDTO dto) {
+    Connection conn = null; PreparedStatement ps = null;
+    try {
+        Context ctx = new InitialContext();
+        DataSource dataFactory = (DataSource) ctx.lookup("java:/comp/env/jdbc/oracle");
+        conn = dataFactory.getConnection();
+        String sql = "INSERT INTO MATERIAL_INOUT (INOUT_ID, ITEM_ID, INOUT_TYPE, QTY, UNIT, INOUT_DATE, STATUS, REMARK, CREATED_AT, UPDATED_AT) VALUES ((SELECT NVL(MAX(INOUT_ID),0)+1 FROM MATERIAL_INOUT), (SELECT ITEM_ID FROM ITEM WHERE ITEM_CODE = ?), ?, ?, ?, ?, ?, ?, SYSDATE, SYSDATE)";
+        ps = conn.prepareStatement(sql);
+        ps.setString(1, dto.getItemCode()); ps.setString(2, dto.getInoutType()); ps.setDouble(3, dto.getQty()); ps.setString(4, dto.getUnit()); ps.setDate(5, dto.getInoutDate()); ps.setString(6, dto.getStatus()); ps.setString(7, dto.getRemark());
+        return ps.executeUpdate();
+    } catch (Exception e) { e.printStackTrace(); } finally { try { if (ps != null) ps.close(); } catch (Exception e) {} try { if (conn != null) conn.close(); } catch (Exception e) {} }
+    return 0;
+}
+
+public int deleteIORegInq(int[] inoutIds) {
+    Connection conn = null; PreparedStatement ps = null; int result = 0;
+    try {
+        if (inoutIds == null || inoutIds.length == 0) return 0;
+        Context ctx = new InitialContext(); DataSource dataFactory = (DataSource) ctx.lookup("java:/comp/env/jdbc/oracle"); conn = dataFactory.getConnection();
+        StringBuilder sql = new StringBuilder("DELETE FROM MATERIAL_INOUT WHERE INOUT_ID IN (");
+        for (int i = 0; i < inoutIds.length; i++) { if (i > 0) sql.append(","); sql.append("?"); }
+        sql.append(")");
+        ps = conn.prepareStatement(sql.toString());
+        for (int i = 0; i < inoutIds.length; i++) ps.setInt(i + 1, inoutIds[i]);
+        result = ps.executeUpdate();
+    } catch (Exception e) { e.printStackTrace(); } finally { try { if (ps != null) ps.close(); } catch (Exception e) {} try { if (conn != null) conn.close(); } catch (Exception e) {} }
+    return result;
+}
+
 }

@@ -25,6 +25,9 @@ public class ItemListController extends HttpServlet {
         List<ItemDTO> itemList = itemService.getItemList();
 
         request.setAttribute("itemList", itemList);
-        request.getRequestDispatcher("/WEB-INF/views/item/itemList.jsp").forward(request, response);
+        request.setAttribute("pageTitle", "품목관리");
+		request.setAttribute("pageSubTitle", "품목 등록 / 조회 / 수정 / 삭제");
+		request.setAttribute("contentPage", "/WEB-INF/views/item/itemList.jsp");
+		request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
     }
 }

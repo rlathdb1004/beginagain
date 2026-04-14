@@ -406,12 +406,12 @@ button, input, select {
 	<form id="myForm" method="post" action="create">
 		<div id="actionModal" class="modal-backdrop hidden">
 			<div class="action-modal">
-				<div class="modal-header">
+				<div class="taModalHeader">
 					<div>
 						<h3 id="actionModalTitle">데이터 등록</h3>
 						<p id="actionModalSubtitle">선택한 화면에 맞는 기본 작성 폼입니다.</p>
 					</div>
-					<button id="closeActionModalBtn" class="modal-close" type="button">×</button>
+					<button id="closeActionModalBtn" class="taModalClose" type="button">×</button>
 				</div>
 
 				<div class="action-body">
@@ -453,7 +453,7 @@ button, input, select {
 					</div>
 				</div>
 
-				<div class="modal-footer">
+				<div class="taModalFooter">
 					<button id="cancelActionModalBtn" class="btn btn-outline"
 						type="button">취소</button>
 					<button id="saveActionModalBtn" class="btn btn-primary"

@@ -24,6 +24,9 @@ public class MainController extends HttpServlet {
 		DashboardDTO dashboard = dashboardService.getDashboardData();
 
 		request.setAttribute("dashboard", dashboard);
-		request.getRequestDispatcher("/WEB-INF/views/common/main.jsp").forward(request, response);
+		request.setAttribute("pageTitle", "대시보드");
+		request.setAttribute("pageSubTitle", "MES 시스템 메인 화면");
+		request.setAttribute("contentPage", "/WEB-INF/views/common/main.jsp");
+		request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
 	}
 }

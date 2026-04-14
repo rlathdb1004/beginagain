@@ -25,6 +25,9 @@ public class WorkOrderListController extends HttpServlet {
 		List<WorkOrderDTO> workOrderList = workOrderService.getWorkOrderList();
 
 		request.setAttribute("workOrderList", workOrderList);
-		request.getRequestDispatcher("/WEB-INF/views/workorder/workOrderList.jsp").forward(request, response);
+		request.setAttribute("pageTitle", "작업관리");
+		request.setAttribute("pageSubTitle", "작업지시 등록 / 조회");
+		request.setAttribute("contentPage", "/WEB-INF/views/workorder/workOrderList.jsp");
+		request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
 	}
 }

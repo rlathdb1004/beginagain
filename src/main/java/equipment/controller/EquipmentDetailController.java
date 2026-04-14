@@ -37,6 +37,9 @@ public class EquipmentDetailController extends HttpServlet {
 		}
 
 		request.setAttribute("equipment", equipment);
-		request.getRequestDispatcher("/WEB-INF/views/equipment/equipmentDetail.jsp").forward(request, response);
+		request.setAttribute("pageTitle", "설비관리");
+		request.setAttribute("pageSubTitle", "설비 상세 / 수정");
+		request.setAttribute("contentPage", "/WEB-INF/views/equipment/equipmentDetail.jsp");
+		request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
 	}
 }
