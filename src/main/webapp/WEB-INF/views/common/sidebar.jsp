@@ -101,8 +101,8 @@
 			<div class="menu-group">
 				<button class="menu-title open" type="button">7. 설비관리</button>
 				<div class="menu-items open">
-					<a href="#">정비 이력 등록/조회</a>
-					<a href="#">설비 비가동 등록/조회</a>
+					<a href="${pageContext.request.contextPath}/equipment/list">설비
+						등록/조회</a> <a href="#">설비 비가동 등록/조회</a>
 				</div>
 			</div>
 
@@ -113,7 +113,7 @@
 					<a href="${pageContext.request.contextPath}/item/list">품목 관리</a> <a
 						href="${pageContext.request.contextPath}/process/list">공정 관리</a> <a
 						href="#">라우팅 관리</a> <a href="#">BOM 관리</a> <a href="#">불량 관리</a> <a
-						href="${pageContext.request.contextPath}/equipment/list">설비 관리</a> <a
+						href="#">설비 관리</a> <a
 						href="${pageContext.request.contextPath}/member/list">직원 관리</a>
 				</div>
 			</div>
