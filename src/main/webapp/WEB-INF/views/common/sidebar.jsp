@@ -66,7 +66,7 @@
 				<button class="menu-title open" type="button">3. 생산관리</button>
 				<div class="menu-items open">
 					<a href="${pageContext.request.contextPath}/prodplan">생산 계획 등록/조회</a> 
-					<a href="#">생산 실적 등록/조회</a>
+					<a href="${pageContext.request.contextPath}/prodperf">생산 실적 등록/조회</a>
 				</div>
 			</div>
 
@@ -74,8 +74,9 @@
 			<div class="menu-group">
 				<button class="menu-title open" type="button">4. 작업관리</button>
 				<div class="menu-items open">
-					<a href="${pageContext.request.contextPath}/workorder/list">작업
-						지시 등록/조회</a> <a href="#">작업 현황 조회</a>
+					<a href="${pageContext.request.contextPath}/woreginq">작업
+						지시 등록/조회</a> 
+					<a href="${pageContext.request.contextPath}/workstatus">작업 현황 조회</a>
 				</div>
 			</div>
 

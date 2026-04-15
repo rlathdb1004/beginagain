@@ -1,4 +1,4 @@
-package ProdMgmt.ProdPlanRegInq.Controller;
+package WorkMgmt.WORegInq.Controller;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -11,21 +11,21 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import ProdMgmt.ProdPlanRegInq.DTO.ProdPlanRegInqDTO;
-import ProdMgmt.ProdPlanRegInq.Service.ProdPlanRegInqService;
+import WorkMgmt.WORegInq.DTO.WORegInqDTO;
+import WorkMgmt.WORegInq.Service.WORegInqService;
 
 /*
- * 생산계획 등록/조회 Controller
+ * 작업지시 등록/조회 Controller
  *
  * URL
- * - /prodplan
+ * - /woreginq
  *
  * 기능
  * - GET  : 목록 조회 / 검색 / 페이징
  * - POST : 삭제 처리
  */
-@WebServlet("/prodplan")
-public class ProdPlanRegInqController extends HttpServlet {
+@WebServlet("/woreginq")
+public class WORegInqController extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     /*
@@ -42,7 +42,8 @@ public class ProdPlanRegInqController extends HttpServlet {
         request.setCharacterEncoding("utf-8");
         response.setContentType("text/html;charset=utf-8");
 
-        ProdPlanRegInqService service = new ProdPlanRegInqService();
+        // Service 객체 생성
+        WORegInqService service = new WORegInqService();
 
         // 검색 버튼 눌렀는지 여부
         String searched = nvl(request.getParameter("searched"));
@@ -54,10 +55,11 @@ public class ProdPlanRegInqController extends HttpServlet {
         String keyword = nvl(request.getParameter("keyword"));
 
         // 페이징 기본값
-        int page = 1;
-        int pageSize = 10;   // 한 페이지당 10건
-        int pageBlock = 5;   // 페이지 번호 5개씩 묶음
+        int page = 1;       // 현재 페이지
+        int pageSize = 10;  // 한 페이지당 10건
+        int pageBlock = 5;  // 페이지 번호 5개씩 묶음
 
+        // page 파라미터 받기
         String pageParam = request.getParameter("page");
         if (pageParam != null && !pageParam.trim().equals("")) {
             try {
@@ -72,7 +74,7 @@ public class ProdPlanRegInqController extends HttpServlet {
         int totalPage = 1;
         int startPage = 1;
         int endPage = 1;
-        List<ProdPlanRegInqDTO> list = new ArrayList<>();
+        List<WORegInqDTO> list = new ArrayList<>();
 
         /*
          * 검색 버튼 눌렀을 때만 실제 조회
@@ -122,7 +124,6 @@ public class ProdPlanRegInqController extends HttpServlet {
 
         // JSP에 데이터 전달
         request.setAttribute("list", list);
-
         request.setAttribute("page", page);
         request.setAttribute("pageSize", pageSize);
         request.setAttribute("totalCount", totalCount);
@@ -131,11 +132,11 @@ public class ProdPlanRegInqController extends HttpServlet {
         request.setAttribute("endPage", endPage);
 
         // 공통 레이아웃 제목
-        request.setAttribute("pageTitle", "생산관리");
-        request.setAttribute("pageSubTitle", "생산 계획 등록/조회");
+        request.setAttribute("pageTitle", "작업관리");
+        request.setAttribute("pageSubTitle", "작업 지시 등록/조회");
 
         // table.jsp 안에서 include 할 실제 본문 JSP
-        request.setAttribute("contentPage", "/WEB-INF/views/ProdPlanRegInq.jsp");
+        request.setAttribute("contentPage", "/WEB-INF/views/WORegInq.jsp");
 
         // 공통 레이아웃으로 이동
         request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
@@ -154,7 +155,7 @@ public class ProdPlanRegInqController extends HttpServlet {
         request.setCharacterEncoding("utf-8");
         response.setContentType("text/html;charset=utf-8");
 
-        ProdPlanRegInqService service = new ProdPlanRegInqService();
+        WORegInqService service = new WORegInqService();
 
         // 어떤 POST 동작인지 구분
         String cmd = request.getParameter("cmd");
@@ -162,7 +163,7 @@ public class ProdPlanRegInqController extends HttpServlet {
         /*
          * 삭제 처리
          *
-         * JSP에서 체크박스 name="seqNO" 로 넘어온 PLAN_ID 배열을 받아
+         * JSP에서 체크박스 name="seqNO" 로 넘어온 WORK_ORDER_ID 배열을 받아
          * DAO에서 USE_YN='N' 으로 논리삭제한다.
          */
         if ("delete".equals(cmd)) {
@@ -183,7 +184,7 @@ public class ProdPlanRegInqController extends HttpServlet {
             String keyword = nvl(request.getParameter("keyword"));
 
             String redirectUrl =
-                    request.getContextPath() + "/prodplan"
+                    request.getContextPath() + "/woreginq"
                     + "?searched=" + URLEncoder.encode(searched, "UTF-8")
                     + "&page=" + URLEncoder.encode(page, "UTF-8")
                     + "&startDate=" + URLEncoder.encode(startDate, "UTF-8")

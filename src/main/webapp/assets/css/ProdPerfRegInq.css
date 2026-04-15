@@ -1,10 +1,10 @@
 /* =========================
-   ProdPlanRegInq.css
-   생산계획 등록/조회 화면 전용 스타일
+   ProdPerfRegInq.css
+   생산실적 등록/조회 화면 전용 스타일
    ========================= */
 
 /* 화면 전체 래퍼 */
-.prodplan-page {
+.prodperf-page {
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -14,7 +14,7 @@
 }
 
 /* 상단 버튼 영역 */
-.prodplan-page .taPageActions {
+.prodperf-page .taPageActions {
     display: flex;
     justify-content: flex-end;
     align-items: center;
@@ -22,7 +22,7 @@
 }
 
 /* 검색 영역 한 줄 배치 */
-.prodplan-page .taToolbarRow {
+.prodperf-page .taToolbarRow {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -31,19 +31,19 @@
 }
 
 /* 검색 영역 각 필드 */
-.prodplan-page .taToolbarField {
+.prodperf-page .taToolbarField {
     display: flex;
     align-items: center;
 }
 
 /* 검색어 입력 영역이 남는 폭을 다 차지하도록 설정 */
-.prodplan-page .taToolbarFieldGrow {
+.prodperf-page .taToolbarFieldGrow {
     flex: 1;
     min-width: 260px;
 }
 
 /* 검색 input/select/button 감싸는 박스 */
-.prodplan-page .taSearchBox {
+.prodperf-page .taSearchBox {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -51,45 +51,45 @@
 }
 
 /* 검색 input 공통 */
-.prodplan-page .taSearchInput {
+.prodperf-page .taSearchInput {
     min-width: 0;
 }
 
 /* 검색어 입력창은 가변 폭 */
-.prodplan-page .taToolbarFieldGrow .taSearchInput {
+.prodperf-page .taToolbarFieldGrow .taSearchInput {
     flex: 1;
     width: 100%;
 }
 
 /* 검색 기준 select 최소 너비 */
-.prodplan-page .taSelect {
+.prodperf-page .taSelect {
     min-width: 140px;
 }
 
 /* 테이블 영역 래퍼 */
-.prodplan-page .prodplan-table-shell {
+.prodperf-page .prodperf-table-shell {
     width: 100%;
     min-width: 0;
     overflow: hidden;
 }
 
 /* 테이블 스크롤 영역 */
-.prodplan-page .taTableScroll {
+.prodperf-page .taTableScroll {
     width: 100%;
     overflow-x: auto;
     overflow-y: auto;
 }
 
 /* 테이블 기본 */
-.prodplan-page .taMesTable {
+.prodperf-page .taMesTable {
     width: 100%;
     table-layout: fixed;
     border-collapse: collapse;
 }
 
 /* 헤더/바디 셀 공통 */
-.prodplan-page .taTableHeadCell,
-.prodplan-page .taTableBodyCell {
+.prodperf-page .taTableHeadCell,
+.prodperf-page .taTableBodyCell {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -97,17 +97,17 @@
 }
 
 /* 삭제 체크박스 컬럼은 기본 숨김 */
-.prodplan-page .delete-col {
+.prodperf-page .delete-col {
     display: none;
 }
 
 /* 삭제 버튼 눌렀을 때만 체크박스 컬럼 표시 */
-.prodplan-page .delete-col.show-delete-col {
+.prodperf-page .delete-col.show-delete-col {
     display: table-cell;
 }
 
 /* 체크박스 컬럼 폭 최소화 */
-.prodplan-page .taColCheck {
+.prodperf-page .taColCheck {
     width: 42px;
     min-width: 42px;
     max-width: 42px;
@@ -117,24 +117,24 @@
 }
 
 /* 일반 고정 폭 컬럼 */
-.prodplan-page .taColFit {
+.prodperf-page .taColFit {
     width: 92px;
     min-width: 92px;
 }
 
 /* 날짜 컬럼 */
-.prodplan-page .taColDate {
+.prodperf-page .taColDate {
     width: 120px;
     min-width: 120px;
 }
 
 /* 가변 컬럼 */
-.prodplan-page .taColGrow {
+.prodperf-page .taColGrow {
     width: auto;
 }
 
 /* 상세보기 컬럼 */
-.prodplan-page .taColAction {
+.prodperf-page .taColAction {
     width: 88px;
     min-width: 88px;
     max-width: 88px;
@@ -142,19 +142,19 @@
 }
 
 /* 마지막 컬럼 정렬 */
-.prodplan-page .taLastCol {
+.prodperf-page .taLastCol {
     text-align: center;
 }
 
 /* 상세보기 버튼 */
-.prodplan-page .taLinkButton {
+.prodperf-page .taLinkButton {
     font-size: 12px;
     padding: 4px 8px;
     cursor: pointer;
 }
 
 /* 페이징 영역 */
-.prodplan-page .taPagination {
+.prodperf-page .taPagination {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -164,7 +164,7 @@
 }
 
 /* 페이지 버튼 */
-.prodplan-page .taPageBtn {
+.prodperf-page .taPageBtn {
     min-width: 36px;
     height: 36px;
     padding: 0 10px;
@@ -177,32 +177,32 @@
 }
 
 /* 현재 페이지 버튼 */
-.prodplan-page .taPageBtn.active {
+.prodperf-page .taPageBtn.active {
     font-weight: 700;
 }
 
 /* form 기본 여백 제거 */
-.prodplan-page form {
+.prodperf-page form {
     margin: 0;
 }
 
 /* 중간 해상도 대응 */
 @media (max-width: 1200px) {
-    .prodplan-page .taToolbarFieldGrow {
+    .prodperf-page .taToolbarFieldGrow {
         min-width: 220px;
     }
 
-    .prodplan-page .taColFit {
+    .prodperf-page .taColFit {
         width: 84px;
         min-width: 84px;
     }
 
-    .prodplan-page .taColDate {
+    .prodperf-page .taColDate {
         width: 110px;
         min-width: 110px;
     }
 
-    .prodplan-page .taColAction {
+    .prodperf-page .taColAction {
         width: 80px;
         min-width: 80px;
         max-width: 80px;
@@ -211,23 +211,23 @@
 
 /* 모바일 대응 */
 @media (max-width: 768px) {
-    .prodplan-page .taToolbarRow {
+    .prodperf-page .taToolbarRow {
         align-items: stretch;
     }
 
-    .prodplan-page .taToolbarField,
-    .prodplan-page .taToolbarFieldGrow {
+    .prodperf-page .taToolbarField,
+    .prodperf-page .taToolbarFieldGrow {
         width: 100%;
         min-width: 0;
     }
 
-    .prodplan-page .taSearchBox {
+    .prodperf-page .taSearchBox {
         width: 100%;
         flex-wrap: wrap;
     }
 
-    .prodplan-page .taSelect,
-    .prodplan-page .taSearchInput {
+    .prodperf-page .taSelect,
+    .prodperf-page .taSearchInput {
         width: 100%;
     }
 }
