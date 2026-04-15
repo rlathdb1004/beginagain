@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import dashboard.dto.CeoDashboardDTO;
-import dashboard.dao.CeoMainService;
+import dashboard.service.CeoMainService;
 
 @WebServlet("/ceomain")
 public class CeoMainController extends HttpServlet {
