@@ -28,20 +28,15 @@ public class CeoMainController extends HttpServlet {
         System.out.println("CeoMainController doGet 실행");
 
         try {
-            // 1. 조회 기준일 파라미터
             String baseDateParam = request.getParameter("baseDate");
             Date baseDate = parseBaseDate(baseDateParam);
 
-            // 2. 실제 DB 기준 대시보드 데이터 조회
-            //    baseDate가 null이면 service에서 최신 기준일로 조회하도록 설계
             CeoDashboardDTO dashboard = service.getDashboard(baseDate);
 
-            // 3. 공통 레이아웃 정보
             request.setAttribute("pageTitle", "CEO 대시보드");
             request.setAttribute("pageSubtitle", "공장 전체 운영 상태와 핵심 리스크를 한눈에 확인합니다.");
             request.setAttribute("contentPage", "/WEB-INF/views/ceomain.jsp");
 
-            // 4. 화면 데이터 바인딩
             if (dashboard != null) {
                 request.setAttribute("baseDate", dashboard.getBaseDate());
                 request.setAttribute("totalLineCount", dashboard.getTotalLineCount());
@@ -61,12 +56,22 @@ public class CeoMainController extends HttpServlet {
                 request.setAttribute("productionTrendList", dashboard.getProductionTrendList());
                 request.setAttribute("qualityTrendList", dashboard.getQualityTrendList());
                 request.setAttribute("shipmentTrendList", dashboard.getShipmentTrendList());
+                request.setAttribute("costTrendList", dashboard.getCostTrendList());
 
                 request.setAttribute("productionTrendMax", dashboard.getProductionTrendMax());
                 request.setAttribute("qualityTrendMax", dashboard.getQualityTrendMax());
                 request.setAttribute("shipmentTrendMax", dashboard.getShipmentTrendMax());
+                request.setAttribute("costTrendMax", dashboard.getCostTrendMax());
+
+                request.setAttribute("topCostItemList", dashboard.getTopCostItemList());
             }
 
+            System.out.println("baseDate = " + dashboard.getBaseDate());
+            System.out.println("kpi = " + dashboard.getKpi());
+            System.out.println("productionTrendList = " + dashboard.getProductionTrendList());
+            System.out.println("costTrendList = " + dashboard.getCostTrendList());
+            System.out.println("topCostItemList = " + dashboard.getTopCostItemList());
+            
             request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
 
         } catch (Exception e) {
@@ -87,7 +92,7 @@ public class CeoMainController extends HttpServlet {
         }
 
         try {
-            return Date.valueOf(baseDateParam.trim()); // yyyy-MM-dd
+            return Date.valueOf(baseDateParam.trim());
         } catch (IllegalArgumentException e) {
             return null;
         }
