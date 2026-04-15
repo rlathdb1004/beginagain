@@ -6,7 +6,7 @@ import common.jdbc.DBCPUtil;
 import dashboard.dao.DashboardDAO;
 import dashboard.dto.DashboardDTO;
 
-public class DashboardService {
+public class CeoMainService {
 
 	private DashboardDAO dashboardDAO = new DashboardDAO();
 
