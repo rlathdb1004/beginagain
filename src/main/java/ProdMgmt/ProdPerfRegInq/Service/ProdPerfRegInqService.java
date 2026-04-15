@@ -1,21 +1,26 @@
-package ProdMgmt.ProdPlanRegInq.Service;
+package ProdMgmt.ProdPerfRegInq.Service;
 
 import java.util.List;
 
-import ProdMgmt.ProdPlanRegInq.DAO.ProdPlanRegInqDAO;
-import ProdMgmt.ProdPlanRegInq.DTO.ProdPlanRegInqDTO;
+import ProdMgmt.ProdPerfRegInq.DAO.ProdPerfRegInqDAO;
+import ProdMgmt.ProdPerfRegInq.DTO.ProdPerfRegInqDTO;
 
 /*
- * 생산계획 등록/조회 Service
+ * 생산실적 등록/조회 Service
  *
  * 역할
  * - Controller 와 DAO 사이의 중간 계층
  * - 현재는 조회 / 삭제 기능을 DAO에 위임한다
+ *
+ * 포함 기능
+ * 1. 검색 조건 반영 전체 건수 조회
+ * 2. 검색 조건 반영 페이지별 목록 조회
+ * 3. 선택된 생산실적 논리삭제
  */
-public class ProdPlanRegInqService {
+public class ProdPerfRegInqService {
 
     // DAO 객체 생성
-    private ProdPlanRegInqDAO dao = new ProdPlanRegInqDAO();
+    private ProdPerfRegInqDAO dao = new ProdPerfRegInqDAO();
 
     /*
      * 전체 건수 조회
@@ -40,7 +45,7 @@ public class ProdPlanRegInqService {
      * 페이지별 목록 조회
      *
      * 용도
-     * - 현재 페이지에 필요한 생산계획 목록 조회
+     * - 현재 페이지에 필요한 생산실적 목록 조회
      *
      * 파라미터
      * - startDate  : 시작일
@@ -51,9 +56,9 @@ public class ProdPlanRegInqService {
      * - endRow     : 끝 행 번호
      *
      * 반환값
-     * - 현재 페이지 범위에 해당하는 생산계획 목록
+     * - 현재 페이지 범위에 해당하는 생산실적 목록
      */
-    public List<ProdPlanRegInqDTO> getListByPage(
+    public List<ProdPerfRegInqDTO> getListByPage(
             String startDate,
             String endDate,
             String searchType,
@@ -65,14 +70,14 @@ public class ProdPlanRegInqService {
     }
 
     /*
-     * 선택된 생산계획 논리삭제
+     * 선택된 생산실적 논리삭제
      *
      * 용도
-     * - 체크박스로 선택된 생산계획을 삭제할 때 사용
+     * - 체크박스로 선택된 생산실적을 삭제할 때 사용
      * - 실제 삭제가 아니라 USE_YN = 'N' 처리
      *
      * 파라미터
-     * - seqNos : 체크된 PLAN_ID 배열
+     * - seqNos : 체크된 RESULT_ID 배열
      *
      * 반환값
      * - 업데이트된 행 수

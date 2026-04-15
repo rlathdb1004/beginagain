@@ -2,7 +2,22 @@
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
-<div class="prodplan-page">
+<%--
+    작업지시 등록/조회 JSP
+
+    화면 동작
+    1. 처음 진입
+       - searched 파라미터가 없으므로 검색창 + 테이블 헤더만 보임
+    2. 검색 버튼 클릭
+       - searched=Y 로 들어오고 Controller 가 list 를 채워서 전달
+    3. 삭제 버튼
+       - 1차 클릭 : 체크박스 컬럼 표시
+       - 2차 클릭 : 선택 항목 삭제
+    4. 상세보기 버튼
+       - 상세 모달 또는 상세 페이지 연결용
+--%>
+
+<div class="woreg-page">
 
     <%-- 검색 버튼 눌렀는지 여부 --%>
     <c:set var="isSearched" value="${param.searched eq 'Y'}" />
@@ -22,7 +37,7 @@
     </div>
 
     <%-- 검색 폼 --%>
-    <form method="get" action="${pageContext.request.contextPath}/prodplan">
+    <form method="get" action="${pageContext.request.contextPath}/woreginq">
         <%-- 검색 버튼 눌렀다는 표시 --%>
         <input type="hidden" name="searched" value="Y">
 
@@ -46,10 +61,13 @@
             <div class="taToolbarField">
                 <select class="taSelect" name="searchType">
                     <option value="" ${empty param.searchType ? "selected" : ""}>전체</option>
-                    <option value="planNo" ${param.searchType eq 'planNo' ? "selected" : ""}>생산계획번호</option>
-                    <option value="planCode" ${param.searchType eq 'planCode' ? "selected" : ""}>품목코드</option>
-                    <option value="planName" ${param.searchType eq 'planName' ? "selected" : ""}>품목명</option>
-                    <option value="planLine" ${param.searchType eq 'planLine' ? "selected" : ""}>라인</option>
+                    <option value="workOrderNo" ${param.searchType eq 'workOrderNo' ? "selected" : ""}>작업지시번호</option>
+                    <option value="itemCode" ${param.searchType eq 'itemCode' ? "selected" : ""}>품목코드</option>
+                    <option value="itemName" ${param.searchType eq 'itemName' ? "selected" : ""}>품목명</option>
+                    <option value="lineCode" ${param.searchType eq 'lineCode' ? "selected" : ""}>라인</option>
+                    <option value="processCode" ${param.searchType eq 'processCode' ? "selected" : ""}>공정</option>
+                    <option value="empName" ${param.searchType eq 'empName' ? "selected" : ""}>작업자</option>
+                    <option value="bomCode" ${param.searchType eq 'bomCode' ? "selected" : ""}>BOM</option>
                 </select>
             </div>
 
@@ -59,10 +77,9 @@
                     <input type="text"
                            class="taSearchInput"
                            name="keyword"
-                           placeholder="생산계획번호 / 품목코드 / 품목명 / 라인 검색"
+                           placeholder="작업지시번호 / 품목코드 / 품목명 / 라인 / 공정 / 작업자 / BOM 검색"
                            value="${param.keyword}">
 
-                    <%-- 조건 없이 눌러도 전체조회 가능 --%>
                     <button type="submit" class="taSearchBtn" aria-label="검색">⌕</button>
                 </div>
             </div>
@@ -70,14 +87,14 @@
     </form>
 
     <%-- 삭제용 폼 --%>
-    <form id="deleteForm" method="post" action="${pageContext.request.contextPath}/prodplan">
-        <%-- doPost에서 삭제 동작 구분 --%>
+    <form id="deleteForm" method="post" action="${pageContext.request.contextPath}/woreginq">
+        <%-- doPost에서 삭제 동작 구분용 --%>
         <input type="hidden" name="cmd" value="delete">
 
-        <%-- 삭제 버튼 상태값 --%>
+        <%-- 삭제 모드 상태값 --%>
         <input type="hidden" id="deleteMode" value="N">
 
-        <%-- 삭제 후에도 검색조건 유지 --%>
+        <%-- 삭제 후에도 검색조건 / 페이지 유지 --%>
         <input type="hidden" name="searched" value="${param.searched}">
         <input type="hidden" name="page" value="${page}">
         <input type="hidden" name="startDate" value="${param.startDate}">
@@ -85,32 +102,38 @@
         <input type="hidden" name="searchType" value="${param.searchType}">
         <input type="hidden" name="keyword" value="${param.keyword}">
 
-        <%-- 초기 화면에서도 헤더는 보이게 --%>
-        <div class="taTableShell prodplan-table-shell">
+        <%-- 테이블 영역 --%>
+        <div class="taTableShell woreg-table-shell">
             <div class="taTableScroll">
                 <table class="taMesTable">
                     <thead>
                         <tr>
-                            <%-- 삭제 모드일 때만 보이는 체크박스 컬럼 --%>
+                            <%--
+                                삭제 체크박스 컬럼
+                                CSS에서 기본 숨김, 삭제버튼 누르면 표시
+                            --%>
                             <th class="taTableHeadCell taColCheck delete-col">
                                 <input type="checkbox" id="checkAll">
                             </th>
 
                             <th class="taTableHeadCell taColFit">NO</th>
-                            <th class="taTableHeadCell taColFit">생산계획번호</th>
+                            <th class="taTableHeadCell taColFit">작업지시번호</th>
                             <th class="taTableHeadCell taColDate">일자</th>
                             <th class="taTableHeadCell taColFit">품목코드</th>
                             <th class="taTableHeadCell taColGrow">품목명</th>
-                            <th class="taTableHeadCell taColFit">생산계획량</th>
+                            <th class="taTableHeadCell taColFit">지시량(생산량)</th>
                             <th class="taTableHeadCell taColFit">단위</th>
                             <th class="taTableHeadCell taColFit">라인</th>
+                            <th class="taTableHeadCell taColFit">공정</th>
+                            <th class="taTableHeadCell taColFit">작업자</th>
+                            <th class="taTableHeadCell taColFit">BOM</th>
                             <th class="taTableHeadCell taColGrow">비고</th>
                             <th class="taTableHeadCell taColAction taLastCol">상세보기</th>
                         </tr>
                     </thead>
 
                     <tbody>
-                        <%-- 검색했을 때만 실제 데이터 출력 --%>
+                        <%-- 검색했을 때만 실제 목록 출력 --%>
                         <c:if test="${isSearched}">
                             <c:forEach var="dto" items="${list}">
                                 <tr class="taTableBodyRow">
@@ -123,28 +146,40 @@
                                     </td>
 
                                     <td class="taTableBodyCell taColFit">${dto.seqNO}</td>
-                                    <td class="taTableBodyCell taColFit">${dto.planNo}</td>
-                                    <td class="taTableBodyCell taColDate">${dto.planDate}</td>
-                                    <td class="taTableBodyCell taColFit">${dto.planCode}</td>
-                                    <td class="taTableBodyCell taColGrow">${dto.planName}</td>
-                                    <td class="taTableBodyCell taColFit">${dto.planAmount}</td>
-                                    <td class="taTableBodyCell taColFit">${dto.planUnit}</td>
-                                    <td class="taTableBodyCell taColFit">${dto.planLine}</td>
-                                    <td class="taTableBodyCell taColGrow">${dto.memo}</td>
+                                    <td class="taTableBodyCell taColFit">${dto.workOrderNo}</td>
+                                    <td class="taTableBodyCell taColDate">${dto.workDate}</td>
+                                    <td class="taTableBodyCell taColFit">${dto.itemCode}</td>
+                                    <td class="taTableBodyCell taColGrow">${dto.itemName}</td>
+                                    <td class="taTableBodyCell taColFit">${dto.workQty}</td>
+                                    <td class="taTableBodyCell taColFit">${dto.unit}</td>
+                                    <td class="taTableBodyCell taColFit">${dto.lineCode}</td>
+                                    <td class="taTableBodyCell taColFit">${dto.processCode}</td>
+                                    <td class="taTableBodyCell taColFit">${dto.empName}</td>
+                                    <td class="taTableBodyCell taColFit">${dto.bomCode}</td>
 
-                                    <%-- 상세보기 모달 연결용 data-* --%>
+                                    <%-- 비고는 말줄임 처리되도록 클래스 유지 --%>
+                                    <td class="taTableBodyCell taColGrow taRemarkCell"
+                                        title="${dto.remark}">
+                                        ${dto.remark}
+                                    </td>
+
+                                    <%-- 상세보기는 마지막 컬럼으로 고정 --%>
                                     <td class="taTableBodyCell taColAction taLastCol">
                                         <button type="button"
                                                 class="taLinkButton detailBtn"
                                                 data-seqno="${dto.seqNO}"
-                                                data-planno="${dto.planNo}"
-                                                data-plandate="${dto.planDate}"
-                                                data-plancode="${dto.planCode}"
-                                                data-planname="${dto.planName}"
-                                                data-planamount="${dto.planAmount}"
-                                                data-planunit="${dto.planUnit}"
-                                                data-planline="${dto.planLine}"
-                                                data-memo="${dto.memo}">
+                                                data-workorderno="${dto.workOrderNo}"
+                                                data-workdate="${dto.workDate}"
+                                                data-itemcode="${dto.itemCode}"
+                                                data-itemname="${dto.itemName}"
+                                                data-workqty="${dto.workQty}"
+                                                data-unit="${dto.unit}"
+                                                data-linecode="${dto.lineCode}"
+                                                data-processcode="${dto.processCode}"
+                                                data-empname="${dto.empName}"
+                                                data-bomcode="${dto.bomCode}"
+                                                data-status="${dto.status}"
+                                                data-remark="${dto.remark}">
                                             상세보기
                                         </button>
                                     </td>
@@ -154,7 +189,9 @@
                             <%-- 검색했는데 결과가 없을 때 --%>
                             <c:if test="${empty list}">
                                 <tr class="taTableBodyRow">
-                                    <td class="taTableBodyCell taLastCol" colspan="11" style="text-align:center;">
+                                    <td class="taTableBodyCell taLastCol"
+                                        colspan="14"
+                                        style="text-align:center;">
                                         조회된 데이터가 없습니다.
                                     </td>
                                 </tr>
@@ -172,7 +209,7 @@
 
             <%-- 이전 블록 --%>
             <c:if test="${startPage > 1}">
-                <c:url var="prevUrl" value="/prodplan">
+                <c:url var="prevUrl" value="/woreginq">
                     <c:param name="searched" value="Y" />
                     <c:param name="page" value="${startPage - 1}" />
                     <c:param name="startDate" value="${param.startDate}" />
@@ -185,7 +222,7 @@
 
             <%-- 페이지 번호 --%>
             <c:forEach var="i" begin="${startPage}" end="${endPage}">
-                <c:url var="pageUrl" value="/prodplan">
+                <c:url var="pageUrl" value="/woreginq">
                     <c:param name="searched" value="Y" />
                     <c:param name="page" value="${i}" />
                     <c:param name="startDate" value="${param.startDate}" />
@@ -202,7 +239,7 @@
 
             <%-- 다음 블록 --%>
             <c:if test="${endPage < totalPage}">
-                <c:url var="nextUrl" value="/prodplan">
+                <c:url var="nextUrl" value="/woreginq">
                     <c:param name="searched" value="Y" />
                     <c:param name="page" value="${endPage + 1}" />
                     <c:param name="startDate" value="${param.startDate}" />
@@ -257,7 +294,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // 2차 클릭: 체크된 항목 수 확인
+        // 2차 클릭: 체크된 항목 확인
         let checkedCount = 0;
         rowChecks.forEach(function (checkbox) {
             if (checkbox.checked) {
@@ -265,7 +302,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
 
-        // 체크 안 했으면 다시 숨김
+        // 선택 안 했으면 다시 숨김
         if (checkedCount === 0) {
             alert("삭제할 항목을 선택하세요.");
 
@@ -286,36 +323,38 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        if (confirm("선택한 생산계획을 삭제하시겠습니까?")) {
+        if (confirm("선택한 작업지시를 삭제하시겠습니까?")) {
             deleteForm.submit();
         }
     };
 
-    // 상세보기 버튼
+    // 상세보기 버튼 처리
     const detailButtons = document.querySelectorAll(".detailBtn");
 
     detailButtons.forEach(function (btn) {
         btn.addEventListener("click", function () {
             const detailData = {
                 seqNo: this.dataset.seqno,
-                planNo: this.dataset.planno,
-                planDate: this.dataset.plandate,
-                planCode: this.dataset.plancode,
-                planName: this.dataset.planname,
-                planAmount: this.dataset.planamount,
-                planUnit: this.dataset.planunit,
-                planLine: this.dataset.planline,
-                memo: this.dataset.memo
+                workOrderNo: this.dataset.workorderno,
+                workDate: this.dataset.workdate,
+                itemCode: this.dataset.itemcode,
+                itemName: this.dataset.itemname,
+                workQty: this.dataset.workqty,
+                unit: this.dataset.unit,
+                lineCode: this.dataset.linecode,
+                processCode: this.dataset.processcode,
+                empName: this.dataset.empname,
+                bomCode: this.dataset.bomcode,
+                status: this.dataset.status,
+                remark: this.dataset.remark
             };
 
-            // 팀원이 전역 함수 붙이면 바로 사용 가능
-            if (typeof window.openProdPlanDetailModal === "function") {
-                window.openProdPlanDetailModal(detailData);
+            if (typeof window.openWORegInqDetailModal === "function") {
+                window.openWORegInqDetailModal(detailData);
                 return;
             }
 
-            // 아니면 커스텀 이벤트로도 연결 가능
-            window.dispatchEvent(new CustomEvent("prodplan:openDetail", {
+            window.dispatchEvent(new CustomEvent("woreginq:openDetail", {
                 detail: detailData
             }));
         });

@@ -1,7 +1,6 @@
-package ProdMgmt.ProdPlanRegInq.Controller;
+package WorkMgmt.WorkStatusInq.Controller;
 
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,28 +10,32 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import ProdMgmt.ProdPlanRegInq.DTO.ProdPlanRegInqDTO;
-import ProdMgmt.ProdPlanRegInq.Service.ProdPlanRegInqService;
+import WorkMgmt.WorkStatusInq.DTO.WorkStatusInqDTO;
+import WorkMgmt.WorkStatusInq.DTO.WorkStatusLineProgressDTO;
+import WorkMgmt.WorkStatusInq.Service.WorkStatusInqService;
 
 /*
- * 생산계획 등록/조회 Controller
+ * 작업 현황 조회 Controller
  *
  * URL
- * - /prodplan
+ * - /workstatusinq
  *
  * 기능
- * - GET  : 목록 조회 / 검색 / 페이징
- * - POST : 삭제 처리
+ * - GET  : 목록 조회 / 검색 / 페이징 / 그래프 데이터 조회
+ * - POST : 현재는 조회 화면이므로 doGet으로 위임
+ *
+ * 화면 동작 방식
+ * - 처음 진입했을 때는 searched 파라미터가 없으므로
+ *   검색창 + 테이블 헤더만 보이게 한다.
+ * - 검색 버튼을 누르면 searched=Y 로 들어오고
+ *   그때 실제 목록과 그래프 데이터를 조회한다.
  */
-@WebServlet("/prodplan")
-public class ProdPlanRegInqController extends HttpServlet {
+@WebServlet("/workstatusinq")
+public class WorkStatusInqController extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     /*
-     * 목록 조회 + 검색 + 페이징 처리
-     *
-     * searched=Y 일 때만 실제 목록을 조회한다.
-     * 처음 진입했을 때는 헤더만 보이고 데이터는 안 보이게 하기 위함이다.
+     * 목록 조회 + 검색 + 페이징 + 그래프 데이터 처리
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -42,9 +45,11 @@ public class ProdPlanRegInqController extends HttpServlet {
         request.setCharacterEncoding("utf-8");
         response.setContentType("text/html;charset=utf-8");
 
-        ProdPlanRegInqService service = new ProdPlanRegInqService();
+        // Service 객체 생성
+        WorkStatusInqService service = new WorkStatusInqService();
 
-        // 검색 버튼 눌렀는지 여부
+        // 검색 버튼을 눌렀는지 여부
+        // searched=Y 일 때만 실제 목록 조회
         String searched = nvl(request.getParameter("searched"));
 
         // 검색 조건
@@ -54,10 +59,11 @@ public class ProdPlanRegInqController extends HttpServlet {
         String keyword = nvl(request.getParameter("keyword"));
 
         // 페이징 기본값
-        int page = 1;
-        int pageSize = 10;   // 한 페이지당 10건
-        int pageBlock = 5;   // 페이지 번호 5개씩 묶음
+        int page = 1;       // 현재 페이지
+        int pageSize = 10;  // 한 페이지당 10건
+        int pageBlock = 5;  // 페이지 번호 5개씩 묶음
 
+        // page 파라미터 받기
         String pageParam = request.getParameter("page");
         if (pageParam != null && !pageParam.trim().equals("")) {
             try {
@@ -72,12 +78,17 @@ public class ProdPlanRegInqController extends HttpServlet {
         int totalPage = 1;
         int startPage = 1;
         int endPage = 1;
-        List<ProdPlanRegInqDTO> list = new ArrayList<>();
+
+        // 테이블 목록
+        List<WorkStatusInqDTO> list = new ArrayList<>();
+
+        // 상단 그래프 목록
+        List<WorkStatusLineProgressDTO> lineProgressList = new ArrayList<>();
 
         /*
          * 검색 버튼 눌렀을 때만 실제 조회
          *
-         * 이유:
+         * 이유
          * - 처음 들어왔을 때는 데이터 없이 헤더만 보여주기 위함
          */
         if ("Y".equals(searched)) {
@@ -93,7 +104,7 @@ public class ProdPlanRegInqController extends HttpServlet {
                 totalPage = 1;
             }
 
-            // 현재 페이지 범위 보정
+            // 현재 페이지 보정
             if (page < 1) {
                 page = 1;
             }
@@ -108,6 +119,9 @@ public class ProdPlanRegInqController extends HttpServlet {
             // 페이지별 목록 조회
             list = service.getListByPage(startDate, endDate, searchType, keyword, startRow, endRow);
 
+            // 라인별 공정 진행도 조회
+            lineProgressList = service.getLineProgressList(startDate, endDate, searchType, keyword);
+
             // 하단 페이지 번호 시작값 계산
             startPage = ((page - 1) / pageBlock) * pageBlock + 1;
 
@@ -120,8 +134,11 @@ public class ProdPlanRegInqController extends HttpServlet {
             }
         }
 
-        // JSP에 데이터 전달
+        /*
+         * JSP에 데이터 전달
+         */
         request.setAttribute("list", list);
+        request.setAttribute("lineProgressList", lineProgressList);
 
         request.setAttribute("page", page);
         request.setAttribute("pageSize", pageSize);
@@ -130,74 +147,24 @@ public class ProdPlanRegInqController extends HttpServlet {
         request.setAttribute("startPage", startPage);
         request.setAttribute("endPage", endPage);
 
-        // 공통 레이아웃 제목
-        request.setAttribute("pageTitle", "생산관리");
-        request.setAttribute("pageSubTitle", "생산 계획 등록/조회");
+        // 공통 레이아웃용 제목
+        request.setAttribute("pageTitle", "작업관리");
+        request.setAttribute("pageSubTitle", "작업 현황 조회");
 
-        // table.jsp 안에서 include 할 실제 본문 JSP
-        request.setAttribute("contentPage", "/WEB-INF/views/ProdPlanRegInq.jsp");
+        // table.jsp 안에 include 될 본문 JSP
+        request.setAttribute("contentPage", "/WEB-INF/views/WorkStatusInq.jsp");
 
         // 공통 레이아웃으로 이동
         request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
     }
 
     /*
-     * 삭제 처리
-     *
-     * 현재는 cmd=delete 만 처리한다.
+     * 작업 현황 조회 화면은 현재 별도의 등록/삭제 POST 기능이 없으므로
+     * POST 요청이 와도 목록 조회로 처리한다.
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        // 한글 처리
-        request.setCharacterEncoding("utf-8");
-        response.setContentType("text/html;charset=utf-8");
-
-        ProdPlanRegInqService service = new ProdPlanRegInqService();
-
-        // 어떤 POST 동작인지 구분
-        String cmd = request.getParameter("cmd");
-
-        /*
-         * 삭제 처리
-         *
-         * JSP에서 체크박스 name="seqNO" 로 넘어온 PLAN_ID 배열을 받아
-         * DAO에서 USE_YN='N' 으로 논리삭제한다.
-         */
-        if ("delete".equals(cmd)) {
-            String[] seqNos = request.getParameterValues("seqNO");
-
-            // 논리삭제 실행
-            service.deleteByIds(seqNos);
-
-            /*
-             * 삭제 후에도 기존 검색조건 / 페이지 상태를 유지하기 위해
-             * 다시 redirect 할 URL을 만들어준다.
-             */
-            String page = nvl(request.getParameter("page"));
-            String searched = nvl(request.getParameter("searched"));
-            String startDate = nvl(request.getParameter("startDate"));
-            String endDate = nvl(request.getParameter("endDate"));
-            String searchType = nvl(request.getParameter("searchType"));
-            String keyword = nvl(request.getParameter("keyword"));
-
-            String redirectUrl =
-                    request.getContextPath() + "/prodplan"
-                    + "?searched=" + URLEncoder.encode(searched, "UTF-8")
-                    + "&page=" + URLEncoder.encode(page, "UTF-8")
-                    + "&startDate=" + URLEncoder.encode(startDate, "UTF-8")
-                    + "&endDate=" + URLEncoder.encode(endDate, "UTF-8")
-                    + "&searchType=" + URLEncoder.encode(searchType, "UTF-8")
-                    + "&keyword=" + URLEncoder.encode(keyword, "UTF-8");
-
-            response.sendRedirect(redirectUrl);
-            return;
-        }
-
-        /*
-         * 다른 POST 요청이 들어오면 일단 목록 화면으로 다시 보냄
-         */
         doGet(request, response);
     }
 

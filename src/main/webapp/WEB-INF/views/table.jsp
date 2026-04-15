@@ -14,6 +14,10 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/common.css">
 	<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/table.css">
 	<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/modal.css">
+	<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/ProdPlanRegInq.css">
+	<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/ProdPerfRegInq.css">
+	<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/WORegInq.css">
+	<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/WorkStatusInq.css">
 	
 </head>
 <body>

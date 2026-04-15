@@ -1,4 +1,4 @@
-package ProdMgmt.ProdPlanRegInq.DAO;
+package ProdMgmt.ProdPerfRegInq.DAO;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -11,21 +11,24 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
-import ProdMgmt.ProdPlanRegInq.DTO.ProdPlanRegInqDTO;
+import ProdMgmt.ProdPerfRegInq.DTO.ProdPerfRegInqDTO;
 
 /*
- * 생산계획 등록/조회 DAO
+ * 생산실적 등록/조회 DAO
  *
  * 역할
- * 1. 생산계획 전체 건수 조회
+ * 1. 생산실적 전체 건수 조회
  * 2. 검색 조건이 반영된 페이지별 목록 조회
- * 3. 선택한 생산계획 논리삭제(USE_YN = 'N')
+ * 3. 선택한 생산실적 논리삭제(USE_YN = 'N')
  *
  * 조회 기준
- * - PRODUCTION_PLAN + ITEM 조인
- * - USE_YN = 'Y' 인 생산계획만 조회
+ * - PRODUCTION_RESULT + WORK_ORDER + PRODUCTION_PLAN + ITEM 조인
+ * - USE_YN = 'Y' 인 생산실적만 조회
+ *
+ * 주의
+ * - ITEM.SUPPLIER_NAME 컬럼이 실제 DB에 없으면 해당 부분만 수정 필요
  */
-public class ProdPlanRegInqDAO {
+public class ProdPerfRegInqDAO {
 
     /*
      * JNDI 커넥션 풀에서 DB 연결 가져오기
@@ -53,9 +56,11 @@ public class ProdPlanRegInqDAO {
         List<Object> params = new ArrayList<>();
 
         sql.append("SELECT COUNT(*) ");
-        sql.append("FROM PRODUCTION_PLAN p ");
-        sql.append("JOIN ITEM i ON p.ITEM_ID = i.ITEM_ID ");
-        sql.append("WHERE NVL(p.USE_YN, 'Y') = 'Y' ");
+        sql.append("FROM PRODUCTION_RESULT pr ");
+        sql.append("JOIN WORK_ORDER wo ON pr.WORK_ORDER_ID = wo.WORK_ORDER_ID ");
+        sql.append("JOIN PRODUCTION_PLAN pp ON wo.PLAN_ID = pp.PLAN_ID ");
+        sql.append("JOIN ITEM i ON wo.ITEM_ID = i.ITEM_ID ");
+        sql.append("WHERE NVL(pr.USE_YN, 'Y') = 'Y' ");
 
         // 날짜 / 키워드 검색조건 추가
         appendSearchCondition(sql, params, startDate, endDate, searchType, keyword);
@@ -82,56 +87,61 @@ public class ProdPlanRegInqDAO {
      * 페이지별 목록 조회
      *
      * 반환 컬럼
-     * - NO             -> PLAN_ID
-     * - 생산계획번호    -> PP-YYYYMMDD-001 형식
-     * - 일자           -> PLAN_DATE
+     * - NO             -> RESULT_ID
+     * - 작업지시번호    -> WO-YYYYMMDD-001 형식
+     * - 일자           -> RESULT_DATE
      * - 품목코드       -> ITEM.ITEM_CODE
      * - 품목명         -> ITEM.ITEM_NAME
-     * - 생산계획량     -> PRODUCTION_PLAN.PLAN_QTY
+     * - 생산량         -> PRODUCTION_RESULT.PRODUCED_QTY
      * - 단위           -> ITEM.UNIT
      * - 라인           -> PRODUCTION_PLAN.LINE_CODE
-     * - 비고           -> PRODUCTION_PLAN.REMARK
+     * - LOT            -> PRODUCTION_RESULT.LOT_NO
+     * - 비고           -> PRODUCTION_RESULT.REMARK
      */
-    public List<ProdPlanRegInqDTO> getListByPage(
+    public List<ProdPerfRegInqDTO> getListByPage(
             String startDate, String endDate, String searchType, String keyword,
             int startRow, int endRow) {
 
-        List<ProdPlanRegInqDTO> list = new ArrayList<>();
+        List<ProdPerfRegInqDTO> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder();
         List<Object> params = new ArrayList<>();
 
         sql.append("SELECT * ");
         sql.append("FROM ( ");
-        sql.append("    SELECT ROW_NUMBER() OVER (ORDER BY p.PLAN_DATE DESC, p.PLAN_ID DESC) AS RN, ");
+        sql.append("    SELECT ROW_NUMBER() OVER (ORDER BY pr.RESULT_DATE DESC, pr.RESULT_ID DESC) AS RN, ");
 
         /*
          * 실제 PK
          * 화면 NO 컬럼에는 이 값을 넣는다
          */
-        sql.append("           p.PLAN_ID AS PLAN_ID, ");
+        sql.append("           pr.RESULT_ID AS RESULT_ID, ");
 
         /*
-         * 화면 표시용 생산계획번호
-         * 예: PP-20260402-001
+         * 화면 표시용 작업지시번호
+         * 예: WO-20260402-001
          */
-        sql.append("           'PP-' || TO_CHAR(p.PLAN_DATE, 'YYYYMMDD') || '-' || LPAD(p.PLAN_ID, 3, '0') AS PLAN_NO, ");
+        sql.append("           'WO-' || TO_CHAR(wo.WORK_DATE, 'YYYYMMDD') || '-' || LPAD(wo.WORK_ORDER_ID, 3, '0') AS WORK_ORDER_NO, ");
 
-        sql.append("           p.PLAN_DATE AS PLAN_DATE, ");
+        sql.append("           pr.RESULT_DATE AS RESULT_DATE, ");
         sql.append("           i.ITEM_CODE AS ITEM_CODE, ");
         sql.append("           i.ITEM_NAME AS ITEM_NAME, ");
-        sql.append("           p.PLAN_QTY AS PLAN_QTY, ");
+        sql.append("           pr.PRODUCED_QTY AS PRODUCED_QTY, ");
+        sql.append("           pr.LOSS_QTY AS LOSS_QTY, ");
         sql.append("           i.UNIT AS UNIT, ");
-        sql.append("           p.LINE_CODE AS LINE_CODE, ");
-        sql.append("           p.STATUS AS STATUS, ");
-        sql.append("           p.REMARK AS REMARK ");
+        sql.append("           pp.LINE_CODE AS LINE_CODE, ");
+        sql.append("           pr.LOT_NO AS LOT_NO, ");
+        sql.append("           pr.STATUS AS STATUS, ");
+        sql.append("           pr.REMARK AS REMARK ");
 
-        sql.append("    FROM PRODUCTION_PLAN p ");
-        sql.append("    JOIN ITEM i ON p.ITEM_ID = i.ITEM_ID ");
+        sql.append("    FROM PRODUCTION_RESULT pr ");
+        sql.append("    JOIN WORK_ORDER wo ON pr.WORK_ORDER_ID = wo.WORK_ORDER_ID ");
+        sql.append("    JOIN PRODUCTION_PLAN pp ON wo.PLAN_ID = pp.PLAN_ID ");
+        sql.append("    JOIN ITEM i ON wo.ITEM_ID = i.ITEM_ID ");
 
         /*
-         * 논리삭제 안 된 생산계획만 조회
+         * 논리삭제 안 된 생산실적만 조회
          */
-        sql.append("    WHERE NVL(p.USE_YN, 'Y') = 'Y' ");
+        sql.append("    WHERE NVL(pr.USE_YN, 'Y') = 'Y' ");
 
         /*
          * 검색 조건 추가
@@ -156,18 +166,20 @@ public class ProdPlanRegInqDAO {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    ProdPlanRegInqDTO dto = new ProdPlanRegInqDTO();
+                    ProdPerfRegInqDTO dto = new ProdPerfRegInqDTO();
 
-                    dto.setSeqNO(rs.getInt("PLAN_ID"));
-                    dto.setPlanNo(rs.getString("PLAN_NO"));
-                    dto.setPlanDate(rs.getDate("PLAN_DATE"));
-                    dto.setPlanCode(rs.getString("ITEM_CODE"));
-                    dto.setPlanName(rs.getString("ITEM_NAME"));
-                    dto.setPlanAmount(rs.getInt("PLAN_QTY"));
-                    dto.setPlanUnit(rs.getString("UNIT"));
-                    dto.setPlanLine(rs.getString("LINE_CODE"));
+                    dto.setSeqNO(rs.getInt("RESULT_ID"));
+                    dto.setWorkOrderNo(rs.getString("WORK_ORDER_NO"));
+                    dto.setResultDate(rs.getDate("RESULT_DATE"));
+                    dto.setItemCode(rs.getString("ITEM_CODE"));
+                    dto.setItemName(rs.getString("ITEM_NAME"));
+                    dto.setProducedQty(rs.getInt("PRODUCED_QTY"));
+                    dto.setLossQty(rs.getInt("LOSS_QTY"));
+                    dto.setUnit(rs.getString("UNIT"));
+                    dto.setLineCode(rs.getString("LINE_CODE"));
+                    dto.setLotNo(rs.getString("LOT_NO"));
                     dto.setStatus(rs.getString("STATUS"));
-                    dto.setMemo(rs.getString("REMARK"));
+                    dto.setRemark(rs.getString("REMARK"));
 
                     list.add(dto);
                 }
@@ -182,7 +194,7 @@ public class ProdPlanRegInqDAO {
     /*
      * 논리삭제
      *
-     * 선택한 PLAN_ID의 USE_YN을 N으로 변경
+     * 선택한 RESULT_ID의 USE_YN을 N으로 변경
      */
     public int deleteByIds(String[] seqNos) {
         int result = 0;
@@ -192,9 +204,9 @@ public class ProdPlanRegInqDAO {
         }
 
         StringBuilder sql = new StringBuilder();
-        sql.append("UPDATE PRODUCTION_PLAN ");
+        sql.append("UPDATE PRODUCTION_RESULT ");
         sql.append("SET USE_YN = 'N', UPDATED_AT = SYSDATE ");
-        sql.append("WHERE PLAN_ID IN (");
+        sql.append("WHERE RESULT_ID IN (");
 
         for (int i = 0; i < seqNos.length; i++) {
             sql.append("?");
@@ -224,7 +236,7 @@ public class ProdPlanRegInqDAO {
      * 검색 조건 동적 추가
      *
      * 날짜
-     * - PLAN_DATE 기준
+     * - RESULT_DATE 기준
      *
      * 키워드
      * - 선택한 searchType 기준 LIKE 검색
@@ -235,12 +247,12 @@ public class ProdPlanRegInqDAO {
 
         // 날짜 검색
         if (startDate != null && !startDate.trim().equals("")) {
-            sql.append(" AND p.PLAN_DATE >= ? ");
+            sql.append(" AND pr.RESULT_DATE >= ? ");
             params.add(Date.valueOf(startDate));
         }
 
         if (endDate != null && !endDate.trim().equals("")) {
-            sql.append(" AND p.PLAN_DATE <= ? ");
+            sql.append(" AND pr.RESULT_DATE <= ? ");
             params.add(Date.valueOf(endDate));
         }
 
@@ -250,31 +262,37 @@ public class ProdPlanRegInqDAO {
 
             if (searchType == null || searchType.trim().equals("")) {
                 sql.append(" AND ( ");
-                sql.append("     'PP-' || TO_CHAR(p.PLAN_DATE, 'YYYYMMDD') || '-' || LPAD(p.PLAN_ID, 3, '0') LIKE ? ");
+                sql.append("     'WO-' || TO_CHAR(wo.WORK_DATE, 'YYYYMMDD') || '-' || LPAD(wo.WORK_ORDER_ID, 3, '0') LIKE ? ");
                 sql.append("  OR i.ITEM_CODE LIKE ? ");
                 sql.append("  OR i.ITEM_NAME LIKE ? ");
-                sql.append("  OR p.LINE_CODE LIKE ? ");
+                sql.append("  OR pp.LINE_CODE LIKE ? ");
+                sql.append("  OR pr.LOT_NO LIKE ? ");
                 sql.append(" ) ");
 
                 params.add(kw);
                 params.add(kw);
                 params.add(kw);
                 params.add(kw);
-
-            } else if ("planNo".equals(searchType)) {
-                sql.append(" AND 'PP-' || TO_CHAR(p.PLAN_DATE, 'YYYYMMDD') || '-' || LPAD(p.PLAN_ID, 3, '0') LIKE ? ");
                 params.add(kw);
 
-            } else if ("planCode".equals(searchType)) {
+            } else if ("workOrderNo".equals(searchType)) {
+                sql.append(" AND 'WO-' || TO_CHAR(wo.WORK_DATE, 'YYYYMMDD') || '-' || LPAD(wo.WORK_ORDER_ID, 3, '0') LIKE ? ");
+                params.add(kw);
+
+            } else if ("itemCode".equals(searchType)) {
                 sql.append(" AND i.ITEM_CODE LIKE ? ");
                 params.add(kw);
 
-            } else if ("planName".equals(searchType)) {
+            } else if ("itemName".equals(searchType)) {
                 sql.append(" AND i.ITEM_NAME LIKE ? ");
                 params.add(kw);
 
-            } else if ("planLine".equals(searchType)) {
-                sql.append(" AND p.LINE_CODE LIKE ? ");
+            } else if ("lineCode".equals(searchType)) {
+                sql.append(" AND pp.LINE_CODE LIKE ? ");
+                params.add(kw);
+
+            } else if ("lotNo".equals(searchType)) {
+                sql.append(" AND pr.LOT_NO LIKE ? ");
                 params.add(kw);
             }
         }

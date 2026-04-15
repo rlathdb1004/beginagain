@@ -1,21 +1,27 @@
-package ProdMgmt.ProdPlanRegInq.Service;
+package WorkMgmt.WorkStatusInq.Service;
 
 import java.util.List;
 
-import ProdMgmt.ProdPlanRegInq.DAO.ProdPlanRegInqDAO;
-import ProdMgmt.ProdPlanRegInq.DTO.ProdPlanRegInqDTO;
+import WorkMgmt.WorkStatusInq.DAO.WorkStatusInqDAO;
+import WorkMgmt.WorkStatusInq.DTO.WorkStatusInqDTO;
+import WorkMgmt.WorkStatusInq.DTO.WorkStatusLineProgressDTO;
 
 /*
- * 생산계획 등록/조회 Service
+ * 작업 현황 조회 Service
  *
  * 역할
  * - Controller 와 DAO 사이의 중간 계층
- * - 현재는 조회 / 삭제 기능을 DAO에 위임한다
+ * - 현재는 조회 기능을 DAO에 위임한다
+ *
+ * 포함 기능
+ * 1. 검색 조건 반영 전체 건수 조회
+ * 2. 검색 조건 반영 페이지별 목록 조회
+ * 3. 라인별 공정 진행도 목록 조회
  */
-public class ProdPlanRegInqService {
+public class WorkStatusInqService {
 
     // DAO 객체 생성
-    private ProdPlanRegInqDAO dao = new ProdPlanRegInqDAO();
+    private WorkStatusInqDAO dao = new WorkStatusInqDAO();
 
     /*
      * 전체 건수 조회
@@ -40,7 +46,7 @@ public class ProdPlanRegInqService {
      * 페이지별 목록 조회
      *
      * 용도
-     * - 현재 페이지에 필요한 생산계획 목록 조회
+     * - 현재 페이지에 필요한 작업 현황 목록 조회
      *
      * 파라미터
      * - startDate  : 시작일
@@ -51,9 +57,9 @@ public class ProdPlanRegInqService {
      * - endRow     : 끝 행 번호
      *
      * 반환값
-     * - 현재 페이지 범위에 해당하는 생산계획 목록
+     * - 현재 페이지 범위에 해당하는 작업 현황 목록
      */
-    public List<ProdPlanRegInqDTO> getListByPage(
+    public List<WorkStatusInqDTO> getListByPage(
             String startDate,
             String endDate,
             String searchType,
@@ -65,19 +71,26 @@ public class ProdPlanRegInqService {
     }
 
     /*
-     * 선택된 생산계획 논리삭제
+     * 라인별 공정 진행도 목록 조회
      *
      * 용도
-     * - 체크박스로 선택된 생산계획을 삭제할 때 사용
-     * - 실제 삭제가 아니라 USE_YN = 'N' 처리
+     * - JSP 상단 그래프 영역(lineProgressList) 에 사용
      *
      * 파라미터
-     * - seqNos : 체크된 PLAN_ID 배열
+     * - startDate  : 시작일
+     * - endDate    : 종료일
+     * - searchType : 검색 기준
+     * - keyword    : 검색어
      *
      * 반환값
-     * - 업데이트된 행 수
+     * - 라인별 공정 진행도 목록
      */
-    public int deleteByIds(String[] seqNos) {
-        return dao.deleteByIds(seqNos);
+    public List<WorkStatusLineProgressDTO> getLineProgressList(
+            String startDate,
+            String endDate,
+            String searchType,
+            String keyword) {
+
+        return dao.getLineProgressList(startDate, endDate, searchType, keyword);
     }
 }
