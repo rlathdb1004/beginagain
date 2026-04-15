@@ -11,16 +11,9 @@ import common.jdbc.DBCPUtil;
 
 /**
  * 건의사항 DAO
- *
- * [정리]
- * - 예전 비페이징 목록 메서드는 제거
- * - 현재는 페이징 목록 조회 + 상세 + CRUD만 유지
  */
 public class SuggestionDAO {
 
-    /**
-     * 전체 건수 조회
-     */
     public int selectSuggestionCount(String keyword, String status, String deptCode) {
         int count = 0;
 
@@ -28,11 +21,10 @@ public class SuggestionDAO {
         sql.append(" SELECT COUNT(*) ");
         sql.append(" FROM SUGGESTION_BOARD s ");
         sql.append(" LEFT JOIN EMP e ON s.WRITER_EMP_ID = e.EMP_ID ");
-        sql.append(" WHERE 1 = 1 ");
+        sql.append(" WHERE NVL(s.STATUS, '-') <> '내림' ");
 
         List<Object> params = new ArrayList<>();
 
-        // 검색어 조건
         if (keyword != null && !keyword.trim().isEmpty()) {
             sql.append(" AND (s.TITLE LIKE ? OR s.CONTENT LIKE ? OR e.EMP_NAME LIKE ?) ");
             String searchKeyword = "%" + keyword.trim() + "%";
@@ -41,13 +33,11 @@ public class SuggestionDAO {
             params.add(searchKeyword);
         }
 
-        // 상태 조건
         if (status != null && !status.trim().isEmpty()) {
             sql.append(" AND s.STATUS = ? ");
             params.add(status.trim());
         }
 
-        // 부서 조건
         if (deptCode != null && !deptCode.trim().isEmpty()) {
             sql.append(" AND e.DEPT_CODE = ? ");
             params.add(deptCode.trim());
@@ -66,7 +56,6 @@ public class SuggestionDAO {
                     count = rs.getInt(1);
                 }
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -74,9 +63,6 @@ public class SuggestionDAO {
         return count;
     }
 
-    /**
-     * 페이징 목록 조회
-     */
     public List<SuggestionDTO> selectSuggestionList(String keyword, String status, String deptCode,
                                                     int startRow, int endRow) {
         List<SuggestionDTO> list = new ArrayList<>();
@@ -98,11 +84,10 @@ public class SuggestionDAO {
         sql.append("            s.UPDATED_AT ");
         sql.append("     FROM SUGGESTION_BOARD s ");
         sql.append("     LEFT JOIN EMP e ON s.WRITER_EMP_ID = e.EMP_ID ");
-        sql.append("     WHERE 1 = 1 ");
+        sql.append("     WHERE NVL(s.STATUS, '-') <> '내림' ");
 
         List<Object> params = new ArrayList<>();
 
-        // 검색어 조건
         if (keyword != null && !keyword.trim().isEmpty()) {
             sql.append(" AND (s.TITLE LIKE ? OR s.CONTENT LIKE ? OR e.EMP_NAME LIKE ?) ");
             String searchKeyword = "%" + keyword.trim() + "%";
@@ -111,13 +96,11 @@ public class SuggestionDAO {
             params.add(searchKeyword);
         }
 
-        // 상태 조건
         if (status != null && !status.trim().isEmpty()) {
             sql.append(" AND s.STATUS = ? ");
             params.add(status.trim());
         }
 
-        // 부서 조건
         if (deptCode != null && !deptCode.trim().isEmpty()) {
             sql.append(" AND e.DEPT_CODE = ? ");
             params.add(deptCode.trim());
@@ -132,34 +115,17 @@ public class SuggestionDAO {
             PreparedStatement pstmt = conn.prepareStatement(sql.toString())
         ) {
             int paramIndex = 1;
-
             for (Object param : params) {
                 pstmt.setObject(paramIndex++, param);
             }
-
             pstmt.setInt(paramIndex++, startRow);
             pstmt.setInt(paramIndex, endRow);
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    SuggestionDTO dto = new SuggestionDTO();
-
-                    dto.setSuggestionId(rs.getLong("SUGGESTION_ID"));
-                    dto.setTitle(rs.getString("TITLE"));
-                    dto.setContent(rs.getString("CONTENT"));
-                    dto.setWriterEmpId(rs.getLong("WRITER_EMP_ID"));
-                    dto.setWriterName(rs.getString("WRITER_NAME"));
-                    dto.setDeptCode(rs.getString("DEPT_CODE"));
-                    dto.setStatus(rs.getString("STATUS"));
-                    dto.setViewCount(rs.getInt("VIEW_COUNT"));
-                    dto.setRemark(rs.getString("REMARK"));
-                    dto.setCreatedAt(rs.getTimestamp("CREATED_AT"));
-                    dto.setUpdatedAt(rs.getTimestamp("UPDATED_AT"));
-
-                    list.add(dto);
+                    list.add(mapRow(rs));
                 }
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -167,9 +133,6 @@ public class SuggestionDAO {
         return list;
     }
 
-    /**
-     * 상세 조회
-     */
     public SuggestionDTO selectSuggestionById(long suggestionId) {
         SuggestionDTO dto = null;
 
@@ -195,25 +158,11 @@ public class SuggestionDAO {
             PreparedStatement pstmt = conn.prepareStatement(sql)
         ) {
             pstmt.setLong(1, suggestionId);
-
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    dto = new SuggestionDTO();
-
-                    dto.setSuggestionId(rs.getLong("SUGGESTION_ID"));
-                    dto.setTitle(rs.getString("TITLE"));
-                    dto.setContent(rs.getString("CONTENT"));
-                    dto.setWriterEmpId(rs.getLong("WRITER_EMP_ID"));
-                    dto.setWriterName(rs.getString("WRITER_NAME"));
-                    dto.setDeptCode(rs.getString("DEPT_CODE"));
-                    dto.setStatus(rs.getString("STATUS"));
-                    dto.setViewCount(rs.getInt("VIEW_COUNT"));
-                    dto.setRemark(rs.getString("REMARK"));
-                    dto.setCreatedAt(rs.getTimestamp("CREATED_AT"));
-                    dto.setUpdatedAt(rs.getTimestamp("UPDATED_AT"));
+                    dto = mapRow(rs);
                 }
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -221,12 +170,8 @@ public class SuggestionDAO {
         return dto;
     }
 
-    /**
-     * 조회수 증가
-     */
     public int updateViewCount(long suggestionId) {
         int result = 0;
-
         String sql = ""
                 + " UPDATE SUGGESTION_BOARD "
                 + " SET VIEW_COUNT = NVL(VIEW_COUNT, 0) + 1 "
@@ -238,7 +183,6 @@ public class SuggestionDAO {
         ) {
             pstmt.setLong(1, suggestionId);
             result = pstmt.executeUpdate();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -246,9 +190,6 @@ public class SuggestionDAO {
         return result;
     }
 
-    /**
-     * 등록
-     */
     public int insertSuggestion(SuggestionDTO dto) {
         int result = 0;
 
@@ -269,9 +210,7 @@ public class SuggestionDAO {
             pstmt.setLong(3, dto.getWriterEmpId());
             pstmt.setString(4, dto.getStatus());
             pstmt.setString(5, dto.getRemark());
-
             result = pstmt.executeUpdate();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -279,9 +218,6 @@ public class SuggestionDAO {
         return result;
     }
 
-    /**
-     * 수정
-     */
     public int updateSuggestion(SuggestionDTO dto) {
         int result = 0;
 
@@ -303,9 +239,7 @@ public class SuggestionDAO {
             pstmt.setString(3, dto.getStatus());
             pstmt.setString(4, dto.getRemark());
             pstmt.setLong(5, dto.getSuggestionId());
-
             result = pstmt.executeUpdate();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -313,9 +247,28 @@ public class SuggestionDAO {
         return result;
     }
 
-    /**
-     * 삭제
-     */
+    public int hideSuggestion(long suggestionId) {
+        int result = 0;
+
+        String sql = ""
+                + " UPDATE SUGGESTION_BOARD "
+                + " SET STATUS = '내림', "
+                + "     UPDATED_AT = SYSDATE "
+                + " WHERE SUGGESTION_ID = ? ";
+
+        try (
+            Connection conn = DBCPUtil.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)
+        ) {
+            pstmt.setLong(1, suggestionId);
+            result = pstmt.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
     public int deleteSuggestion(long suggestionId) {
         int result = 0;
 
@@ -327,11 +280,26 @@ public class SuggestionDAO {
         ) {
             pstmt.setLong(1, suggestionId);
             result = pstmt.executeUpdate();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         return result;
+    }
+
+    private SuggestionDTO mapRow(ResultSet rs) throws Exception {
+        SuggestionDTO dto = new SuggestionDTO();
+        dto.setSuggestionId(rs.getLong("SUGGESTION_ID"));
+        dto.setTitle(rs.getString("TITLE"));
+        dto.setContent(rs.getString("CONTENT"));
+        dto.setWriterEmpId(rs.getLong("WRITER_EMP_ID"));
+        dto.setWriterName(rs.getString("WRITER_NAME"));
+        dto.setDeptCode(rs.getString("DEPT_CODE"));
+        dto.setStatus(rs.getString("STATUS"));
+        dto.setViewCount(rs.getInt("VIEW_COUNT"));
+        dto.setRemark(rs.getString("REMARK"));
+        dto.setCreatedAt(rs.getTimestamp("CREATED_AT"));
+        dto.setUpdatedAt(rs.getTimestamp("UPDATED_AT"));
+        return dto;
     }
 }

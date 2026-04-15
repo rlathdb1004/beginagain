@@ -3,6 +3,7 @@ package SUGGESTION.Controller;
 import java.io.IOException;
 import java.util.List;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -15,580 +16,271 @@ import ANSWER.Service.AnswerService;
 import SUGGESTION.DTO.SuggestionDTO;
 import SUGGESTION.Service.SuggestionService;
 
-/**
- * 건의사항 Servlet
- *
- * [핵심 구조]
- * 1. JSP 파일은 Suggestion.jsp 하나만 사용
- * 2. mode 값으로 화면 분기
- *    - list   : 목록
- *    - write  : 등록 모달 열기
- *    - detail : 상세 화면 보기
- *
- * 3. modal 값으로 상세 화면 안에서 모달 분기
- *    - suggestionEdit   : 게시글 수정 모달
- *    - suggestionDelete : 게시글 삭제 확인 모달
- *    - answerWrite      : 답글 등록 모달
- *    - answerEdit       : 답글 수정 모달
- *    - answerDelete     : 답글 삭제 확인 모달
- *
- * 4. 권한 정책
- *    - 관리자 : 모든 게시글 / 답글 수정, 삭제 가능
- *    - 일반 사용자 : 본인 게시글 / 본인 답글만 수정, 삭제 가능
- */
 @WebServlet("/suggestion/*")
 public class SuggestionServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    /** 건의사항 서비스 */
-    private final SuggestionService suggestionService = new SuggestionService();
+    private final SuggestionService suSuggestionService = new SuggestionService();
+    private final AnswerService anAnswerService = new AnswerService();
 
-    /** 답글 서비스 */
-    private final AnswerService answerService = new AnswerService();
-
-    /**
-     * GET 요청
-     * - 목록 / 등록 모달 / 상세 화면 모두 같은 JSP로 처리
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         request.setCharacterEncoding("UTF-8");
+        String suPath = request.getPathInfo();
 
-        String path = request.getPathInfo();
+        try {
+            if (suPath == null || "/".equals(suPath) || "/list".equals(suPath)) {
+                list(request, response);
+                return;
+            }
 
-        if (path == null || "/list".equals(path)) {
-            list(request, response);
-            return;
+            response.sendRedirect(request.getContextPath() + "/suggestion/list");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ServletException("SuggestionServlet doGet 오류", e);
         }
-
-        response.sendRedirect(request.getContextPath() + "/suggestion/list");
     }
 
-    /**
-     * POST 요청
-     * - 건의 등록 / 수정 / 삭제
-     * - 답글 등록 / 수정 / 삭제
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         request.setCharacterEncoding("UTF-8");
+        String suPath = request.getPathInfo();
 
-        String path = request.getPathInfo();
+        try {
+            if ("/insert".equals(suPath)) {
+                insert(request, response);
+                return;
+            }
 
-        if ("/insert".equals(path)) {
-            insert(request, response);
-            return;
+            if ("/update".equals(suPath)) {
+                update(request, response);
+                return;
+            }
+
+            if ("/delete".equals(suPath)) {
+                delete(request, response);
+                return;
+            }
+
+            if ("/hide".equals(suPath)) {
+                hide(request, response);
+                return;
+            }
+
+            if ("/answerInsert".equals(suPath)) {
+                answerInsert(request, response);
+                return;
+            }
+
+            if ("/answerUpdate".equals(suPath)) {
+                answerUpdate(request, response);
+                return;
+            }
+
+            if ("/answerDelete".equals(suPath)) {
+                answerDelete(request, response);
+                return;
+            }
+
+            if ("/answerHide".equals(suPath)) {
+                answerHide(request, response);
+                return;
+            }
+
+            response.sendRedirect(request.getContextPath() + "/suggestion/list");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ServletException("SuggestionServlet doPost 오류", e);
         }
-
-        if ("/update".equals(path)) {
-            update(request, response);
-            return;
-        }
-
-        if ("/delete".equals(path)) {
-            delete(request, response);
-            return;
-        }
-
-        if ("/answerInsert".equals(path)) {
-            answerInsert(request, response);
-            return;
-        }
-
-        if ("/answerUpdate".equals(path)) {
-            answerUpdate(request, response);
-            return;
-        }
-
-        if ("/answerDelete".equals(path)) {
-            answerDelete(request, response);
-            return;
-        }
-
-        response.sendRedirect(request.getContextPath() + "/suggestion/list");
     }
 
-    /**
-     * 목록 / 상세 공통 처리
-     *
-     * [처리 내용]
-     * 1. 검색 + 페이징
-     * 2. mode=detail 이면 원글 + 답글 조회
-     * 3. 현재 로그인 사용자 / 관리자 여부 판정
-     * 4. 권한별 버튼 노출용 request attribute 세팅
-     */
-    private void list(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
 
-        // ================================
-        // 검색 조건
-        // ================================
-        String keyword = request.getParameter("keyword");
-        String status = request.getParameter("status");
-        String deptCode = request.getParameter("deptCode");
+    private void list(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        String suMode = getString(request.getParameter("mode"), "list");
+        String suKeyword = getString(request.getParameter("keyword"), "");
+        String suStatus = getString(request.getParameter("status"), "");
+        String suDeptCode = getString(request.getParameter("deptCode"), "");
+        String suModal = getString(request.getParameter("modal"), "");
 
-        // mode 기본값은 list
-        String mode = request.getParameter("mode");
-        if (mode == null || mode.trim().isEmpty()) {
-            mode = "list";
+        int suPage = parseInt(request.getParameter("page"), 1);
+        int suSize = parseInt(request.getParameter("size"), 10);
+        if (suPage < 1) suPage = 1;
+        if (suSize < 1) suSize = 10;
+
+        int suStartRow = (suPage - 1) * suSize + 1;
+        int suEndRow = suPage * suSize;
+
+        int suTotalCount = suSuggestionService.getSuggestionCount(suKeyword, suStatus, suDeptCode);
+        List<SuggestionDTO> suSuggestionList =
+                suSuggestionService.getSuggestionList(suStartRow, suEndRow, suKeyword, suStatus, suDeptCode);
+
+        int suTotalPage = (int) Math.ceil((double) suTotalCount / suSize);
+        if (suTotalPage < 1) suTotalPage = 1;
+
+        int suPageBlock = 5;
+        int suStartPage = ((suPage - 1) / suPageBlock) * suPageBlock + 1;
+        int suEndPage = suStartPage + suPageBlock - 1;
+        if (suEndPage > suTotalPage) {
+            suEndPage = suTotalPage;
         }
 
-        // detail 화면 안에서 어떤 모달을 띄울지 구분
-        String modal = request.getParameter("modal");
+        request.setAttribute("suggestionList", suSuggestionList);
+        request.setAttribute("keyword", suKeyword);
+        request.setAttribute("status", suStatus);
+        request.setAttribute("deptCode", suDeptCode);
+        request.setAttribute("mode", suMode);
+        request.setAttribute("modal", suModal);
+        request.setAttribute("page", suPage);
+        request.setAttribute("size", suSize);
+        request.setAttribute("totalCount", suTotalCount);
+        request.setAttribute("totalPage", suTotalPage);
+        request.setAttribute("startPage", suStartPage);
+        request.setAttribute("endPage", suEndPage);
 
-        // 상세 대상 건의글 번호
-        String idParam = request.getParameter("id");
+        if ("detail".equals(suMode)) {
+            long suSuggestionId = parseLong(request.getParameter("id"), 0L);
+            if (suSuggestionId > 0) {
+                SuggestionDTO suSelectedSuggestion = suSuggestionService.getSuggestionDetail(suSuggestionId, false);
+                AnswerDTO anSelectedAnswer = anAnswerService.getAnswerBySuggestionId(suSuggestionId);
+                List<AnswerDTO> anAnswerList = anAnswerService.getAnswerListBySuggestionId(suSuggestionId);
 
-        // ================================
-        // 페이징 계산
-        // ================================
-        int size = 10;
-        int currentPage = 1;
-        int blockSize = 5;
-
-        String pageParam = request.getParameter("page");
-        if (pageParam != null && !pageParam.trim().isEmpty()) {
-            currentPage = Integer.parseInt(pageParam);
-        }
-
-        int totalCount = suggestionService.getSuggestionCount(keyword, status, deptCode);
-        int totalPage = (int) Math.ceil((double) totalCount / size);
-
-        if (totalPage < 1) {
-            totalPage = 1;
-        }
-
-        if (currentPage < 1) {
-            currentPage = 1;
-        }
-
-        if (currentPage > totalPage) {
-            currentPage = totalPage;
-        }
-
-        int startRow = (currentPage - 1) * size + 1;
-        int endRow = currentPage * size;
-
-        int startPage = ((currentPage - 1) / blockSize) * blockSize + 1;
-        int endPage = startPage + blockSize - 1;
-
-        if (endPage > totalPage) {
-            endPage = totalPage;
-        }
-
-        // ================================
-        // 목록 조회
-        // ================================
-        List<SuggestionDTO> suggestionList =
-                suggestionService.getSuggestionList(keyword, status, deptCode, startRow, endRow);
-
-        // ================================
-        // 현재 로그인 사용자 정보
-        // ================================
-        long loginEmpId = getLoginEmpId(request);
-        boolean isAdmin = isAdmin(request);
-
-        // ================================
-        // 상세 화면용 데이터
-        // ================================
-        SuggestionDTO selectedSuggestion = null;
-        AnswerDTO selectedAnswer = null;
-
-        // 게시글 권한
-        boolean canEditSuggestion = false;
-        boolean canDeleteSuggestion = false;
-
-        // 답글 권한
-        boolean canWriteAnswer = false;
-        boolean canEditAnswer = false;
-        boolean canDeleteAnswer = false;
-
-        if ("detail".equals(mode)
-                && idParam != null
-                && !idParam.trim().isEmpty()) {
-
-            long suggestionId = Long.parseLong(idParam);
-
-            /**
-             * 조회수 증가 조건
-             * - 상세 화면 처음 진입 시에만 증가
-             * - 수정/삭제/답글 관련 모달을 띄울 때는 증가하지 않게 처리
-             */
-            boolean increaseViewCount = (modal == null || modal.trim().isEmpty());
-
-            selectedSuggestion =
-                    suggestionService.getSuggestionDetail(suggestionId, increaseViewCount);
-
-            // 건의글에 연결된 답글 1건 조회
-            selectedAnswer = answerService.getAnswerBySuggestionId(suggestionId);
-
-            if (selectedSuggestion != null) {
-                // 관리자거나 본인 글이면 수정/삭제 가능
-                canEditSuggestion =
-                        isAdmin || loginEmpId == selectedSuggestion.getWriterEmpId();
-
-                canDeleteSuggestion =
-                        isAdmin || loginEmpId == selectedSuggestion.getWriterEmpId();
-            }
-
-            if (selectedAnswer == null) {
-                /**
-                 * 답글이 아직 없을 때
-                 * - 로그인한 사용자면 누구나 답글 작성 가능
-                 * - 관리자도 작성 가능
-                 */
-                canWriteAnswer = isAdmin || loginEmpId > 0;
-            } else {
-                /**
-                 * 답글이 있을 때
-                 * - 관리자 또는 답글 작성자 본인만 수정/삭제 가능
-                 */
-                canEditAnswer =
-                        isAdmin || loginEmpId == selectedAnswer.getWriterEmpId();
-
-                canDeleteAnswer =
-                        isAdmin || loginEmpId == selectedAnswer.getWriterEmpId();
+                request.setAttribute("selectedSuggestion", suSelectedSuggestion);
+                request.setAttribute("selectedAnswer", anSelectedAnswer);
+                request.setAttribute("answerList", anAnswerList);
             }
         }
 
-        // ================================
-        // JSP 전달값
-        // ================================
-        request.setAttribute("suggestionList", suggestionList);
-        request.setAttribute("keyword", keyword);
-        request.setAttribute("status", status);
-        request.setAttribute("deptCode", deptCode);
-
-        request.setAttribute("mode", mode);
-        request.setAttribute("modal", modal);
-
-        request.setAttribute("selectedSuggestion", selectedSuggestion);
-        request.setAttribute("selectedAnswer", selectedAnswer);
-
-        request.setAttribute("size", size);
-        request.setAttribute("page", currentPage);
-        request.setAttribute("totalCount", totalCount);
-        request.setAttribute("totalPage", totalPage);
-        request.setAttribute("startPage", startPage);
-        request.setAttribute("endPage", endPage);
-
-        // 로그인 / 권한 관련 값
-        request.setAttribute("loginEmpId", loginEmpId);
-        request.setAttribute("isAdmin", isAdmin);
-
-        request.setAttribute("canEditSuggestion", canEditSuggestion);
-        request.setAttribute("canDeleteSuggestion", canDeleteSuggestion);
-        request.setAttribute("canWriteAnswer", canWriteAnswer);
-        request.setAttribute("canEditAnswer", canEditAnswer);
-        request.setAttribute("canDeleteAnswer", canDeleteAnswer);
+        request.setAttribute("isAdmin", true);
+        request.setAttribute("canEditSuggestion", true);
+        request.setAttribute("canDeleteSuggestion", true);
+        request.setAttribute("canWriteAnswer", true);
+        request.setAttribute("canEditAnswer", true);
+        request.setAttribute("canDeleteAnswer", true);
 
         request.setAttribute("pageTitle", "건의사항 게시판");
         request.setAttribute("contentPage", "/WEB-INF/views/Suggestion.jsp");
 
-        request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/table.jsp");
+        dispatcher.forward(request, response);
     }
 
-    /**
-     * 건의 등록
-     */
-    private void insert(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
-
-        SuggestionDTO dto = new SuggestionDTO();
-
-        dto.setTitle(request.getParameter("title"));
-        dto.setContent(request.getParameter("content"));
-        dto.setStatus("접수");
-        dto.setRemark(request.getParameter("remark"));
-
-        // 로그인 사용자 사번
-        long writerEmpId = getLoginEmpId(request);
-
-        // 로그인값이 없을 때 테스트 기본값
-        if (writerEmpId <= 0) {
-            writerEmpId = 1L;
-        }
-
-        dto.setWriterEmpId(writerEmpId);
-
-        suggestionService.addSuggestion(dto);
-
+    private void insert(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        SuggestionDTO suDto = new SuggestionDTO();
+        suDto.setTitle(getString(request.getParameter("title"), ""));
+        suDto.setContent(getString(request.getParameter("content"), ""));
+        suDto.setRemark(getString(request.getParameter("remark"), ""));
+        suDto.setStatus("접수");
+        suDto.setWriterEmpId(resolveWriterEmpId(request.getSession(false)));
+        suSuggestionService.insertSuggestion(suDto);
         response.sendRedirect(request.getContextPath() + "/suggestion/list");
     }
 
-    /**
-     * 건의 수정
-     *
-     * [서버단 권한 체크]
-     * - 관리자 또는 글 작성자 본인만 가능
-     */
-    private void update(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
+    private void update(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        long suSuggestionId = parseLong(request.getParameter("suggestionId"), 0L);
 
-        long suggestionId = Long.parseLong(request.getParameter("suggestionId"));
+        SuggestionDTO suDto = new SuggestionDTO();
+        suDto.setSuggestionId(suSuggestionId);
+        suDto.setTitle(getString(request.getParameter("title"), ""));
+        suDto.setContent(getString(request.getParameter("content"), ""));
+        suDto.setStatus(getString(request.getParameter("status"), ""));
+        suDto.setRemark(getString(request.getParameter("remark"), ""));
 
-        // 기존 글 조회
-        SuggestionDTO oldDto = suggestionService.getSuggestionDetail(suggestionId, false);
-
-        if (oldDto == null) {
-            response.sendRedirect(request.getContextPath() + "/suggestion/list");
-            return;
-        }
-
-        long loginEmpId = getLoginEmpId(request);
-        boolean isAdmin = isAdmin(request);
-
-        // 권한 없으면 상세로 되돌림
-        if (!(isAdmin || loginEmpId == oldDto.getWriterEmpId())) {
-            response.sendRedirect(request.getContextPath()
-                    + "/suggestion/list?mode=detail&id=" + suggestionId);
-            return;
-        }
-
-        SuggestionDTO dto = new SuggestionDTO();
-
-        dto.setSuggestionId(suggestionId);
-        dto.setTitle(request.getParameter("title"));
-        dto.setContent(request.getParameter("content"));
-        dto.setStatus(request.getParameter("status"));
-        dto.setRemark(request.getParameter("remark"));
-
-        suggestionService.modifySuggestion(dto);
-
-        response.sendRedirect(request.getContextPath()
-                + "/suggestion/list?mode=detail&id=" + suggestionId);
+        suSuggestionService.updateSuggestion(suDto);
+        response.sendRedirect(request.getContextPath() + "/suggestion/list?mode=detail&id=" + suSuggestionId);
     }
 
-    /**
-     * 건의 삭제
-     *
-     * [서버단 권한 체크]
-     * - 관리자 또는 글 작성자 본인만 가능
-     */
-    private void delete(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
-
-        long suggestionId = Long.parseLong(request.getParameter("suggestionId"));
-
-        SuggestionDTO oldDto = suggestionService.getSuggestionDetail(suggestionId, false);
-
-        if (oldDto == null) {
-            response.sendRedirect(request.getContextPath() + "/suggestion/list");
-            return;
-        }
-
-        long loginEmpId = getLoginEmpId(request);
-        boolean isAdmin = isAdmin(request);
-
-        if (!(isAdmin || loginEmpId == oldDto.getWriterEmpId())) {
-            response.sendRedirect(request.getContextPath()
-                    + "/suggestion/list?mode=detail&id=" + suggestionId);
-            return;
-        }
-
-        suggestionService.removeSuggestion(suggestionId);
-
+    private void delete(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        long suSuggestionId = parseLong(request.getParameter("suggestionId"), 0L);
+        suSuggestionService.deleteSuggestion(suSuggestionId);
         response.sendRedirect(request.getContextPath() + "/suggestion/list");
     }
 
-    /**
-     * 답글 등록
-     *
-     * [정책]
-     * - 현재 구조는 건의글 1건당 답글 1건 기준
-     * - 이미 답글이 있으면 추가 등록 막음
-     * - 로그인 사용자는 답글 작성 가능
-     */
-    private void answerInsert(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
-
-        long suggestionId = Long.parseLong(request.getParameter("suggestionId"));
-
-        // 이미 답글이 있으면 다시 상세로 이동
-        AnswerDTO existingAnswer = answerService.getAnswerBySuggestionId(suggestionId);
-        if (existingAnswer != null) {
-            response.sendRedirect(request.getContextPath()
-                    + "/suggestion/list?mode=detail&id=" + suggestionId);
-            return;
-        }
-
-        AnswerDTO dto = new AnswerDTO();
-
-        dto.setSuggestionId(suggestionId);
-        dto.setContent(request.getParameter("content"));
-        dto.setStatus(request.getParameter("status"));
-        dto.setRemark(request.getParameter("remark"));
-
-        long writerEmpId = getLoginEmpId(request);
-
-        // 로그인값이 없을 때 테스트 기본값
-        if (writerEmpId <= 0) {
-            writerEmpId = 1L;
-        }
-
-        dto.setWriterEmpId(writerEmpId);
-
-        answerService.addAnswer(dto);
-
-        response.sendRedirect(request.getContextPath()
-                + "/suggestion/list?mode=detail&id=" + suggestionId);
+    private void hide(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        long suSuggestionId = parseLong(request.getParameter("suggestionId"), 0L);
+        suSuggestionService.hideSuggestion(suSuggestionId);
+        response.sendRedirect(request.getContextPath() + "/suggestion/list?mode=detail&id=" + suSuggestionId);
     }
 
-    /**
-     * 답글 수정
-     *
-     * [서버단 권한 체크]
-     * - 관리자 또는 답글 작성자 본인만 가능
-     */
-    private void answerUpdate(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
+    private void answerInsert(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        long suSuggestionId = parseLong(request.getParameter("suggestionId"), 0L);
 
-        long answerId = Long.parseLong(request.getParameter("answerId"));
-        long suggestionId = Long.parseLong(request.getParameter("suggestionId"));
+        AnswerDTO anDto = new AnswerDTO();
+        anDto.setSuggestionId(suSuggestionId);
+        anDto.setStatus(getString(request.getParameter("status"), "등록"));
+        anDto.setContent(getString(request.getParameter("content"), ""));
+        anDto.setRemark(getString(request.getParameter("remark"), ""));
+        anDto.setWriterEmpId(resolveWriterEmpId(request.getSession(false)));
 
-        AnswerDTO oldDto = answerService.getAnswerById(answerId);
-
-        if (oldDto == null) {
-            response.sendRedirect(request.getContextPath()
-                    + "/suggestion/list?mode=detail&id=" + suggestionId);
-            return;
-        }
-
-        long loginEmpId = getLoginEmpId(request);
-        boolean isAdmin = isAdmin(request);
-
-        if (!(isAdmin || loginEmpId == oldDto.getWriterEmpId())) {
-            response.sendRedirect(request.getContextPath()
-                    + "/suggestion/list?mode=detail&id=" + suggestionId);
-            return;
-        }
-
-        AnswerDTO dto = new AnswerDTO();
-
-        dto.setAnswerId(answerId);
-        dto.setSuggestionId(suggestionId);
-        dto.setContent(request.getParameter("content"));
-        dto.setStatus(request.getParameter("status"));
-        dto.setRemark(request.getParameter("remark"));
-
-        answerService.modifyAnswer(dto);
-
-        response.sendRedirect(request.getContextPath()
-                + "/suggestion/list?mode=detail&id=" + suggestionId);
+        anAnswerService.insertAnswer(anDto);
+        response.sendRedirect(request.getContextPath() + "/suggestion/list?mode=detail&id=" + suSuggestionId);
     }
 
-    /**
-     * 답글 삭제
-     *
-     * [서버단 권한 체크]
-     * - 관리자 또는 답글 작성자 본인만 가능
-     */
-    private void answerDelete(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
+    private void answerUpdate(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        long anAnswerId = parseLong(request.getParameter("answerId"), 0L);
+        long suSuggestionId = parseLong(request.getParameter("suggestionId"), 0L);
 
-        long answerId = Long.parseLong(request.getParameter("answerId"));
-        long suggestionId = Long.parseLong(request.getParameter("suggestionId"));
+        AnswerDTO anDto = new AnswerDTO();
+        anDto.setAnswerId(anAnswerId);
+        anDto.setSuggestionId(suSuggestionId);
+        anDto.setStatus(getString(request.getParameter("status"), ""));
+        anDto.setContent(getString(request.getParameter("content"), ""));
+        anDto.setRemark(getString(request.getParameter("remark"), ""));
 
-        AnswerDTO oldDto = answerService.getAnswerById(answerId);
-
-        if (oldDto == null) {
-            response.sendRedirect(request.getContextPath()
-                    + "/suggestion/list?mode=detail&id=" + suggestionId);
-            return;
-        }
-
-        long loginEmpId = getLoginEmpId(request);
-        boolean isAdmin = isAdmin(request);
-
-        if (!(isAdmin || loginEmpId == oldDto.getWriterEmpId())) {
-            response.sendRedirect(request.getContextPath()
-                    + "/suggestion/list?mode=detail&id=" + suggestionId);
-            return;
-        }
-
-        answerService.removeAnswer(answerId);
-
-        response.sendRedirect(request.getContextPath()
-                + "/suggestion/list?mode=detail&id=" + suggestionId);
+        anAnswerService.updateAnswer(anDto);
+        response.sendRedirect(request.getContextPath() + "/suggestion/list?mode=detail&id=" + suSuggestionId);
     }
 
-    /**
-     * 로그인 사용자 사번 가져오기
-     *
-     * [프로젝트마다 세션명 다를 수 있음]
-     * - loginEmpId
-     * - empId
-     *
-     * 위 두 개를 우선 확인
-     */
-    private long getLoginEmpId(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
+    private void answerDelete(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        long anAnswerId = parseLong(request.getParameter("answerId"), 0L);
+        long suSuggestionId = parseLong(request.getParameter("suggestionId"), 0L);
+        anAnswerService.deleteAnswer(anAnswerId);
+        response.sendRedirect(request.getContextPath() + "/suggestion/list?mode=detail&id=" + suSuggestionId);
+    }
 
-        if (session == null) {
-            return 0L;
+    private void answerHide(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        long anAnswerId = parseLong(request.getParameter("answerId"), 0L);
+        long suSuggestionId = parseLong(request.getParameter("suggestionId"), 0L);
+        anAnswerService.hideAnswer(anAnswerId);
+        response.sendRedirect(request.getContextPath() + "/suggestion/list?mode=detail&id=" + suSuggestionId);
+    }
+
+    private String getString(String value, String defaultValue) {
+        return value == null ? defaultValue : value.trim();
+    }
+
+    private int parseInt(String value, int defaultValue) {
+        try {
+            return Integer.parseInt(value);
+        } catch (Exception e) {
+            return defaultValue;
         }
+    }
 
-        Object loginEmpId = session.getAttribute("loginEmpId");
-        if (loginEmpId == null) {
-            loginEmpId = session.getAttribute("empId");
+    private long parseLong(String value, long defaultValue) {
+        try {
+            return Long.parseLong(value);
+        } catch (Exception e) {
+            return defaultValue;
         }
+    }
 
-        if (loginEmpId instanceof Number) {
-            return ((Number) loginEmpId).longValue();
-        }
-
-        if (loginEmpId != null) {
-            try {
-                return Long.parseLong(String.valueOf(loginEmpId));
-            } catch (Exception e) {
-                return 0L;
+    private long resolveWriterEmpId(HttpSession session) {
+        if (session != null) {
+            Object loginEmpId = session.getAttribute("loginEmpId");
+            if (loginEmpId instanceof Number) {
+                return ((Number) loginEmpId).longValue();
+            }
+            Object empId = session.getAttribute("empId");
+            if (empId instanceof Number) {
+                return ((Number) empId).longValue();
             }
         }
-
-        return 0L;
-    }
-
-    /**
-     * 관리자 여부 판단
-     *
-     * [주의]
-     * 실제 로그인 세션명에 맞게 이 메서드만 조정하면 됨
-     *
-     * 우선 확인하는 값 예시:
-     * - isAdmin (Boolean)
-     * - role / roleName / loginRole / loginRoleName / auth
-     *
-     * 값에 ADMIN 또는 관리자 포함 시 관리자 처리
-     */
-    private boolean isAdmin(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-
-        if (session == null) {
-            return false;
-        }
-
-        Object adminFlag = session.getAttribute("isAdmin");
-        if (adminFlag instanceof Boolean) {
-            return (Boolean) adminFlag;
-        }
-
-        Object role = session.getAttribute("loginRole");
-        if (role == null) role = session.getAttribute("loginRoleName");
-        if (role == null) role = session.getAttribute("role");
-        if (role == null) role = session.getAttribute("roleName");
-        if (role == null) role = session.getAttribute("auth");
-
-        if (role != null) {
-            String roleText = String.valueOf(role).toUpperCase();
-            if (roleText.contains("ADMIN") || roleText.contains("관리자")) {
-                return true;
-            }
-        }
-
-        return false;
+        return 1L;
     }
 }

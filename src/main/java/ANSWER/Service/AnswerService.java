@@ -1,5 +1,7 @@
 package ANSWER.Service;
 
+import java.util.List;
+
 import ANSWER.DAO.AnswerDAO;
 import ANSWER.DTO.AnswerDTO;
 
@@ -8,41 +10,33 @@ import ANSWER.DTO.AnswerDTO;
  */
 public class AnswerService {
 
-    /** 답글 DAO */
     private final AnswerDAO answerDAO = new AnswerDAO();
 
-    /**
-     * 건의사항 번호로 답글 조회
-     */
     public AnswerDTO getAnswerBySuggestionId(long suggestionId) {
         return answerDAO.selectAnswerBySuggestionId(suggestionId);
     }
 
-    /**
-     * 답글 번호로 단건 조회
-     */
+    public List<AnswerDTO> getAnswerListBySuggestionId(long suggestionId) {
+        return answerDAO.selectAnswerListBySuggestionId(suggestionId);
+    }
+
     public AnswerDTO getAnswerById(long answerId) {
         return answerDAO.selectAnswerById(answerId);
     }
 
-    /**
-     * 답글 등록
-     */
-    public int addAnswer(AnswerDTO dto) {
+    public int insertAnswer(AnswerDTO dto) {
         return answerDAO.insertAnswer(dto);
     }
 
-    /**
-     * 답글 수정
-     */
-    public int modifyAnswer(AnswerDTO dto) {
+    public int updateAnswer(AnswerDTO dto) {
         return answerDAO.updateAnswer(dto);
     }
 
-    /**
-     * 답글 삭제
-     */
-    public int removeAnswer(long answerId) {
+    public int hideAnswer(long answerId) {
+        return answerDAO.hideAnswer(answerId);
+    }
+
+    public int deleteAnswer(long answerId) {
         return answerDAO.deleteAnswer(answerId);
     }
 }
