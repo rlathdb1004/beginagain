@@ -76,7 +76,7 @@
 				<div class="menu-items open">
 					<a href="${pageContext.request.contextPath}/woreginq">작업
 						지시 등록/조회</a> 
-					<a href="${pageContext.request.contextPath}/workstatusinq">작업 현황 조회</a>
+					<a href="${pageContext.request.contextPath}/workstatus">작업 현황 조회</a>
 				</div>
 			</div>
 
