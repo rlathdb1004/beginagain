@@ -46,7 +46,7 @@
 			<div class="menu-group">
 				<button class="menu-title open" type="button">1. 대시보드</button>
 				<div class="menu-items open">
-					<a href="${pageContext.request.contextPath}/main">메인</a> <a
+					<a href="${pageContext.request.contextPath}/ceomain">메인</a> <a
 						href="${pageContext.request.contextPath}/notice">공지사항</a> <a
 						href="${pageContext.request.contextPath}/suggestion">건의사항</a>
 				</div>

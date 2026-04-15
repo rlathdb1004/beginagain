@@ -4,10 +4,6 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <style>
-/* =========================
-   CEO Main Dashboard
-   ceomain.jsp 전용
-   ========================= */
 .ceoPage {
     display: flex;
     flex-direction: column;
@@ -16,103 +12,17 @@
     min-width: 0;
 }
 
-.ceoHero {
-    display: flex;
-    justify-content: space-between;
-    align-items: stretch;
-    gap: 16px;
-    padding: 24px 28px;
-    border-radius: 24px;
-    border: 1px solid #d7e1f0;
-    background:
-        radial-gradient(circle at top right, rgba(0, 71, 171, 0.10) 0%, rgba(0, 71, 171, 0) 32%),
-        linear-gradient(135deg, #ffffff 0%, #f4f8ff 100%);
-    box-shadow: 0 16px 36px rgba(10, 30, 60, 0.06);
-}
-
-.ceoHeroTitle {
-    margin: 0;
-    font-size: 28px;
-    font-weight: 800;
-    color: #0A1E3C;
-}
-
-.ceoHeroSub {
-    margin: 10px 0 0;
-    font-size: 14px;
-    color: #6F7B8D;
-    line-height: 1.6;
-}
-
-.ceoHeroMeta {
-    min-width: 240px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 10px;
-    padding: 18px 20px;
-    border-radius: 20px;
-    background: #ffffff;
-    border: 1px solid #dbe6f4;
-}
-
-.ceoHeroMetaLabel {
-    font-size: 12px;
-    font-weight: 700;
-    color: #7A8799;
-    letter-spacing: 0.04em;
-}
-
-.ceoHeroMetaValue {
-    font-size: 18px;
-    font-weight: 800;
-    color: #0A1E3C;
-}
-
-.ceoHeroMetaSub {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.ceoChip {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 30px;
-    padding: 0 12px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 700;
-    white-space: nowrap;
-}
-
-.ceoChipBlue {
-    background: #EAF3FF;
-    color: #0047AB;
-}
-
-.ceoChipGreen {
-    background: #EAF9F2;
-    color: #22A06B;
-}
-
-.ceoChipAmber {
-    background: #FFF7E8;
-    color: #F5A524;
-}
-
-.ceoChipRed {
-    background: #FFF1F2;
-    color: #E5484D;
-}
-
-.ceoBriefingCard {
+.ceoBriefingCard,
+.ceoPanel,
+.ceoKpiCard {
     background: #ffffff;
     border: 1px solid #d7e1f0;
     border-radius: 22px;
-    padding: 20px 24px;
     box-shadow: 0 10px 24px rgba(10, 30, 60, 0.04);
+}
+
+.ceoBriefingCard {
+    padding: 20px 24px;
 }
 
 .ceoSectionEyebrow {
@@ -141,7 +51,6 @@
     justify-content: center;
     font-size: 24px;
     font-weight: 800;
-    box-shadow: 0 12px 22px rgba(0, 71, 171, 0.18);
 }
 
 .ceoBriefingText {
@@ -158,11 +67,7 @@
 }
 
 .ceoKpiCard {
-    background: #ffffff;
-    border: 1px solid #d7e1f0;
-    border-radius: 20px;
     padding: 20px;
-    box-shadow: 0 10px 24px rgba(10, 30, 60, 0.04);
     min-width: 0;
 }
 
@@ -221,11 +126,7 @@
 }
 
 .ceoPanel {
-    background: #ffffff;
-    border: 1px solid #d7e1f0;
-    border-radius: 22px;
     padding: 22px;
-    box-shadow: 0 10px 24px rgba(10, 30, 60, 0.04);
     min-width: 0;
 }
 
@@ -248,6 +149,23 @@
     font-size: 12px;
     color: #7A8799;
 }
+
+.ceoChip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 30px;
+    padding: 0 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.ceoChipBlue { background: #EAF3FF; color: #0047AB; }
+.ceoChipGreen { background: #EAF9F2; color: #22A06B; }
+.ceoChipAmber { background: #FFF7E8; color: #F5A524; }
+.ceoChipRed { background: #FFF1F2; color: #E5484D; }
 
 .ceoRiskList {
     display: flex;
@@ -279,9 +197,7 @@
     justify-content: center;
 }
 
-.ceoRiskMain {
-    min-width: 0;
-}
+.ceoRiskMain { min-width: 0; }
 
 .ceoRiskTitle {
     font-size: 15px;
@@ -314,7 +230,7 @@
     color: #6F7B8D;
     line-height: 1.5;
     text-align: right;
-    max-width: 170px;
+    max-width: 190px;
 }
 
 .ceoStatusGrid {
@@ -469,7 +385,7 @@
 
 .ceoTrendGrid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
 }
 
@@ -553,24 +469,13 @@
     .ceoStatusGrid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
-
-    .ceoTrendGrid {
-        grid-template-columns: 1fr;
-    }
 }
 
 @media (max-width: 1100px) {
     .ceoGrid2,
-    .ceoCauseGrid {
+    .ceoCauseGrid,
+    .ceoTrendGrid {
         grid-template-columns: 1fr;
-    }
-
-    .ceoHero {
-        flex-direction: column;
-    }
-
-    .ceoHeroMeta {
-        min-width: 0;
     }
 }
 
@@ -589,40 +494,10 @@
         max-width: none;
         text-align: left;
     }
-
-    .ceoHeroTitle {
-        font-size: 24px;
-    }
 }
 </style>
 
 <div class="ceoPage taMaterialsInoutOnly">
-
-<!--     상단 헤더 -->
-<!--     <section class="ceoHero"> -->
-<!--         <div> -->
-<!--             <h2 class="ceoHeroTitle">CEO 대시보드</h2> -->
-<!--             <p class="ceoHeroSub"> -->
-<!--                 공장 전체 운영 상태, 오늘의 리스크, 결재 대상, 생산/품질/출하 추이를 한 화면에서 확인합니다. -->
-<!--             </p> -->
-<!--         </div> -->
-
-<!--         <div class="ceoHeroMeta"> -->
-<!--             <div class="ceoHeroMetaLabel">기준 정보</div> -->
-<!--             <div class="ceoHeroMetaValue"> -->
-<%--                 <c:choose> --%>
-<%--                     <c:when test="${not empty baseDate}"> --%>
-<%--                         <fmt:formatDate value="${baseDate}" pattern="yyyy-MM-dd" /> --%>
-<%--                     </c:when> --%>
-<%--                     <c:otherwise>기준일 미설정</c:otherwise> --%>
-<%--                 </c:choose> --%>
-<!--             </div> -->
-<!--             <div class="ceoHeroMetaSub"> -->
-<%--                 <span class="ceoChip ceoChipBlue">라인 ${empty totalLineCount ? 0 : totalLineCount}개 운영</span> --%>
-<!--                 <span class="ceoChip ceoChipGreen">오늘 실적 집계 기준</span> -->
-<!--             </div> -->
-<!--         </div> -->
-<!--     </section> -->
 
     <!-- 한줄 브리핑 -->
     <section class="ceoBriefingCard">
@@ -630,7 +505,7 @@
         <div class="ceoBriefingRow">
             <div class="ceoBriefingIcon">!</div>
             <div class="ceoBriefingText">
-                <c:out value="${briefingText}" default="오늘 CEO 브리핑 데이터가 아직 집계되지 않았습니다. 컨트롤러에서 briefingText를 전달해 주세요." />
+                <c:out value="${briefingText}" default="오늘 CEO 브리핑 데이터가 없습니다." />
             </div>
         </div>
     </section>
@@ -652,8 +527,8 @@
                     </span>
                 </div>
                 <div class="ceoKpiSub">
-                    <span class="ceoKpiSubLabel">계획 ${empty kpi.planQty ? 0 : kpi.planQty}</span>
-                    <span class="ceoKpiSubValue">실적 ${empty kpi.actualQty ? 0 : kpi.actualQty}</span>
+                    <span class="ceoKpiSubLabel">계획 <fmt:formatNumber value="${kpi.planQty}" pattern="0.###" /></span>
+                    <span class="ceoKpiSubValue">실적 <fmt:formatNumber value="${kpi.actualQty}" pattern="0.###" /></span>
                 </div>
             </article>
 
@@ -664,13 +539,11 @@
                         <fmt:formatNumber value="${kpi.deliveryRate}" pattern="0.0" />
                         <span class="ceoKpiUnit">%</span>
                     </div>
-                    <span class="ceoChip ceoChipGreen">
-                        정상 ${empty kpi.onTimeCount ? 0 : kpi.onTimeCount}건
-                    </span>
+                    <span class="ceoChip ceoChipGreen">정상 <c:out value="${kpi.onTimeCount}" /></span>
                 </div>
                 <div class="ceoKpiSub">
-                    <span class="ceoKpiSubLabel">전체 ${empty kpi.deliveryTargetCount ? 0 : kpi.deliveryTargetCount}건</span>
-                    <span class="ceoKpiSubValue">지연 ${empty kpi.delayCount ? 0 : kpi.delayCount}건</span>
+                    <span class="ceoKpiSubLabel">전체 <c:out value="${kpi.deliveryTargetCount}" />건</span>
+                    <span class="ceoKpiSubValue">지연 <c:out value="${kpi.delayCount}" />건</span>
                 </div>
             </article>
 
@@ -681,13 +554,11 @@
                         <fmt:formatNumber value="${kpi.oeeRate}" pattern="0.0" />
                         <span class="ceoKpiUnit">%</span>
                     </div>
-                    <span class="ceoChip ceoChipBlue">
-                        가동 ${empty kpi.availabilityRate ? 0 : kpi.availabilityRate}%
-                    </span>
+                    <span class="ceoChip ceoChipBlue">가동 <fmt:formatNumber value="${kpi.availabilityRate}" pattern="0.0" />%</span>
                 </div>
                 <div class="ceoKpiSub">
-                    <span class="ceoKpiSubLabel">성능 ${empty kpi.performanceRate ? 0 : kpi.performanceRate}%</span>
-                    <span class="ceoKpiSubValue">품질 ${empty kpi.qualityRate ? 0 : kpi.qualityRate}%</span>
+                    <span class="ceoKpiSubLabel">성능 <fmt:formatNumber value="${kpi.performanceRate}" pattern="0.0" />%</span>
+                    <span class="ceoKpiSubValue">품질 <fmt:formatNumber value="${kpi.qualityRate}" pattern="0.0" />%</span>
                 </div>
             </article>
 
@@ -698,30 +569,26 @@
                         <fmt:formatNumber value="${kpi.defectRate}" pattern="0.00" />
                         <span class="ceoKpiUnit">%</span>
                     </div>
-                    <span class="ceoChip ceoChipRed">
-                        불량 ${empty kpi.defectQty ? 0 : kpi.defectQty}
-                    </span>
+                    <span class="ceoChip ceoChipRed">불량 <fmt:formatNumber value="${kpi.defectQty}" pattern="0.###" /></span>
                 </div>
                 <div class="ceoKpiSub">
-                    <span class="ceoKpiSubLabel">검사수량 ${empty kpi.inspectQty ? 0 : kpi.inspectQty}</span>
-                    <span class="ceoKpiSubValue">양품 ${empty kpi.goodQty ? 0 : kpi.goodQty}</span>
+                    <span class="ceoKpiSubLabel">검사수량 <fmt:formatNumber value="${kpi.inspectQty}" pattern="0.###" /></span>
+                    <span class="ceoKpiSubValue">양품 <fmt:formatNumber value="${kpi.goodQty}" pattern="0.###" /></span>
                 </div>
             </article>
 
             <article class="ceoKpiCard">
-                <div class="ceoKpiLabel">재고위험</div>
+                <div class="ceoKpiLabel">원가편차율</div>
                 <div class="ceoKpiValueRow">
                     <div class="ceoKpiValue">
-                        ${empty kpi.inventoryRiskCount ? 0 : kpi.inventoryRiskCount}
-                        <span class="ceoKpiUnit">건</span>
+                        <fmt:formatNumber value="${kpi.costVarianceRate}" pattern="0.00" />
+                        <span class="ceoKpiUnit">%</span>
                     </div>
-                    <span class="ceoChip ceoChipAmber">
-                        안전재고 미달
-                    </span>
+                    <span class="ceoChip ceoChipAmber">원가 기준</span>
                 </div>
                 <div class="ceoKpiSub">
-                    <span class="ceoKpiSubLabel">긴급발주 ${empty kpi.urgentOrderCount ? 0 : kpi.urgentOrderCount}건</span>
-                    <span class="ceoKpiSubValue">출하영향 ${empty kpi.shipRiskCount ? 0 : kpi.shipRiskCount}건</span>
+                    <span class="ceoKpiSubLabel">표준 <fmt:formatNumber value="${kpi.standardUnitCost}" pattern="0.##" /></span>
+                    <span class="ceoKpiSubValue">실적 <fmt:formatNumber value="${kpi.actualUnitCost}" pattern="0.##" /></span>
                 </div>
             </article>
 
@@ -746,7 +613,6 @@
                         <c:forEach var="risk" items="${riskList}" varStatus="status">
                             <div class="ceoRiskItem">
                                 <div class="ceoRiskRank">${status.count}</div>
-
                                 <div class="ceoRiskMain">
                                     <div class="ceoRiskTitle">${risk.title}</div>
                                     <div class="ceoRiskMeta">
@@ -755,16 +621,13 @@
                                         <span class="ceoBadge">${risk.severity}</span>
                                     </div>
                                 </div>
-
-                                <div class="ceoRiskDetail">
-                                    ${risk.detail}
-                                </div>
+                                <div class="ceoRiskDetail">${risk.detail}</div>
                             </div>
                         </c:forEach>
                     </div>
                 </c:when>
                 <c:otherwise>
-                    <div class="ceoEmpty">riskList 데이터가 없어서 리스크 목록이 비어 있습니다.</div>
+                    <div class="ceoEmpty">riskList 데이터가 없습니다.</div>
                 </c:otherwise>
             </c:choose>
         </article>
@@ -784,22 +647,18 @@
                         <c:forEach var="status" items="${factoryStatusList}">
                             <div class="ceoStatusCard">
                                 <div class="ceoStatusName">${status.areaName}</div>
-
                                 <div class="ceoStatusScoreRow">
                                     <div>
                                         <span class="ceoStatusScore">${status.score}</span>
                                         <span class="ceoStatusScoreUnit">/ 100</span>
                                     </div>
-                                    <span class="ceoChip
-                                        ${status.score ge 90 ? 'ceoChipGreen' : (status.score ge 75 ? 'ceoChipAmber' : 'ceoChipRed')}">
+                                    <span class="ceoChip ${status.score ge 90 ? 'ceoChipGreen' : (status.score ge 75 ? 'ceoChipAmber' : 'ceoChipRed')}">
                                         ${status.statusLabel}
                                     </span>
                                 </div>
-
                                 <div class="ceoProgress">
                                     <div class="ceoProgressBar" style="width:${status.score}%;"></div>
                                 </div>
-
                                 <div class="ceoStatusBottom">
                                     <span>이슈 ${status.issueCount}건</span>
                                     <span>${status.detail}</span>
@@ -809,53 +668,7 @@
                     </div>
                 </c:when>
                 <c:otherwise>
-                    <div class="ceoStatusGrid">
-                        <div class="ceoStatusCard">
-                            <div class="ceoStatusName">생산</div>
-                            <div class="ceoStatusScoreRow">
-                                <div><span class="ceoStatusScore">0</span><span class="ceoStatusScoreUnit">/ 100</span></div>
-                                <span class="ceoChip ceoChipBlue">대기</span>
-                            </div>
-                            <div class="ceoProgress"><div class="ceoProgressBar" style="width:0%;"></div></div>
-                            <div class="ceoStatusBottom"><span>이슈 0건</span><span>데이터 없음</span></div>
-                        </div>
-                        <div class="ceoStatusCard">
-                            <div class="ceoStatusName">품질</div>
-                            <div class="ceoStatusScoreRow">
-                                <div><span class="ceoStatusScore">0</span><span class="ceoStatusScoreUnit">/ 100</span></div>
-                                <span class="ceoChip ceoChipBlue">대기</span>
-                            </div>
-                            <div class="ceoProgress"><div class="ceoProgressBar" style="width:0%;"></div></div>
-                            <div class="ceoStatusBottom"><span>이슈 0건</span><span>데이터 없음</span></div>
-                        </div>
-                        <div class="ceoStatusCard">
-                            <div class="ceoStatusName">설비</div>
-                            <div class="ceoStatusScoreRow">
-                                <div><span class="ceoStatusScore">0</span><span class="ceoStatusScoreUnit">/ 100</span></div>
-                                <span class="ceoChip ceoChipBlue">대기</span>
-                            </div>
-                            <div class="ceoProgress"><div class="ceoProgressBar" style="width:0%;"></div></div>
-                            <div class="ceoStatusBottom"><span>이슈 0건</span><span>데이터 없음</span></div>
-                        </div>
-                        <div class="ceoStatusCard">
-                            <div class="ceoStatusName">자재</div>
-                            <div class="ceoStatusScoreRow">
-                                <div><span class="ceoStatusScore">0</span><span class="ceoStatusScoreUnit">/ 100</span></div>
-                                <span class="ceoChip ceoChipBlue">대기</span>
-                            </div>
-                            <div class="ceoProgress"><div class="ceoProgressBar" style="width:0%;"></div></div>
-                            <div class="ceoStatusBottom"><span>이슈 0건</span><span>데이터 없음</span></div>
-                        </div>
-                        <div class="ceoStatusCard">
-                            <div class="ceoStatusName">출하</div>
-                            <div class="ceoStatusScoreRow">
-                                <div><span class="ceoStatusScore">0</span><span class="ceoStatusScoreUnit">/ 100</span></div>
-                                <span class="ceoChip ceoChipBlue">대기</span>
-                            </div>
-                            <div class="ceoProgress"><div class="ceoProgressBar" style="width:0%;"></div></div>
-                            <div class="ceoStatusBottom"><span>이슈 0건</span><span>데이터 없음</span></div>
-                        </div>
-                    </div>
+                    <div class="ceoEmpty">factoryStatusList 데이터가 없습니다.</div>
                 </c:otherwise>
             </c:choose>
         </article>
@@ -873,7 +686,6 @@
         </div>
 
         <div class="ceoCauseGrid">
-
             <div class="ceoCauseCard">
                 <h4 class="ceoCauseTitle">비가동 원인 TOP 3</h4>
                 <c:choose>
@@ -930,7 +742,6 @@
                     </c:otherwise>
                 </c:choose>
             </div>
-
         </div>
     </section>
 
@@ -966,9 +777,7 @@
                                     <td>${approval.docType}</td>
                                     <td>${approval.title}</td>
                                     <td>${approval.requesterName}</td>
-                                    <td>
-                                        <fmt:formatDate value="${approval.requestedAt}" pattern="yyyy-MM-dd HH:mm" />
-                                    </td>
+                                    <td><fmt:formatDate value="${approval.requestedAt}" pattern="yyyy-MM-dd HH:mm" /></td>
                                     <td>${approval.priority}</td>
                                     <td>${approval.status}</td>
                                 </tr>
@@ -983,11 +792,11 @@
         </c:choose>
     </section>
 
-    <!-- 생산 / 품질 / 출하 추이 -->
+    <!-- 생산 / 품질 / 출하 / 생산원가 추이 -->
     <section class="ceoPanel">
         <div class="ceoPanelHead">
             <div>
-                <h3 class="ceoPanelTitle">생산 / 품질 / 출하 추이</h3>
+                <h3 class="ceoPanelTitle">생산 / 품질 / 출하 / 생산원가 추이</h3>
                 <div class="ceoPanelSub">최근 기간 기준 흐름 확인</div>
             </div>
             <span class="ceoChip ceoChipBlue">트렌드 차트</span>
@@ -995,7 +804,6 @@
 
         <div class="ceoTrendGrid">
 
-            <!-- 생산 추이 -->
             <div class="ceoTrendCard">
                 <h4 class="ceoTrendTitle">생산 추이</h4>
                 <c:choose>
@@ -1008,7 +816,7 @@
                                              style="height:${productionTrendMax gt 0 ? (item.value * 100 / productionTrendMax) : 0}%;">
                                         </div>
                                     </div>
-                                    <div class="ceoTrendValue">${item.value}</div>
+                                    <div class="ceoTrendValue"><fmt:formatNumber value="${item.value}" pattern="0.##" /></div>
                                     <div class="ceoTrendLabel">${item.label}</div>
                                 </div>
                             </c:forEach>
@@ -1020,7 +828,6 @@
                 </c:choose>
             </div>
 
-            <!-- 품질 추이 -->
             <div class="ceoTrendCard">
                 <h4 class="ceoTrendTitle">품질 추이</h4>
                 <c:choose>
@@ -1033,7 +840,7 @@
                                              style="height:${qualityTrendMax gt 0 ? (item.value * 100 / qualityTrendMax) : 0}%;">
                                         </div>
                                     </div>
-                                    <div class="ceoTrendValue">${item.value}</div>
+                                    <div class="ceoTrendValue"><fmt:formatNumber value="${item.value}" pattern="0.##" /></div>
                                     <div class="ceoTrendLabel">${item.label}</div>
                                 </div>
                             </c:forEach>
@@ -1045,7 +852,6 @@
                 </c:choose>
             </div>
 
-            <!-- 출하 추이 -->
             <div class="ceoTrendCard">
                 <h4 class="ceoTrendTitle">출하 추이</h4>
                 <c:choose>
@@ -1058,7 +864,7 @@
                                              style="height:${shipmentTrendMax gt 0 ? (item.value * 100 / shipmentTrendMax) : 0}%;">
                                         </div>
                                     </div>
-                                    <div class="ceoTrendValue">${item.value}</div>
+                                    <div class="ceoTrendValue"><fmt:formatNumber value="${item.value}" pattern="0.##" /></div>
                                     <div class="ceoTrendLabel">${item.label}</div>
                                 </div>
                             </c:forEach>
@@ -1066,6 +872,30 @@
                     </c:when>
                     <c:otherwise>
                         <div class="ceoEmpty">shipmentTrendList 데이터가 없습니다.</div>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+
+            <div class="ceoTrendCard">
+                <h4 class="ceoTrendTitle">생산원가 추이</h4>
+                <c:choose>
+                    <c:when test="${not empty costTrendList}">
+                        <div class="ceoTrendChart">
+                            <c:forEach var="item" items="${costTrendList}">
+                                <div class="ceoTrendCol">
+                                    <div class="ceoTrendBarWrap">
+                                        <div class="ceoTrendBar"
+                                             style="height:${costTrendMax gt 0 ? (item.value * 100 / costTrendMax) : 0}%;">
+                                        </div>
+                                    </div>
+                                    <div class="ceoTrendValue"><fmt:formatNumber value="${item.value}" pattern="0.##" /></div>
+                                    <div class="ceoTrendLabel">${item.label}</div>
+                                </div>
+                            </c:forEach>
+                        </div>
+                    </c:when>
+                    <c:otherwise>
+                        <div class="ceoEmpty">costTrendList 데이터가 없습니다.</div>
                     </c:otherwise>
                 </c:choose>
             </div>
