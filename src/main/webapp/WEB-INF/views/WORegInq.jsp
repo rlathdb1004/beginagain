@@ -80,7 +80,12 @@
                            placeholder="작업지시번호 / 품목코드 / 품목명 / 라인 / 공정 / 작업자 / BOM 검색"
                            value="${param.keyword}">
 
-                    <button type="submit" class="taSearchBtn" aria-label="검색">⌕</button>
+<!--                     <button type="submit" class="taSearchBtn" aria-label="검색">⌕</button> -->
+                    <button type="submit" class="taSearchBtn" aria-label="검색">
+                    	<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="7"></circle>
+                        <path d="M20 20L16.65 16.65"></path></svg>
+                    </button>
                 </div>
             </div>
         </div>

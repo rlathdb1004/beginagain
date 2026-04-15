@@ -96,7 +96,12 @@
                         검색 버튼
                         - 검색조건이 비어 있어도 전체조회 가능
                     --%>
-                    <button type="submit" class="taSearchBtn" aria-label="검색">⌕</button>
+<!--                     <button type="submit" class="taSearchBtn" aria-label="검색">⌕</button> -->
+                    <button type="submit" class="taSearchBtn" aria-label="검색">
+                    	<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="7"></circle>
+                        <path d="M20 20L16.65 16.65"></path></svg>
+                    </button>
                 </div>
             </div>
         </div>

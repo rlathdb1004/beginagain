@@ -366,7 +366,12 @@
                            name="keyword"
                            id="workStatusKeyword"
                            placeholder="작업지시코드, 품목, 담당자, 상태를 검색하세요">
-                    <button type="submit" class="taSearchBtn">⌕</button>
+<!--                     <button type="submit" class="taSearchBtn">⌕</button> -->
+                    <button type="submit" class="taSearchBtn" aria-label="검색">
+                    	<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="7"></circle>
+                        <path d="M20 20L16.65 16.65"></path></svg>
+                    </button>
                     <button type="button" class="taBtn taBtnOutline taSearchReset" id="workStatusResetBtn">초기화</button>
                 </div>
             </div>
