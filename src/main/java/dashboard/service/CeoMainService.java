@@ -19,7 +19,7 @@ public class CeoMainService {
         // 1. 기준일 결정
         Date baseDate = requestBaseDate;
         if (baseDate == null) {
-            baseDate = dao.selectLatestBaseDate();
+            baseDate = new Date(System.currentTimeMillis());
         }
 
         dashboard.setBaseDate(baseDate);
@@ -45,6 +45,7 @@ public class CeoMainService {
             dashboard.setQualityTrendList(new ArrayList<Map<String, Object>>());
             dashboard.setShipmentTrendList(new ArrayList<Map<String, Object>>());
             dashboard.setCostTrendList(new ArrayList<Map<String, Object>>());
+            dashboard.setTopCostItemList(new ArrayList<Map<String, Object>>());
 
             dashboard.setProductionTrendMax(0);
             dashboard.setQualityTrendMax(0);
@@ -71,6 +72,7 @@ public class CeoMainService {
         List<Map<String, Object>> qualityTrendList = nullSafeList(dao.selectQualityTrendList(baseDate));
         List<Map<String, Object>> shipmentTrendList = nullSafeList(dao.selectShipmentTrendList(baseDate));
         List<Map<String, Object>> costTrendList = nullSafeList(dao.selectCostTrendList(baseDate));
+        List<Map<String, Object>> topCostItemList = nullSafeList(dao.selectTopCostItemList(baseDate));
 
         // 5. briefingText 없으면 자동 생성
         if (isBlank(briefingText)) {
@@ -99,6 +101,7 @@ public class CeoMainService {
         dashboard.setQualityTrendMax(getMaxValue(qualityTrendList, "value"));
         dashboard.setShipmentTrendMax(getMaxValue(shipmentTrendList, "value"));
         dashboard.setCostTrendMax(getMaxValue(costTrendList, "value"));
+        dashboard.setTopCostItemList(topCostItemList);
 
         return dashboard;
     }

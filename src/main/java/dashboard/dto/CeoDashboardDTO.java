@@ -27,6 +27,7 @@ public class CeoDashboardDTO {
     private List<Map<String, Object>> qualityTrendList = new ArrayList<Map<String, Object>>();
     private List<Map<String, Object>> shipmentTrendList = new ArrayList<Map<String, Object>>();
     private List<Map<String, Object>> costTrendList = new ArrayList<Map<String, Object>>();
+    private List<Map<String, Object>> topCostItemList = new ArrayList<Map<String, Object>>();
 
     private double productionTrendMax;
     private double qualityTrendMax;
@@ -175,5 +176,13 @@ public class CeoDashboardDTO {
 
     public void setCostTrendMax(double costTrendMax) {
         this.costTrendMax = costTrendMax;
+    }
+    
+    public List<Map<String, Object>> getTopCostItemList() {
+        return topCostItemList;
+    }
+
+    public void setTopCostItemList(List<Map<String, Object>> topCostItemList) {
+        this.topCostItemList = topCostItemList;
     }
 }
