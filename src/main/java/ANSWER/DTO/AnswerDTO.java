@@ -1,35 +1,32 @@
-package SUGGESTION.DTO;
+package ANSWER.DTO;
 
 import java.sql.Timestamp;
 
 /**
- * 건의사항 DTO
+ * 답글 DTO
  */
-public class SuggestionDTO {
+public class AnswerDTO {
 
-    /** 건의사항 번호 */
+    /** 답글 번호 */
+    private long answerId;
+
+    /** 연결된 건의사항 번호 */
     private long suggestionId;
 
-    /** 제목 */
-    private String title;
-
-    /** 내용 */
+    /** 답글 내용 */
     private String content;
 
-    /** 작성자 사번 */
+    /** 답글 작성자 사번 */
     private long writerEmpId;
 
-    /** 작성자명 */
+    /** 답글 작성자명 */
     private String writerName;
 
-    /** 부서코드 */
+    /** 답글 작성자 부서코드 */
     private String deptCode;
 
-    /** 상태 */
+    /** 답글 상태 */
     private String status;
-
-    /** 조회수 */
-    private int viewCount;
 
     /** 비고 */
     private String remark;
@@ -40,20 +37,20 @@ public class SuggestionDTO {
     /** 수정일 */
     private Timestamp updatedAt;
 
+    public long getAnswerId() {
+        return answerId;
+    }
+
+    public void setAnswerId(long answerId) {
+        this.answerId = answerId;
+    }
+
     public long getSuggestionId() {
         return suggestionId;
     }
 
     public void setSuggestionId(long suggestionId) {
         this.suggestionId = suggestionId;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
     }
 
     public String getContent() {
@@ -94,14 +91,6 @@ public class SuggestionDTO {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public int getViewCount() {
-        return viewCount;
-    }
-
-    public void setViewCount(int viewCount) {
-        this.viewCount = viewCount;
     }
 
     public String getRemark() {
