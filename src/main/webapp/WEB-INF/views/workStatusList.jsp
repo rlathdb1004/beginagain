@@ -478,7 +478,7 @@
 <!-- 	<div class="taPagination" id="workStatusPagination"></div> -->
 </div>
 
-<!-- <!-- <script> --> -->
+<!-- <!-- <script> -->
 <!-- // (function () { -->
 <!-- //     const form = document.getElementById("workStatusSearchForm"); -->
 <!-- //     const searchTypeEl = document.getElementById("workStatusSearchType"); -->
@@ -640,4 +640,4 @@
 <!-- //     // 첫 화면: 컬럼만 보이게 -->
 <!-- //     render(); -->
 <!-- // })(); -->
-<!-- <!-- </script> --> -->
+<!-- <!-- </script> -->
