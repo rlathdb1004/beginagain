@@ -113,7 +113,9 @@
 				<div class="menu-items open">
 					<a href="${pageContext.request.contextPath}/item/list">품목 관리</a> <a
 						href="${pageContext.request.contextPath}/process/list">공정 관리</a> <a
-						href="${pageContext.request.contextPath}/routing/list">라우팅 관리</a> <a href="#">BOM 관리</a> <a href="#">불량 관리</a> <a
+						href="${pageContext.request.contextPath}/routing/list">라우팅 관리</a> <a 
+						href="${pageContext.request.contextPath}/BOM-mgmt">BOM 관리</a> <a 
+						href="${pageContext.request.contextPath}/defect-mgmt">불량 관리</a> <a
 						href="${pageContext.request.contextPath}/equipment/list">설비 관리</a> <a
 						href="${pageContext.request.contextPath}/member/list">직원 관리</a>
 				</div>
