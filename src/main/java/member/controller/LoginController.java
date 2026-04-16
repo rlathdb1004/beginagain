@@ -44,7 +44,7 @@ public class LoginController extends HttpServlet {
 		if ("Y".equals(loginUser.getTempPwdYn())) {
 			response.sendRedirect(request.getContextPath() + "/changePassword");
 		} else {
-			response.sendRedirect(request.getContextPath() + "/main");
+			response.sendRedirect(request.getContextPath() + "/ceomain");
 		}
 	}
 }
