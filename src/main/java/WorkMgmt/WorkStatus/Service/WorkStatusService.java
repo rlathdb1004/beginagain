@@ -37,6 +37,39 @@ public class WorkStatusService {
             DBCPUtil.close(conn);
         }
     }
+    
+    public WorkStatusDTO getWorkStatusById(int workOrderId) {
+        Connection conn = null;
+        try {
+            conn = DBCPUtil.getConnection();
+            WorkStatusDTO dto = workStatusDAO.selectWorkStatusById(conn, workOrderId);
+
+            if (dto != null) {
+                double planQty = dto.getWorkQty();
+                double producedQty = dto.getProducedQty();
+                double progressRate = 0;
+
+                if (planQty > 0) {
+                    progressRate = (producedQty / planQty) * 100.0;
+                }
+
+                if (progressRate < 0) {
+                    progressRate = 0;
+                }
+                if (progressRate > 100) {
+                    progressRate = 100;
+                }
+
+                dto.setProgressRate(Math.round(progressRate * 10.0) / 10.0);
+                dto.setProgressStatus(resolveProgressStatus(dto));
+                dto.setScheduleStatus(resolveScheduleStatus(dto));
+            }
+
+            return dto;
+        } finally {
+            DBCPUtil.close(conn);
+        }
+    }
 
     private String resolveProgressStatus(WorkStatusDTO dto) {
         String status = dto.getWorkOrderStatus();

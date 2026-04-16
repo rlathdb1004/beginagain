@@ -303,7 +303,8 @@ public class NoticeServlet extends HttpServlet {
         if (noDetailNotice != null) {
             request.setAttribute("noDetailNotice", noDetailNotice);
         }
-
+        
+        request.setAttribute("pageTitle", "공지사항 게시판");
         request.setAttribute("contentPage", "/WEB-INF/views/Notice.jsp");
         request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
     }

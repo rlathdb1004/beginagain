@@ -240,4 +240,16 @@ public int deleteInvRegInq(int[] inventoryIds) {
     return result;
 }
 
+public int updateInvRegInq(InvRegInqDTO dto) {
+    Connection conn = null; PreparedStatement ps = null;
+    try {
+        Context ctx = new InitialContext(); DataSource dataFactory = (DataSource) ctx.lookup("java:/comp/env/jdbc/oracle"); conn = dataFactory.getConnection();
+        String sql = "UPDATE INVENTORY SET QTY_ON_HAND = ?, SAFETY_STOCK = ?, REMARK = ?, UPDATED_AT = SYSDATE WHERE INVENTORY_ID = ?";
+        ps = conn.prepareStatement(sql);
+        ps.setDouble(1, dto.getQtyOnHand()); ps.setDouble(2, dto.getSafetyStock()); ps.setString(3, dto.getRemark()); ps.setInt(4, dto.getInventoryId());
+        return ps.executeUpdate();
+    } catch (Exception e) { e.printStackTrace(); } finally { try { if (ps != null) ps.close(); } catch (Exception e) {} try { if (conn != null) conn.close(); } catch (Exception e) {} }
+    return 0;
+}
+
 }

@@ -331,4 +331,16 @@ public int deleteDefectRegInq(int[] ids) {
     return result;
 }
 
+public int updateDefectRegInq(DefectRegInqDTO dto) {
+    Connection conn = null; PreparedStatement ps = null;
+    try {
+        Context ctx = new InitialContext(); DataSource dataFactory = (DataSource) ctx.lookup("java:/comp/env/jdbc/oracle"); conn = dataFactory.getConnection();
+        String sql = "UPDATE DEFECT_PRODUCT SET FINAL_INSPECTION_ID = ?, DEFECT_CODE_ID = ?, REMARK = ?, UPDATED_AT = SYSDATE WHERE DEFECT_PRODUCT_ID = ?";
+        ps = conn.prepareStatement(sql);
+        ps.setInt(1, dto.getFinalInspectionId()); ps.setInt(2, dto.getDefectCodeId()); ps.setString(3, dto.getRemark()); ps.setInt(4, dto.getDefectProductId());
+        return ps.executeUpdate();
+    } catch (Exception e) { e.printStackTrace(); } finally { try { if (ps != null) ps.close(); } catch (Exception e) {} try { if (conn != null) conn.close(); } catch (Exception e) {} }
+    return 0;
+}
+
 }

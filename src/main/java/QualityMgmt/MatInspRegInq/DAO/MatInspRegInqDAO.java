@@ -285,4 +285,16 @@ public int deleteMatInspRegInq(int[] ids) {
     return result;
 }
 
+public int updateMatInspRegInq(MatInspRegInqDTO dto) {
+    Connection conn = null; PreparedStatement ps = null;
+    try {
+        Context ctx = new InitialContext(); DataSource dataFactory = (DataSource) ctx.lookup("java:/comp/env/jdbc/oracle"); conn = dataFactory.getConnection();
+        String sql = "UPDATE MATERIAL_INSPECTION SET INSPECT_QTY = ?, GOOD_QTY = ?, DEFECT_QTY = ?, INSPECTION_RESULT = ?, INSPECTION_DATE = ?, REMARK = ?, UPDATED_AT = SYSDATE WHERE MATERIAL_INSPECTION_ID = ?";
+        ps = conn.prepareStatement(sql);
+        ps.setDouble(1, dto.getInspectQty()); ps.setDouble(2, dto.getGoodQty()); ps.setDouble(3, dto.getDefectQty()); ps.setString(4, dto.getResult()); ps.setDate(5, dto.getInspectionDate()); ps.setString(6, dto.getRemark()); ps.setInt(7, dto.getMaterialInspectionId());
+        return ps.executeUpdate();
+    } catch (Exception e) { e.printStackTrace(); } finally { try { if (ps != null) ps.close(); } catch (Exception e) {} try { if (conn != null) conn.close(); } catch (Exception e) {} }
+    return 0;
+}
+
 }

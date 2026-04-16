@@ -86,7 +86,7 @@
 				<div class="menu-items open">
 					<a href="${pageContext.request.contextPath}/matInspRegInq">자재 검사 등록/조회</a> 
 					<a href="${pageContext.request.contextPath}/fpInspRegInq">완제품 검사 등록/조회</a> 
-					<a href="${pageContext.request.contextPath}/defectRegInq">불량 등록/조회</a>
+					<a href="${pageContext.request.contextPath}/defectRegInq">불량 이력 등록/조회</a>
 				</div>
 			</div>
 
@@ -100,10 +100,10 @@
 
 			<!-- 7. 설비관리 -->
 			<div class="menu-group">
-				<button class="menu-title open" type="button">7. 설비관리</button>
+				<button class="menu-title open" type="button">7. 설비운영</button>
 				<div class="menu-items open">
-					<a href="#">정비 이력 등록/조회</a>
-					<a href="#">설비 비가동 등록/조회</a>
+					<a href="${pageContext.request.contextPath}/maintenance/list">정비 이력 등록/조회</a>
+					<a href="${pageContext.request.contextPath}/downtime/list">비가동 현황</a>
 				</div>
 			</div>
 

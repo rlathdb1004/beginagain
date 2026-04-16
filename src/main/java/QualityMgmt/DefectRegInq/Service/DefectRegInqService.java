@@ -9,4 +9,5 @@ public class DefectRegInqService {
     public DefectRegInqDTO getDefectRegInqDetail(int defectProductId) { return new DefectRegInqDAO().selectDefectRegInqOne(defectProductId); }
     public int register(DefectRegInqDTO dto) { return new DefectRegInqDAO().insertDefectRegInq(dto); }
     public int delete(int[] ids) { return new DefectRegInqDAO().deleteDefectRegInq(ids); }
+    public int update(DefectRegInqDTO dto) { return new DefectRegInqDAO().updateDefectRegInq(dto); }
 }

@@ -9,4 +9,5 @@ public class IORegInqService {
     public IORegInqDTO getIORegInqDetail(int inoutId) { return new IORegInqDAO().selectIORegInqOne(inoutId); }
     public int register(IORegInqDTO dto) { return new IORegInqDAO().insertIORegInq(dto); }
     public int delete(int[] inoutIds) { return new IORegInqDAO().deleteIORegInq(inoutIds); }
+    public int update(IORegInqDTO dto) { return new IORegInqDAO().updateIORegInq(dto); }
 }

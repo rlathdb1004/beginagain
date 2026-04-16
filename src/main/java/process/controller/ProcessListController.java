@@ -99,7 +99,7 @@ public class ProcessListController extends HttpServlet {
 	    request.setAttribute("paEndPage", endPage);
 
 	    request.setAttribute("pageTitle", "공정관리");
-	    request.setAttribute("pageSubTitle", "공정 등록 / 조회 / 수정 / 삭제");
+	    request.setAttribute("pageSubTitle", "공정 등록, 조회");
 	    request.setAttribute("contentPage", "/WEB-INF/views/process/processList.jsp");
 	    request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
 	}

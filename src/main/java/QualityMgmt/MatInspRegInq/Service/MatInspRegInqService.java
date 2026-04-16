@@ -9,4 +9,5 @@ public class MatInspRegInqService {
     public MatInspRegInqDTO getMatInspRegInqDetail(int materialInspectionId) { return new MatInspRegInqDAO().selectMatInspRegInqOne(materialInspectionId); }
     public int register(MatInspRegInqDTO dto) { return new MatInspRegInqDAO().insertMatInspRegInq(dto); }
     public int delete(int[] ids) { return new MatInspRegInqDAO().deleteMatInspRegInq(ids); }
+    public int update(MatInspRegInqDTO dto) { return new MatInspRegInqDAO().updateMatInspRegInq(dto); }
 }

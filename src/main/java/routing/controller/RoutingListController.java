@@ -54,7 +54,7 @@ public class RoutingListController extends HttpServlet {
         }
 
         request.setAttribute("pageTitle", "라우팅관리");
-        request.setAttribute("pageSubTitle", "라우팅 등록 / 조회 / 삭제");
+        request.setAttribute("pageSubTitle", "라우팅 등록, 조회");
         request.setAttribute("contentPage", "/WEB-INF/views/routing/routingList.jsp");
         request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
     }

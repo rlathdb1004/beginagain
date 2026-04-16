@@ -9,4 +9,5 @@ public class FPInspRegInqService {
     public FPInspRegInqDTO getFPInspRegInqDetail(int finalInspectionId) { return new FPInspRegInqDAO().selectFPInspRegInqOne(finalInspectionId); }
     public int register(FPInspRegInqDTO dto) { return new FPInspRegInqDAO().insertFPInspRegInq(dto); }
     public int delete(int[] ids) { return new FPInspRegInqDAO().deleteFPInspRegInq(ids); }
+    public int update(FPInspRegInqDTO dto) { return new FPInspRegInqDAO().updateFPInspRegInq(dto); }
 }

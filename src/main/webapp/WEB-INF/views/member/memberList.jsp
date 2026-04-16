@@ -125,22 +125,22 @@
 					<label>이름</label><input type="text" name="empName" required>
 				</div>
 				<div class="form-row">
-					<label>부서코드</label><input type="text" name="deptCode">
+					<label>부서코드</label><select name="deptCode"><option value="PROD">생산</option><option value="QUAL">품질</option><option value="MTRL">자재</option><option value="FAC">설비</option><option value="ADMIN">관리</option></select>
 				</div>
 				<div class="form-row">
-					<label>직급</label><input type="text" name="positionName">
+					<label>직급</label><select name="positionName"><option value="사원">사원</option><option value="대리">대리</option><option value="과장">과장</option><option value="차장">차장</option><option value="부장">부장</option></select>
 				</div>
 				<div class="form-row">
-					<label>이메일</label><input type="text" name="email">
+					<label>이메일</label><input type="email" name="email">
 				</div>
 				<div class="form-row">
 					<label>전화번호</label><input type="text" name="phone">
 				</div>
 				<div class="form-row">
-					<label>상태</label><input type="text" name="status" value="ACTIVE">
+					<label>상태</label><select name="status"><option value="재직" selected>재직</option><option value="휴직">휴직</option><option value="퇴사">퇴사</option></select>
 				</div>
 				<div class="form-row">
-					<label>권한</label><input type="text" name="roleName" value="USER">
+					<label>권한</label><select name="roleName"><option value="USER" selected>USER</option><option value="ADMIN">ADMIN</option></select>
 				</div>
 				<div class="form-row full">
 					<label>비고</label>

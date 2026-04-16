@@ -335,24 +335,24 @@
 		</div>
 	</div>
 
-<!-- 	<div class="taSummaryCards"> -->
-<!-- 		<div class="taSummaryCard"> -->
-<!-- 			<div class="taSummaryLabel">전체 작업</div> -->
-<%-- 			<div class="taSummaryValue">${totalCount}</div> --%>
-<!-- 		</div> -->
-<!-- 		<div class="taSummaryCard"> -->
-<!-- 			<div class="taSummaryLabel">대기 작업</div> -->
-<%-- 			<div class="taSummaryValue">${waitingCount}</div> --%>
-<!-- 		</div> -->
-<!-- 		<div class="taSummaryCard"> -->
-<!-- 			<div class="taSummaryLabel">진행중 작업</div> -->
-<%-- 			<div class="taSummaryValue">${runningCount}</div> --%>
-<!-- 		</div> -->
-<!-- 		<div class="taSummaryCard"> -->
-<!-- 			<div class="taSummaryLabel">완료 작업</div> -->
-<%-- 			<div class="taSummaryValue">${doneCount}</div> --%>
-<!-- 		</div> -->
-<!-- 	</div> -->
+	<!-- 	<div class="taSummaryCards"> -->
+	<!-- 		<div class="taSummaryCard"> -->
+	<!-- 			<div class="taSummaryLabel">전체 작업</div> -->
+	<%-- 			<div class="taSummaryValue">${totalCount}</div> --%>
+	<!-- 		</div> -->
+	<!-- 		<div class="taSummaryCard"> -->
+	<!-- 			<div class="taSummaryLabel">대기 작업</div> -->
+	<%-- 			<div class="taSummaryValue">${waitingCount}</div> --%>
+	<!-- 		</div> -->
+	<!-- 		<div class="taSummaryCard"> -->
+	<!-- 			<div class="taSummaryLabel">진행중 작업</div> -->
+	<%-- 			<div class="taSummaryValue">${runningCount}</div> --%>
+	<!-- 		</div> -->
+	<!-- 		<div class="taSummaryCard"> -->
+	<!-- 			<div class="taSummaryLabel">완료 작업</div> -->
+	<%-- 			<div class="taSummaryValue">${doneCount}</div> --%>
+	<!-- 		</div> -->
+	<!-- 	</div> -->
 	<!-- 페이징떄문에 주석처러/령 -->
 	<!-- 	<form class="taLocalSearchForm" id="workStatusSearchForm"> -->
 	<form id="paSearchForm" method="get"
@@ -410,7 +410,7 @@
 		</div>
 	</form>
 
-<!-- 페이징떄문에 아이디 추가함 id="paTableBox" -->
+	<!-- 페이징떄문에 아이디 추가함 id="paTableBox" -->
 	<div class="taTableShell" id="paTableBox">
 		<div class="taTableScroll">
 			<table class="taMesTable" id="workStatusTable">
@@ -458,7 +458,7 @@
 											${ws.progressStatus} </span></td>
 									<td class="taTableBodyCell taColAction taLastCol"><a
 										class="taLinkAnchor"
-										href="${pageContext.request.contextPath}/workorder/detail?workOrderId=${ws.workOrderId}">
+										href="${pageContext.request.contextPath}/workstatus/detail?workOrderId=${ws.workOrderId}">
 											상세보기 </a></td>
 								</tr>
 							</c:forEach>
@@ -474,8 +474,8 @@
 			</table>
 		</div>
 	</div>
-<!-- 페이징때문에 주석처리함/령 -->
-<!-- 	<div class="taPagination" id="workStatusPagination"></div> -->
+	<!-- 페이징때문에 주석처리함/령 -->
+	<!-- 	<div class="taPagination" id="workStatusPagination"></div> -->
 </div>
 
 <!-- <!-- <script> -->

@@ -38,24 +38,6 @@
     </div>
 </form>
 	
-	<div class="taToolbarRow">
-		<div class="taToolbarField">
-			<select class="taSelect" name="searchType"><option
-					value="all">전체</option>
-				<option value="processCode">공정코드</option>
-				<option value="processName">공정명</option></select>
-		</div>
-		<div class="taToolbarField taToolbarFieldGrow"
-			style="grid-column: span 3;">
-			<div class="taSearchBox">
-				<input type="text" class="taSearchInput" name="keyword"
-					placeholder="검색어를 입력하세요">
-				<button type="submit" class="taSearchBtn">⌕</button>
-				<button type="button" class="taBtn taBtnOutline taSearchReset">초기화</button>
-			</div>
-		</div>
-	</div>
-</form>
 <form id="deleteForm"
 	action="${pageContext.request.contextPath}/process/delete"
 	method="post">

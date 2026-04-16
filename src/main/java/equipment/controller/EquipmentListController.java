@@ -99,7 +99,7 @@ public class EquipmentListController extends HttpServlet {
 	    request.setAttribute("paEndPage", endPage);
 
 	    request.setAttribute("pageTitle", "설비관리");
-	    request.setAttribute("pageSubTitle", "설비 등록 / 조회 / 수정 / 삭제");
+	    request.setAttribute("pageSubTitle", "설비 등록, 조회");
 	    request.setAttribute("contentPage", "/WEB-INF/views/equipment/equipmentList.jsp");
 	    request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
 	}

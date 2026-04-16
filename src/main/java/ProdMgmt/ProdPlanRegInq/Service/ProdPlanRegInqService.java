@@ -5,79 +5,32 @@ import java.util.List;
 import ProdMgmt.ProdPlanRegInq.DAO.ProdPlanRegInqDAO;
 import ProdMgmt.ProdPlanRegInq.DTO.ProdPlanRegInqDTO;
 
-/*
- * 생산계획 등록/조회 Service
- *
- * 역할
- * - Controller 와 DAO 사이의 중간 계층
- * - 현재는 조회 / 삭제 기능을 DAO에 위임한다
- */
 public class ProdPlanRegInqService {
-
-    // DAO 객체 생성
     private ProdPlanRegInqDAO dao = new ProdPlanRegInqDAO();
 
-    /*
-     * 전체 건수 조회
-     *
-     * 용도
-     * - 페이징 처리 시 totalCount 계산
-     *
-     * 파라미터
-     * - startDate  : 시작일
-     * - endDate    : 종료일
-     * - searchType : 검색 기준
-     * - keyword    : 검색어
-     *
-     * 반환값
-     * - 검색 조건이 반영된 전체 건수
-     */
     public int getTotalCount(String startDate, String endDate, String searchType, String keyword) {
         return dao.getTotalCount(startDate, endDate, searchType, keyword);
     }
 
-    /*
-     * 페이지별 목록 조회
-     *
-     * 용도
-     * - 현재 페이지에 필요한 생산계획 목록 조회
-     *
-     * 파라미터
-     * - startDate  : 시작일
-     * - endDate    : 종료일
-     * - searchType : 검색 기준
-     * - keyword    : 검색어
-     * - startRow   : 시작 행 번호
-     * - endRow     : 끝 행 번호
-     *
-     * 반환값
-     * - 현재 페이지 범위에 해당하는 생산계획 목록
-     */
-    public List<ProdPlanRegInqDTO> getListByPage(
-            String startDate,
-            String endDate,
-            String searchType,
-            String keyword,
-            int startRow,
-            int endRow) {
-
+    public List<ProdPlanRegInqDTO> getListByPage(String startDate, String endDate, String searchType, String keyword,
+            int startRow, int endRow) {
         return dao.getListByPage(startDate, endDate, searchType, keyword, startRow, endRow);
     }
 
-    /*
-     * 선택된 생산계획 논리삭제
-     *
-     * 용도
-     * - 체크박스로 선택된 생산계획을 삭제할 때 사용
-     * - 실제 삭제가 아니라 USE_YN = 'N' 처리
-     *
-     * 파라미터
-     * - seqNos : 체크된 PLAN_ID 배열
-     *
-     * 반환값
-     * - 업데이트된 행 수
-     */
+    public ProdPlanRegInqDTO getDetailById(int planId) {
+        return dao.getDetailById(planId);
+    }
+
+    public List<ProdPlanRegInqDTO> getFinishedItemOptions() {
+        return dao.getFinishedItemOptions();
+    }
+
+    public int insert(ProdPlanRegInqDTO dto) {
+        return dao.insert(dto);
+    }
+
     public int deleteByIds(String[] seqNos) {
         return dao.deleteByIds(seqNos);
     }
+    public int update(ProdPlanRegInqDTO dto) { return dao.update(dto); }
 }

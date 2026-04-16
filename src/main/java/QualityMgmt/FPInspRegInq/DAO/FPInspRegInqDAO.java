@@ -305,4 +305,16 @@ public int deleteFPInspRegInq(int[] ids) {
     return result;
 }
 
+public int updateFPInspRegInq(FPInspRegInqDTO dto) {
+    Connection conn = null; PreparedStatement ps = null;
+    try {
+        Context ctx = new InitialContext(); DataSource dataFactory = (DataSource) ctx.lookup("java:/comp/env/jdbc/oracle"); conn = dataFactory.getConnection();
+        String sql = "UPDATE FINAL_INSPECTION SET INSPECT_QTY = ?, STATUS = ?, INSPECTION_DATE = ?, REMARK = ?, UPDATED_AT = SYSDATE WHERE FINAL_INSPECTION_ID = ?";
+        ps = conn.prepareStatement(sql);
+        ps.setDouble(1, dto.getInspectQty()); ps.setString(2, dto.getResult()); ps.setDate(3, dto.getInspectionDate()); ps.setString(4, dto.getRemark()); ps.setInt(5, dto.getFinalInspectionId());
+        return ps.executeUpdate();
+    } catch (Exception e) { e.printStackTrace(); } finally { try { if (ps != null) ps.close(); } catch (Exception e) {} try { if (conn != null) conn.close(); } catch (Exception e) {} }
+    return 0;
+}
+
 }

@@ -86,7 +86,7 @@ public class MemberListController extends HttpServlet {
 	    request.setAttribute("paEndPage", endPage);
 
 	    request.setAttribute("pageTitle", "사원관리");
-	    request.setAttribute("pageSubTitle", "사원 조회 / 수정 / 삭제");
+	    request.setAttribute("pageSubTitle", "사원 등록, 조회");
 	    request.setAttribute("contentPage", "/WEB-INF/views/member/memberList.jsp");
 	    request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
 	}
@@ -98,4 +98,36 @@ public class MemberListController extends HttpServlet {
 	    }
 	}
 	
+    private String nvl(String str) {
+        return str == null ? "" : str.trim();
+    }
+
+    private boolean matches(MemberDTO dto, String searchType, String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return true;
+        }
+
+        String lowerKeyword = keyword.toLowerCase();
+
+        String empNo = dto.getEmpNo() == null ? "" : dto.getEmpNo().toLowerCase();
+        String empName = dto.getEmpName() == null ? "" : dto.getEmpName().toLowerCase();
+        String deptCode = dto.getDeptCode() == null ? "" : dto.getDeptCode().toLowerCase();
+        String positionName = dto.getPositionName() == null ? "" : dto.getPositionName().toLowerCase();
+
+        if ("empNo".equals(searchType)) {
+            return empNo.contains(lowerKeyword);
+        } else if ("empName".equals(searchType)) {
+            return empName.contains(lowerKeyword);
+        } else if ("deptCode".equals(searchType)) {
+            return deptCode.contains(lowerKeyword);
+        } else if ("positionName".equals(searchType)) {
+            return positionName.contains(lowerKeyword);
+        } else {
+            return empNo.contains(lowerKeyword)
+                    || empName.contains(lowerKeyword)
+                    || deptCode.contains(lowerKeyword)
+                    || positionName.contains(lowerKeyword);
+        }
+    }
+
 }

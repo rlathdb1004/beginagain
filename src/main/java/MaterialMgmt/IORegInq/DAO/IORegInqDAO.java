@@ -354,4 +354,16 @@ public int deleteIORegInq(int[] inoutIds) {
     return result;
 }
 
+public int updateIORegInq(IORegInqDTO dto) {
+    Connection conn = null; PreparedStatement ps = null;
+    try {
+        Context ctx = new InitialContext(); DataSource dataFactory = (DataSource) ctx.lookup("java:/comp/env/jdbc/oracle"); conn = dataFactory.getConnection();
+        String sql = "UPDATE MATERIAL_INOUT SET INOUT_TYPE = ?, QTY = ?, UNIT = ?, INOUT_DATE = ?, STATUS = ?, REMARK = ?, UPDATED_AT = SYSDATE WHERE INOUT_ID = ?";
+        ps = conn.prepareStatement(sql);
+        ps.setString(1, dto.getInoutType()); ps.setDouble(2, dto.getQty()); ps.setString(3, dto.getUnit()); ps.setDate(4, dto.getInoutDate()); ps.setString(5, dto.getStatus()); ps.setString(6, dto.getRemark()); ps.setInt(7, dto.getInoutId());
+        return ps.executeUpdate();
+    } catch (Exception e) { e.printStackTrace(); } finally { try { if (ps != null) ps.close(); } catch (Exception e) {} try { if (conn != null) conn.close(); } catch (Exception e) {} }
+    return 0;
+}
+
 }
