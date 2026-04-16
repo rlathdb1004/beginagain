@@ -22,9 +22,11 @@
     </div>
 
     <%-- 검색 폼 --%>
-    <form method="get" action="${pageContext.request.contextPath}/prodplan">
+<!--    페이징때문에 아이디 추가함 id="paSearchForm"마지막 papage도/령 -->
+    <form id="paSearchForm" method="get" action="${pageContext.request.contextPath}/prodplan">
         <%-- 검색 버튼 눌렀다는 표시 --%>
         <input type="hidden" name="searched" value="Y">
+        <input type="hidden" name="page" id="paPage" value="${paCurrentPage}">
 
         <div class="taToolbarRow">
             <%-- 기간 검색 --%>
@@ -171,55 +173,56 @@
         </div>
     </form>
 
+<!-- 페이징을 위해 아래 코드 주석함/령 -->
     <%-- 검색했을 때만 페이징 표시 --%>
-    <c:if test="${isSearched}">
-        <div class="taPagination">
+<%--     <c:if test="${isSearched}"> --%>
+<!--         <div class="taPagination"> -->
 
-            <%-- 이전 블록 --%>
-            <c:if test="${startPage > 1}">
-                <c:url var="prevUrl" value="/prodplan">
-                    <c:param name="searched" value="Y" />
-                    <c:param name="page" value="${startPage - 1}" />
-                    <c:param name="startDate" value="${param.startDate}" />
-                    <c:param name="endDate" value="${param.endDate}" />
-                    <c:param name="searchType" value="${param.searchType}" />
-                    <c:param name="keyword" value="${param.keyword}" />
-                </c:url>
-                <a class="taPageBtn" href="${prevUrl}">이전</a>
-            </c:if>
+<%--             이전 블록 --%>
+<%--             <c:if test="${startPage > 1}"> --%>
+<%--                 <c:url var="prevUrl" value="/prodplan"> --%>
+<%--                     <c:param name="searched" value="Y" /> --%>
+<%--                     <c:param name="page" value="${startPage - 1}" /> --%>
+<%--                     <c:param name="startDate" value="${param.startDate}" /> --%>
+<%--                     <c:param name="endDate" value="${param.endDate}" /> --%>
+<%--                     <c:param name="searchType" value="${param.searchType}" /> --%>
+<%--                     <c:param name="keyword" value="${param.keyword}" /> --%>
+<%--                 </c:url> --%>
+<%--                 <a class="taPageBtn" href="${prevUrl}">이전</a> --%>
+<%--             </c:if> --%>
 
-            <%-- 페이지 번호 --%>
-            <c:forEach var="i" begin="${startPage}" end="${endPage}">
-                <c:url var="pageUrl" value="/prodplan">
-                    <c:param name="searched" value="Y" />
-                    <c:param name="page" value="${i}" />
-                    <c:param name="startDate" value="${param.startDate}" />
-                    <c:param name="endDate" value="${param.endDate}" />
-                    <c:param name="searchType" value="${param.searchType}" />
-                    <c:param name="keyword" value="${param.keyword}" />
-                </c:url>
+<%--             페이지 번호 --%>
+<%--             <c:forEach var="i" begin="${startPage}" end="${endPage}"> --%>
+<%--                 <c:url var="pageUrl" value="/prodplan"> --%>
+<%--                     <c:param name="searched" value="Y" /> --%>
+<%--                     <c:param name="page" value="${i}" /> --%>
+<%--                     <c:param name="startDate" value="${param.startDate}" /> --%>
+<%--                     <c:param name="endDate" value="${param.endDate}" /> --%>
+<%--                     <c:param name="searchType" value="${param.searchType}" /> --%>
+<%--                     <c:param name="keyword" value="${param.keyword}" /> --%>
+<%--                 </c:url> --%>
 
-                <a class="${page eq i ? 'taPageBtn active' : 'taPageBtn'}"
-                   href="${pageUrl}">
-                    ${i}
-                </a>
-            </c:forEach>
+<%--                 <a class="${page eq i ? 'taPageBtn active' : 'taPageBtn'}" --%>
+<%--                    href="${pageUrl}"> --%>
+<%--                     ${i} --%>
+<!--                 </a> -->
+<%--             </c:forEach> --%>
 
-            <%-- 다음 블록 --%>
-            <c:if test="${endPage < totalPage}">
-                <c:url var="nextUrl" value="/prodplan">
-                    <c:param name="searched" value="Y" />
-                    <c:param name="page" value="${endPage + 1}" />
-                    <c:param name="startDate" value="${param.startDate}" />
-                    <c:param name="endDate" value="${param.endDate}" />
-                    <c:param name="searchType" value="${param.searchType}" />
-                    <c:param name="keyword" value="${param.keyword}" />
-                </c:url>
-                <a class="taPageBtn" href="${nextUrl}">다음</a>
-            </c:if>
+<%--             다음 블록 --%>
+<%--             <c:if test="${endPage < totalPage}"> --%>
+<%--                 <c:url var="nextUrl" value="/prodplan"> --%>
+<%--                     <c:param name="searched" value="Y" /> --%>
+<%--                     <c:param name="page" value="${endPage + 1}" /> --%>
+<%--                     <c:param name="startDate" value="${param.startDate}" /> --%>
+<%--                     <c:param name="endDate" value="${param.endDate}" /> --%>
+<%--                     <c:param name="searchType" value="${param.searchType}" /> --%>
+<%--                     <c:param name="keyword" value="${param.keyword}" /> --%>
+<%--                 </c:url> --%>
+<%--                 <a class="taPageBtn" href="${nextUrl}">다음</a> --%>
+<%--             </c:if> --%>
 
-        </div>
-    </c:if>
+<!--         </div> -->
+<%--     </c:if> --%>
 </div>
 
 <script>

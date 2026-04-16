@@ -56,8 +56,9 @@
 </div>
 
 <!-- 조회 form -->
-<form method="post" action="${pageContext.request.contextPath}/ioRegInq">
+<form id="paSearchForm"  method="post" action="${pageContext.request.contextPath}/ioRegInq">
 	<input type="hidden" name="cmd" value="list">
+	<input type="hidden" name="page" id="paPage" value="${paCurrentPage}">
 
 	<div class="taToolbarRow">
 
@@ -127,6 +128,7 @@
 			action="${pageContext.request.contextPath}/ioRegInq">
 			<input type="hidden" name="cmd" value="delete">
 			<table class="taMesTable">
+			<div class="taTableShell" id="paTableBox">
 
 				<thead>
 					<tr>

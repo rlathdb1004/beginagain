@@ -331,6 +331,23 @@ public class NoticeServlet extends HttpServlet {
             noLoginEmpId = request.getSession().getAttribute("empId");
         }
 
+        // 추가: loginUser 객체에서 empId 꺼내기
+        if (noLoginEmpId == null) {
+            Object noLoginUser = request.getSession().getAttribute("loginUser");
+            if (noLoginUser != null) {
+                try {
+                    java.lang.reflect.Method method = noLoginUser.getClass().getMethod("getEmpId");
+                    Object value = method.invoke(noLoginUser);
+                    if (value instanceof Integer) {
+                        return (Integer) value;
+                    }
+                    return noParseInt(String.valueOf(value), 0);
+                } catch (Exception e) {
+                    // 무시하고 아래로 진행
+                }
+            }
+        }
+
         if (noLoginEmpId == null) {
             String noWriterEmpId = request.getParameter("writerEmpId");
             return noParseInt(noWriterEmpId, 0);

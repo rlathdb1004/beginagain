@@ -15,6 +15,7 @@ import ANSWER.DTO.AnswerDTO;
 import ANSWER.Service.AnswerService;
 import SUGGESTION.DTO.SuggestionDTO;
 import SUGGESTION.Service.SuggestionService;
+import member.dto.MemberDTO;
 
 @WebServlet("/suggestion/*")
 public class SuggestionServlet extends HttpServlet {
@@ -110,22 +111,35 @@ public class SuggestionServlet extends HttpServlet {
 
         int suPage = parseInt(request.getParameter("page"), 1);
         int suSize = parseInt(request.getParameter("size"), 10);
-        if (suPage < 1) suPage = 1;
-        if (suSize < 1) suSize = 10;
+
+        if (suPage < 1) {
+            suPage = 1;
+        }
+        if (suSize < 1) {
+            suSize = 10;
+        }
+
+        int suTotalCount = suSuggestionService.getSuggestionCount(suKeyword, suStatus, suDeptCode);
+        int suTotalPage = (int) Math.ceil((double) suTotalCount / suSize);
+
+        if (suTotalPage < 1) {
+            suTotalPage = 1;
+        }
+
+        if (suPage > suTotalPage) {
+            suPage = suTotalPage;
+        }
 
         int suStartRow = (suPage - 1) * suSize + 1;
         int suEndRow = suPage * suSize;
 
-        int suTotalCount = suSuggestionService.getSuggestionCount(suKeyword, suStatus, suDeptCode);
         List<SuggestionDTO> suSuggestionList =
                 suSuggestionService.getSuggestionList(suStartRow, suEndRow, suKeyword, suStatus, suDeptCode);
-
-        int suTotalPage = (int) Math.ceil((double) suTotalCount / suSize);
-        if (suTotalPage < 1) suTotalPage = 1;
 
         int suPageBlock = 5;
         int suStartPage = ((suPage - 1) / suPageBlock) * suPageBlock + 1;
         int suEndPage = suStartPage + suPageBlock - 1;
+
         if (suEndPage > suTotalPage) {
             suEndPage = suTotalPage;
         }
@@ -143,12 +157,25 @@ public class SuggestionServlet extends HttpServlet {
         request.setAttribute("startPage", suStartPage);
         request.setAttribute("endPage", suEndPage);
 
+        /*
+         * 상세 모드일 때 게시글 / 답글 다시 조회
+         */
         if ("detail".equals(suMode)) {
             long suSuggestionId = parseLong(request.getParameter("id"), 0L);
-            if (suSuggestionId > 0) {
-                SuggestionDTO suSelectedSuggestion = suSuggestionService.getSuggestionDetail(suSuggestionId, false);
-                AnswerDTO anSelectedAnswer = anAnswerService.getAnswerBySuggestionId(suSuggestionId);
-                List<AnswerDTO> anAnswerList = anAnswerService.getAnswerListBySuggestionId(suSuggestionId);
+
+            if (suSuggestionId > 0L) {
+                SuggestionDTO suSelectedSuggestion =
+                        suSuggestionService.getSuggestionDetail(suSuggestionId, true);
+
+                AnswerDTO anSelectedAnswer =
+                        anAnswerService.getAnswerBySuggestionId(suSuggestionId);
+
+                List<AnswerDTO> anAnswerList = null;
+                try {
+                    anAnswerList = anAnswerService.getAnswerListBySuggestionId(suSuggestionId);
+                } catch (Exception e) {
+                    anAnswerList = null;
+                }
 
                 request.setAttribute("selectedSuggestion", suSelectedSuggestion);
                 request.setAttribute("selectedAnswer", anSelectedAnswer);
@@ -169,6 +196,7 @@ public class SuggestionServlet extends HttpServlet {
         RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/table.jsp");
         dispatcher.forward(request, response);
     }
+    
 
     private void insert(HttpServletRequest request, HttpServletResponse response) throws Exception {
         SuggestionDTO suDto = new SuggestionDTO();
@@ -272,15 +300,23 @@ public class SuggestionServlet extends HttpServlet {
 
     private long resolveWriterEmpId(HttpSession session) {
         if (session != null) {
+            Object loginUserObj = session.getAttribute("loginUser");
+
+            if (loginUserObj instanceof MemberDTO) {
+                return ((MemberDTO) loginUserObj).getEmpId();
+            }
+
             Object loginEmpId = session.getAttribute("loginEmpId");
             if (loginEmpId instanceof Number) {
                 return ((Number) loginEmpId).longValue();
             }
+
             Object empId = session.getAttribute("empId");
             if (empId instanceof Number) {
                 return ((Number) empId).longValue();
             }
         }
-        return 1L;
+
+        throw new IllegalStateException("로그인 사용자 정보를 찾을 수 없습니다.");
     }
 }

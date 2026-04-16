@@ -119,7 +119,7 @@
 	border-radius: 12px;
 	box-sizing: border-box;
 	font-size: 14px;
-	font-weight: 600;
+	font-weight: 500;
 	cursor: pointer;
 }
 
@@ -192,35 +192,35 @@
 
 .noTableWrap {
 	width: 100%;
-	overflow-x: auto;
+	overflow-x: hidden;
 	box-sizing: border-box;
 }
 
 .noTable {
 	width: 100%;
-	min-width: 1080px;
+	min-width: 0;
 	border-collapse: collapse;
 	table-layout: fixed;
 }
 
 .noTable thead th {
-	padding: 14px 12px;
+	padding: 12px 8px;
 	background: #eef3f8;
 	border-top: 1px solid #dbe3ec;
 	border-bottom: 1px solid #dbe3ec;
 	text-align: center;
-	font-size: 14px;
+	font-size: 13px;
 	font-weight: 600;
 	color: #0A1E3C;
 	white-space: nowrap;
 }
 
 .noTable tbody td {
-	padding: 14px 12px;
+	padding: 12px 8px;
 	border-bottom: 1px solid #edf2f7;
 	text-align: center;
 	vertical-align: middle;
-	font-size: 14px;
+	font-size: 13px;
 	font-weight: 400;
 	color: #344054;
 	background: #ffffff;
@@ -511,6 +511,12 @@
 
 <div class="noNoticeWrap" id="noNoticeSection">
 
+	<!-- 등록 버튼 -->
+	<div class="noTopActionRow">
+		<button type="button" class="noBtn noBtnPrimary"
+			onclick="noOpenRegisterModal()">등록</button>
+	</div>
+	
 	<!-- 검색 -->
 	<form
 		action="${pageContext.request.contextPath}/notice"
@@ -571,12 +577,6 @@
 			</div>
 		</div>
 	</form>
-
-	<!-- 등록 버튼 -->
-	<div class="noTopActionRow">
-		<button type="button" class="noBtn noBtnPrimary"
-			onclick="noOpenRegisterModal()">등록</button>
-	</div>
 
 	<!-- 게시판 카드 -->
 	<div class="noBoardCard" id="noTableBox" >
