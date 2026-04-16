@@ -46,6 +46,7 @@ public class ReportController extends HttpServlet {
         request.setAttribute("endDate", endLocalDate.toString());
         request.setAttribute("pageTitle", "리포트");
         request.setAttribute("pageSubTitle", "생산 · 품질 · 설비 데이터 기간별 분석 ");
+        request.setAttribute("prodUnit", "kg");
         request.setAttribute("contentPage", "/WEB-INF/views/report/report.jsp");
         request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
     }

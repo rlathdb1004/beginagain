@@ -1,0 +1,439 @@
+/* ===== report base ===== */
+.reportPage {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.reportFilterBox, .reportPanel {
+	background: #fff;
+	border: 1px solid #d7e1f0;
+	border-radius: 20px;
+	box-shadow: 0 10px 24px rgba(10, 30, 60, .04);
+}
+
+.reportFilterBox {
+	padding: 18px 20px;
+}
+
+.reportPanel {
+	padding: 20px;
+}
+
+.reportPanelTitle {
+	margin: 0 0 6px;
+	font-size: 20px;
+	color: #0A1E3C;
+}
+
+.reportPanelSub {
+	margin: 0 0 18px;
+	color: #6F7B8D;
+	font-size: 13px;
+}
+
+.reportCaption {
+	margin-top: 14px;
+	padding: 12px 14px;
+	border-radius: 14px;
+	background: #f5f8fc;
+	color: #44536a;
+	font-size: 13px;
+	line-height: 1.6;
+}
+
+/* ===== filter ===== */
+.reportFilterForm {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	align-items: end;
+}
+
+.reportField {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	min-width: 180px;
+}
+
+.reportField label {
+	font-size: 13px;
+	color: #6F7B8D;
+}
+
+.reportInput {
+	height: 40px;
+	border: 1px solid #d7e1f0;
+	border-radius: 12px;
+	padding: 0 12px;
+	font-size: 14px;
+}
+
+.reportBtn {
+	height: 40px;
+	padding: 0 18px;
+	border: none;
+	border-radius: 12px;
+	background: #0047AB;
+	color: #fff;
+	font-size: 14px;
+	cursor: pointer;
+}
+
+/* ===== summary ===== */
+.reportSummaryGrid {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 16px;
+}
+
+.reportSummaryCard {
+	background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+	border: 1px solid #d7e1f0;
+	border-radius: 18px;
+	padding: 18px;
+}
+
+.reportSummaryLabel {
+	color: #6F7B8D;
+	font-size: 13px;
+	margin-bottom: 8px;
+}
+
+.reportSummaryValue {
+	color: #0A1E3C;
+	font-size: 28px;
+	font-weight: 800;
+}
+
+.reportSummaryHint {
+	margin-top: 8px;
+	color: #6F7B8D;
+	font-size: 12px;
+}
+
+/* ===== common chart box ===== */
+.reportTwoCol {
+	display: grid;
+	grid-template-columns: 1.4fr 1fr;
+	gap: 20px;
+}
+
+.reportChartBox {
+	border: 1px solid #e3ebf6;
+	border-radius: 18px;
+	padding: 16px;
+	background: #fbfdff;
+}
+
+.reportChartTitle {
+	font-size: 15px;
+	font-weight: 700;
+	margin-bottom: 14px;
+	color: #102544;
+}
+
+.reportEmpty {
+	padding: 24px;
+	border: 1px dashed #c9d7eb;
+	border-radius: 16px;
+	color: #6F7B8D;
+	text-align: center;
+	background: #fbfdff;
+}
+
+/* ===== production ===== */
+.reportProdChart {
+	display: flex;
+	align-items: flex-end;
+	gap: 14px;
+	min-height: 260px;
+	padding: 0 8px;
+}
+
+.reportProdCol {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+}
+
+.reportProdPlot {
+	position: relative;
+	width: 100%;
+	height: 210px;
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+}
+
+.reportProdBar {
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	bottom: 0;
+	width: 26px;
+	min-height: 8px;
+	border-radius: 10px 10px 0 0;
+	background: linear-gradient(180deg, #4a9dff 0%, #0047AB 100%);
+}
+
+.reportProdValues {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 2px;
+	line-height: 1.2;
+}
+
+.reportBarValue {
+	font-size: 11px;
+	color: #22304A;
+	font-weight: 700;
+}
+
+.reportLossValue {
+	font-size: 11px;
+	color: #FF4500;
+	font-weight: 700;
+}
+
+.reportBarLabel {
+	font-size: 12px;
+	color: #6F7B8D;
+	text-align: center;
+	word-break: keep-all;
+}
+
+/* ===== defect ===== */
+.reportDefectChart {
+	display: flex;
+	align-items: flex-end;
+	gap: 14px;
+	min-height: 260px;
+	padding: 0 8px;
+}
+
+.reportDefectCol {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+}
+
+.reportDefectBars {
+	width: 100%;
+	height: 210px;
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+}
+
+.reportDefectBar {
+	width: 42px;
+	max-width: 100%;
+	min-height: 8px;
+	border-radius: 10px 10px 0 0;
+	background: linear-gradient(180deg, #ffb48a 0%, #FF4500 100%);
+}
+
+.reportDefectValue {
+	font-size: 12px;
+	color: #22304A;
+	font-weight: 700;
+}
+
+.reportDefectLabel {
+	font-size: 12px;
+	color: #6F7B8D;
+	text-align: center;
+	height: 32px;
+	line-height: 1.2;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	word-break: keep-all;
+	overflow: hidden;
+}
+
+/* ===== achievement ===== */
+.reportAchDesktop {
+	display: block;
+}
+
+.reportAchMobile {
+	display: none;
+}
+
+.reportAchItemCell {
+	display:flex;
+	align-items:center;
+	gap:8px;
+	flex-wrap:wrap;
+}
+
+.reportAchGapText {
+	font-weight:700;
+	color:#e85b2c;
+}
+
+.reportAchRateText {
+	font-weight:700;
+	color:#102544;
+}
+
+.reportAchWarn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 2px 8px;
+	border-radius: 999px;
+	background: #fff1eb;
+	color: #e85b2c;
+	font-size: 11px;
+	font-weight: 700;
+	border: 1px solid #ffd3c2;
+	white-space: nowrap;
+}
+
+.reportRowWeak td {
+	background: #fffaf7;
+}
+
+.reportAchCardList {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.reportAchCard {
+	border: 1px solid #d7e1f0;
+	border-radius: 16px;
+	background: #fff;
+	overflow: hidden;
+}
+
+.reportAchCardWeak {
+	background: #fffaf7;
+	border-color: #ffd8ca;
+}
+
+.reportAchCardHead {
+	padding: 14px 16px;
+	background: #f7faff;
+	border-bottom: 1px solid #e6eef8;
+	font-size: 14px;
+	font-weight: 700;
+	color: #102544;
+	word-break: break-word;
+}
+
+.reportAchCardBody {
+	padding: 12px 14px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.reportAchCardRow {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	font-size: 13px;
+}
+
+.reportAchCardLabel {
+	color: #6F7B8D;
+	font-weight: 700;
+}
+
+.reportAchCardValue {
+	color: #102544;
+	font-weight: 700;
+}
+
+.reportAchCardGap {
+	color: #e85b2c;
+}
+
+.reportAchCardWarn {
+	margin-top: 6px;
+	display: inline-block;
+	padding: 3px 8px;
+	border-radius: 999px;
+	background: #fff1eb;
+	color: #e85b2c;
+	font-size: 11px;
+	font-weight: 700;
+	border: 1px solid #ffd3c2;
+}
+
+/* ===== equipment ===== */
+.reportEquipDesktop {
+	display: block;
+}
+
+.reportEquipMobile {
+	display: none;
+}
+
+.reportEquipCardList {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.reportEquipCard {
+	border: 1px solid #d7e1f0;
+	border-radius: 16px;
+	background: #fff;
+	overflow: hidden;
+}
+
+.reportEquipCardHead {
+	padding: 14px 16px;
+	background: #f7faff;
+	border-bottom: 1px solid #e6eef8;
+	font-size: 14px;
+	font-weight: 700;
+	color: #102544;
+	word-break: break-word;
+}
+
+.reportEquipCardBody {
+	padding: 10px 14px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.reportEquipCardRow {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 6px 0;
+	border-bottom: 1px solid #eef3f9;
+}
+
+.reportEquipCardRow:last-child {
+	border-bottom: none;
+}
+
+.reportEquipCardLabel {
+	color: #6F7B8D;
+	font-size: 12px;
+	font-weight: 700;
+}
+
+.reportEquipCardValue {
+	color: #102544;
+	font-size: 13px;
+	font-weight: 700;
+}

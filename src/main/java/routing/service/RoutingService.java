@@ -21,4 +21,51 @@ public class RoutingService {
             DBCPUtil.close(conn);
         }
     }
+
+    public RoutingDTO getRoutingById(int routingId) {
+        Connection conn = null;
+
+        try {
+            conn = DBCPUtil.getConnection();
+            return routingDAO.selectRoutingById(conn, routingId);
+        } finally {
+            DBCPUtil.close(conn);
+        }
+    }
+
+    public boolean insertRouting(RoutingDTO dto) {
+        Connection conn = null;
+
+        try {
+            conn = DBCPUtil.getConnection();
+            int result = routingDAO.insertRouting(conn, dto);
+            return result > 0;
+        } finally {
+            DBCPUtil.close(conn);
+        }
+    }
+
+    public boolean updateRouting(RoutingDTO dto) {
+        Connection conn = null;
+
+        try {
+            conn = DBCPUtil.getConnection();
+            int result = routingDAO.updateRouting(conn, dto);
+            return result > 0;
+        } finally {
+            DBCPUtil.close(conn);
+        }
+    }
+
+    public boolean deleteRouting(String[] routingIds) {
+        Connection conn = null;
+
+        try {
+            conn = DBCPUtil.getConnection();
+            int result = routingDAO.deleteRouting(conn, routingIds);
+            return result > 0;
+        } finally {
+            DBCPUtil.close(conn);
+        }
+    }
 }

@@ -1,0 +1,39 @@
+@media ( max-width : 1200px) {
+	.reportSummaryGrid, .reportTwoCol {
+		grid-template-columns: 1fr 1fr;
+	}
+}
+
+@media ( max-width : 900px) {
+	.reportSummaryGrid, .reportTwoCol {
+		grid-template-columns: 1fr;
+	}
+	.reportPanel {
+		padding: 16px;
+	}
+	.reportPanelSub {
+		font-size: 12px;
+	}
+	.reportCaption {
+		padding: 10px 12px;
+		font-size: 12px;
+	}
+	.reportDefectBar {
+		width: 30px;
+	}
+	.reportProdBar {
+		width: 22px;
+	}
+	.reportAchDesktop {
+		display: none;
+	}
+	.reportAchMobile {
+		display: block;
+	}
+	.reportEquipDesktop {
+		display: none;
+	}
+	.reportEquipMobile {
+		display: block;
+	}
+}

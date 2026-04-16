@@ -151,21 +151,22 @@ public class ReportDAO {
 
         String sql = ""
                 + "SELECT NVL(P.ITEM_NAME, R.ITEM_NAME) AS ITEM_NAME, "
+                + "       NVL(P.UNIT, R.UNIT) AS UNIT, "
                 + "       NVL(P.PLAN_QTY, 0) AS PLAN_QTY, "
                 + "       NVL(R.PRODUCED_QTY, 0) AS PRODUCED_QTY, "
                 + "       CASE WHEN NVL(P.PLAN_QTY, 0) = 0 THEN 0 "
                 + "            ELSE ROUND((NVL(R.PRODUCED_QTY, 0) / P.PLAN_QTY) * 100, 1) END AS ACHIEVEMENT_RATE "
                 + "  FROM ( "
-                + "        SELECT I.ITEM_ID, I.ITEM_NAME, SUM(NVL(PP.PLAN_QTY, 0)) AS PLAN_QTY "
+                + "        SELECT I.ITEM_ID, I.ITEM_NAME, I.UNIT, SUM(NVL(PP.PLAN_QTY, 0)) AS PLAN_QTY "
                 + "          FROM PRODUCTION_PLAN PP "
                 + "          JOIN ITEM I ON PP.ITEM_ID = I.ITEM_ID "
                 + "         WHERE PP.USE_YN = 'Y' "
                 + "           AND I.USE_YN = 'Y' "
                 + "           AND PP.PLAN_DATE BETWEEN ? AND ? "
-                + "         GROUP BY I.ITEM_ID, I.ITEM_NAME "
+                + "         GROUP BY I.ITEM_ID, I.ITEM_NAME, I.UNIT "
                 + "       ) P "
                 + "  FULL OUTER JOIN ( "
-                + "        SELECT I.ITEM_ID, I.ITEM_NAME, SUM(NVL(PR.PRODUCED_QTY, 0)) AS PRODUCED_QTY "
+                + "        SELECT I.ITEM_ID, I.ITEM_NAME, I.UNIT, SUM(NVL(PR.PRODUCED_QTY, 0)) AS PRODUCED_QTY "
                 + "          FROM PRODUCTION_RESULT PR "
                 + "          JOIN WORK_ORDER WO ON PR.WORK_ORDER_ID = WO.WORK_ORDER_ID "
                 + "          JOIN ITEM I ON WO.ITEM_ID = I.ITEM_ID "
@@ -173,7 +174,7 @@ public class ReportDAO {
                 + "           AND WO.USE_YN = 'Y' "
                 + "           AND I.USE_YN = 'Y' "
                 + "           AND PR.RESULT_DATE BETWEEN ? AND ? "
-                + "         GROUP BY I.ITEM_ID, I.ITEM_NAME "
+                + "         GROUP BY I.ITEM_ID, I.ITEM_NAME, I.UNIT "
                 + "       ) R "
                 + "    ON P.ITEM_ID = R.ITEM_ID "
                 + " ORDER BY ACHIEVEMENT_RATE DESC, ITEM_NAME ASC";
@@ -188,6 +189,7 @@ public class ReportDAO {
             while (rs.next()) {
                 PlanAchievementDTO dto = new PlanAchievementDTO();
                 dto.setItemName(rs.getString("ITEM_NAME"));
+                dto.setUnit(rs.getString("UNIT"));
                 dto.setPlanQty(rs.getDouble("PLAN_QTY"));
                 dto.setProducedQty(rs.getDouble("PRODUCED_QTY"));
                 dto.setAchievementRate(rs.getDouble("ACHIEVEMENT_RATE"));
