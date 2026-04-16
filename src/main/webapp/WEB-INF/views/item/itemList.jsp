@@ -6,28 +6,63 @@
   <button type="submit" form="deleteForm" class="taBtn taBtnOutline" onclick="return confirm('선택한 품목을 삭제하시겠습니까?');">선택 삭제</button>
 </div>
 
-<form class="taLocalSearchForm" data-table-id="itemTable">
+<!-- 페이징기능을 위해 주석처리 하고 하단에 바로 코딩 추가/령 -->
+<!-- <form class="taLocalSearchForm" data-table-id="itemTable"> -->
+<!--   <div class="taToolbarRow"> -->
+<!--     <div class="taToolbarField"> -->
+<!--       <select class="taSelect" name="searchType"> -->
+<!--         <option value="all">전체</option> -->
+<!--         <option value="itemCode">품목코드</option> -->
+<!--         <option value="itemName">품목명</option> -->
+<!--         <option value="itemType">품목유형</option> -->
+<!--         <option value="supplierName">공급처</option> -->
+<!--       </select> -->
+<!--     </div> -->
+<!--     <div class="taToolbarField taToolbarFieldGrow" style="grid-column: span 3;"> -->
+<!--       <div class="taSearchBox"> -->
+<!--         <input type="text" class="taSearchInput" name="keyword" placeholder="검색어를 입력하세요"> -->
+<!--         <button type="submit" class="taSearchBtn">⌕</button> -->
+<!--         <button type="button" class="taBtn taBtnOutline taSearchReset">초기화</button> -->
+<!--       </div> -->
+<!--     </div> -->
+<!--   </div> -->
+<!-- </form> -->
+
+<form id="paSearchForm" method="get" action="${pageContext.request.contextPath}/item/list">
+  <input type="hidden" name="page" id="paPage" value="${paCurrentPage}">
+
   <div class="taToolbarRow">
     <div class="taToolbarField">
       <select class="taSelect" name="searchType">
-        <option value="all">전체</option>
-        <option value="itemCode">품목코드</option>
-        <option value="itemName">품목명</option>
-        <option value="itemType">품목유형</option>
-        <option value="supplierName">공급처</option>
+        <option value="all" ${empty searchType or searchType eq 'all' ? 'selected' : ''}>전체</option>
+        <option value="itemCode" ${searchType eq 'itemCode' ? 'selected' : ''}>품목코드</option>
+        <option value="itemName" ${searchType eq 'itemName' ? 'selected' : ''}>품목명</option>
+        <option value="itemType" ${searchType eq 'itemType' ? 'selected' : ''}>품목유형</option>
+        <option value="supplierName" ${searchType eq 'supplierName' ? 'selected' : ''}>공급처</option>
       </select>
     </div>
+
     <div class="taToolbarField taToolbarFieldGrow" style="grid-column: span 3;">
       <div class="taSearchBox">
-        <input type="text" class="taSearchInput" name="keyword" placeholder="검색어를 입력하세요">
+        <input type="text"
+               class="taSearchInput"
+               name="keyword"
+               value="${keyword}"
+               placeholder="검색어를 입력하세요">
         <button type="submit" class="taSearchBtn">⌕</button>
-        <button type="button" class="taBtn taBtnOutline taSearchReset">초기화</button>
+        <button type="button"
+                class="taBtn taBtnOutline taSearchReset"
+                onclick="location.href='${pageContext.request.contextPath}/item/list'">
+          초기화
+        </button>
       </div>
     </div>
   </div>
 </form>
+
 <form id="deleteForm" action="${pageContext.request.contextPath}/item/delete" method="post">
-  <div class="taTableShell">
+<!--  페이징 기능을 위해 아이디 추가 id="paTableBox" / 령 -->
+  <div class="taTableShell" id="paTableBox">
     <div class="taTableScroll">
       <table class="taMesTable" id="itemTable">
         <thead>

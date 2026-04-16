@@ -146,11 +146,11 @@ if (suSelectedSuggestion != null) {
 }
 
 textarea.suField {
-    height: 190px;
-    min-height: 190px;
-    padding: 14px;
-    resize: none;
-    line-height: 1.6;
+	height: 190px;
+	min-height: 190px;
+	padding: 14px;
+	resize: none;
+	line-height: 1.6;
 }
 
 .suSearchBtnIcon {
@@ -208,13 +208,13 @@ textarea.suField {
 
 .suTableScroll {
 	width: 100%;
-	overflow-x: auto;
+	overflow-x: hidden;
 	box-sizing: border-box
 }
 
 .suTable {
 	width: 100%;
-	min-width: 1080px;
+	min-width: 0;
 	border-collapse: collapse;
 	table-layout: fixed
 }
@@ -288,7 +288,8 @@ textarea.suField {
 	align-items: center;
 	gap: 10px;
 	flex-wrap: wrap;
-	margin-top: 18px
+	margin-top: 18px;
+	padding-top: 0;
 }
 
 .suPagingBtn {
@@ -303,15 +304,26 @@ textarea.suField {
 	box-sizing: border-box;
 	background: transparent;
 	color: #667085;
+	text-decoration: none;
 	font-size: 14px;
 	font-weight: 600;
-	cursor: pointer
+	line-height: 1;
+	cursor: pointer;
+}
+
+.suPagingBtn:hover {
+	color: #0047AB;
 }
 
 .suPagingBtnActive {
 	background: #e9f1ff;
 	color: #0047AB;
-	border-color: #d5e4ff
+	border-color: #d5e4ff;
+}
+
+.suPagingBtn:disabled {
+	color: #c0c7d1;
+	cursor: default;
 }
 
 .suStatusBadge {
@@ -509,27 +521,27 @@ textarea.suField {
 }
 
 .suFormRow {
-    display: grid;
-    grid-template-columns: 140px 1fr;
-    gap: 14px;
-    margin-bottom: 14px;
-    align-items: start;
+	display: grid;
+	grid-template-columns: 140px 1fr;
+	gap: 14px;
+	margin-bottom: 14px;
+	align-items: start;
 }
 
 .suLabelBox {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 40px;
-    min-height: 40px;
-    align-self: start;
-    border: 1px solid #d6e0ea;
-    border-radius: 12px;
-    background: #ffffff;
-    color: #0A1E3C;
-    font-size: 14px;
-    font-weight: 600;
-    box-sizing: border-box;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 40px;
+	min-height: 40px;
+	align-self: start;
+	border: 1px solid #d6e0ea;
+	border-radius: 12px;
+	background: #ffffff;
+	color: #0A1E3C;
+	font-size: 14px;
+	font-weight: 600;
+	box-sizing: border-box;
 }
 
 @media ( max-width :900px) {
@@ -807,7 +819,7 @@ if ("detail".equals(suMode)) {
 						<td><%=suDto.getCreatedAt() == null ? "-" : suDateFormat.format(suDto.getCreatedAt())%></td>
 						<td><a
 							href="<%=suContextPath + "/suggestion/list?mode=detail&id=" + suDto.getSuggestionId()%>"
-							class="suViewBtn">보기</a></td>
+							class="suViewBtn">상세</a></td>
 					</tr>
 					<%
 					}
@@ -818,18 +830,26 @@ if ("detail".equals(suMode)) {
 		</div>
 		<div class="suPagingWrap">
 			<button type="button" class="suPagingBtn"
-				onclick="movePage(<%=suCurrentPage - 1%>)">&lt;&lt;</button>
+				onclick="movePage(<%=suCurrentPage - 1%>)"
+				<%=suCurrentPage <= 1 ? "disabled=\"disabled\"" : ""%>>
+				&lt;&lt;</button>
+
 			<%
 			for (int suPageNo = suStartPage; suPageNo <= suEndPage; suPageNo++) {
 			%>
 			<button type="button"
 				class="suPagingBtn <%=suPageNo == suCurrentPage ? "suPagingBtnActive" : ""%>"
-				onclick="movePage(<%=suPageNo%>)"><%=suPageNo%></button>
+				onclick="movePage(<%=suPageNo%>)">
+				<%=suPageNo%>
+			</button>
 			<%
 			}
 			%>
+
 			<button type="button" class="suPagingBtn"
-				onclick="movePage(<%=suCurrentPage + 1%>)">&gt;&gt;</button>
+				onclick="movePage(<%=suCurrentPage + 1%>)"
+				<%=suCurrentPage >= ((Integer) request.getAttribute("totalPage")) ? "disabled=\"disabled\"" : ""%>>
+				&gt;&gt;</button>
 		</div>
 	</div>
 
@@ -875,7 +895,23 @@ if ("detail".equals(suMode)) {
 	</div>
 </div>
 <script>
-function movePage(suPage){document.getElementById('suPage').value=suPage;document.getElementById('suSearchForm').submit();}
+function movePage(suPage) {
+    sessionStorage.setItem("suggestionMoveToTable", "Y");
+    document.getElementById("suPage").value = suPage;
+    document.getElementById("suSearchForm").submit();
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    var suMoveToTable = sessionStorage.getItem("suggestionMoveToTable");
+
+    if (suMoveToTable === "Y") {
+        var suTableBox = document.getElementById("suTableBox");
+        if (suTableBox) {
+            suTableBox.scrollIntoView({ behavior: "auto", block: "start" });
+        }
+        sessionStorage.removeItem("suggestionMoveToTable");
+    }
+});
 </script>
 <%
 }

@@ -130,6 +130,15 @@ public class WORegInqController extends HttpServlet {
         request.setAttribute("totalPage", totalPage);
         request.setAttribute("startPage", startPage);
         request.setAttribute("endPage", endPage);
+        
+        //페이징을 위해서 아래 코드 추가함 /령
+        request.setAttribute("paCurrentPage", page);
+        request.setAttribute("paPageSize", pageSize);
+        request.setAttribute("paBlockSize", pageBlock);
+        request.setAttribute("paTotalCount", totalCount);
+        request.setAttribute("paTotalPage", totalPage);
+        request.setAttribute("paStartPage", startPage);
+        request.setAttribute("paEndPage", endPage);
 
         // 공통 레이아웃 제목
         request.setAttribute("pageTitle", "작업관리");

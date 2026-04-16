@@ -518,6 +518,57 @@ body {
   white-space: nowrap;
 }
 
+/* =========================================
+   공통 페이징
+   - 공지사항 / 건의사항에서 사용한 페이징 스타일 기준
+   - << / 페이지번호 / >> 구조
+   ========================================= */
+.paPagingWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+  padding-top: 0;
+}
+
+.paPageBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  box-sizing: border-box;
+  background: transparent;
+  color: #667085;
+  text-decoration: none;
+  font-size: 14px;
+/*   font-weight: 600; */
+  line-height: 1;
+  cursor: pointer;
+  font-family: 'A2z', sans-serif;
+}
+
+.paPageBtn:hover {
+  color: #0047AB;
+}
+
+.paPageActive {
+  background: #e9f1ff;
+  color: #0047AB;
+  border-color: #d5e4ff;
+  font-weight: 900;
+}
+
+.paPageBtn:disabled {
+  color: #c0c7d1;
+  cursor: default;
+}
+
 @media (max-width: 900px) {
   .taToolbarRow {
     grid-template-columns: 1fr;
@@ -537,3 +588,4 @@ body {
     flex: 1 1 220px;
   }
 }
+
