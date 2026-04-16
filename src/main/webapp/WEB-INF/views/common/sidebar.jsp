@@ -94,7 +94,7 @@
 			<div class="menu-group">
 				<button class="menu-title open" type="button">6. 리포트</button>
 				<div class="menu-items open">
-					<a href="#">리포트</a>
+					<a href="${pageContext.request.contextPath}/report">리포트</a>
 				</div>
 			</div>
 
@@ -113,7 +113,7 @@
 				<div class="menu-items open">
 					<a href="${pageContext.request.contextPath}/item/list">품목 관리</a> <a
 						href="${pageContext.request.contextPath}/process/list">공정 관리</a> <a
-						href="#">라우팅 관리</a> <a href="#">BOM 관리</a> <a href="#">불량 관리</a> <a
+						href="${pageContext.request.contextPath}/routing/list">라우팅 관리</a> <a href="#">BOM 관리</a> <a href="#">불량 관리</a> <a
 						href="${pageContext.request.contextPath}/equipment/list">설비 관리</a> <a
 						href="${pageContext.request.contextPath}/member/list">직원 관리</a>
 				</div>
