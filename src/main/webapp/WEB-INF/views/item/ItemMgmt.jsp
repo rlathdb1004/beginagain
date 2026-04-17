@@ -135,7 +135,7 @@
 
 			<div class="modal">
 				<div class="modal-box">
-					<div class="modal-title">품목 등록</div>
+					<div class="modal-title">품목 등록/수정</div>
 
 					<form method="post" action="${pageContext.request.contextPath}/master-item" class="form-row">
 						<input type="hidden" name="item_id" id="item_id">
@@ -150,7 +150,7 @@
 
 						<div style="display:flex; gap:10px; margin-top:10px;">
 							<button type="submit" class="taBtn taBtnPrimary">등록</button>
-							<button type="button" class="taBtn" onclick="openModal()">취소</button>
+							<button type="button" class="taBtn" onclick="closeModal()">취소</button>
 						</div>
 
 					</form>
@@ -161,6 +161,11 @@
 				function openModal() {
 					document.querySelector(".modal").classList.toggle("open")
 				}
+
+				function closeModal() {
+                    document.querySelector(".modal").classList.remove("open");
+                    document.querySelector(".modal form").reset();
+                }
 
 				function deleteSelected() {
 
