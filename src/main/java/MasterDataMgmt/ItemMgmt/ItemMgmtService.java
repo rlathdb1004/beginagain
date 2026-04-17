@@ -2,7 +2,7 @@ package MasterDataMgmt.ItemMgmt;
 
 import java.util.List;
 
-import MasterDataMgmt.DefectManagement.DefectMgmtDTO;
+import MasterDataMgmt.DefectManagement.dto.DefectMgmtDTO;
 
 
 public class ItemMgmtService {

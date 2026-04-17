@@ -16,10 +16,16 @@
         <body>
 
             <div class="taPageActions">
-                <button type="button" class="taBtn taBtnPrimary" onclick="openModal()">등록</button>
-                <button type="button" class="taBtn taBtnDanger">삭제</button>
+                <c:choose>
+                    <c:when test="${empty param.product_code}">
+                        <button type="button" class="taBtn taBtnPrimary" onclick="alert('먼저 품목을 선택하세요.');">등록</button>
+                    </c:when>
+                    <c:otherwise>
+                        <button type="button" class="taBtn taBtnPrimary" data-modal-target="registerModal">등록</button>
+                    </c:otherwise>
+                </c:choose>
+                <button class="taBtn taBtnOutline" onclick="deleteSelected()">선택 삭제</button>
             </div>
-
 
             <form method="get" action="${pageContext.request.contextPath}/BOM-mgmt">
                 <div class="taToolbarRow">
@@ -49,12 +55,14 @@
                     <table class="taMesTable">
                         <thead>
                             <tr>
+                                <th class="taTableHeadCell"><input type="checkbox" id="checkAll"></th>
                                 <th class="taTableHeadCell">완제품 코드</th>
                                 <th class="taTableHeadCell">완제품명</th>
                                 <th class="taTableHeadCell">원자재 코드</th>
                                 <th class="taTableHeadCell">원자재명</th>
                                 <th class="taTableHeadCell">소요량</th>
                                 <th class="taTableHeadCell">단위</th>
+                                <th class="taTableHeadCell taColAction taLastCol">상세</th>
                             </tr>
                         </thead>
 
@@ -62,24 +70,27 @@
                             <c:forEach var="BOM" items="${BOMList}">
                                 <tr class="taTableBodyRow">
 
-                                    <!-- 완제품 -->
+                                    <td class="taTableBodyCell"><input type="checkbox" class="row-check"
+                                            name="bom_detail_id" value="${BOM.bom_detail_id}"></td>
+
                                     <td class="taTableBodyCell">${BOM.product_code}</td>
                                     <td class="taTableBodyCell">${BOM.product_name}</td>
-
-                                    <!-- 원자재 -->
                                     <td class="taTableBodyCell">${BOM.material_code}</td>
                                     <td class="taTableBodyCell">${BOM.material_name}</td>
-
-                                    <!-- BOM 상세 -->
                                     <td class="taTableBodyCell">${BOM.qty_required}</td>
                                     <td class="taTableBodyCell">${BOM.unit}</td>
-
+                                    <td class="taTableBodyCell taColAction taLastCol">
+                                        <a class="taLinkAnchor"
+                                            href="${pageContext.request.contextPath}/bom-detail?bomDetailId=${BOM.bom_detail_id}">
+                                            상세보기
+                                        </a>
+                                    </td>
                                 </tr>
                             </c:forEach>
 
                             <c:if test="${empty BOMList}">
                                 <tr>
-                                    <td colspan="6" style="text-align:center;">
+                                    <td colspan="8" style="text-align:center;">
                                         조회된 데이터가 없습니다.
                                     </td>
                                 </tr>
@@ -90,23 +101,51 @@
             </div>
 
 
-            <div class="modal">
-                <div class="modal-box">
-                    <div class="modal-title">품목 등록</div>
+            <div class="taModal" id="registerModal" hidden aria-hidden="true">
+                <div class="taModalDialog modal-lg">
 
-                    <form method="post" action="${pageContext.request.contextPath}/BOM-mgmt" class="form-row">
+                    <div class="taModalHeader">
+                        <h3 class="taModalTitle">BOM 등록</h3>
+                        <button type="button" class="taModalClose" onclick="closeModal()">&times;</button>
+                    </div>
+
+                    <form method="post" action="${pageContext.request.contextPath}/BOM-mgmt"
+                        onsubmit="return validateForm()">
+
+                        <input type="hidden" name="bom_detail_id" id="bom_detail_id">
                         <input type="hidden" name="product_code" id="product_code">
 
-                        <div id="selectedProduct"></div>
+                        <div class="taModalBody taModalGrid">
 
-                        <input type="text" name="material_code" placeholder="원자재코드">
-                        <input type="text" name="unit" placeholder="단위">
-                        <input type="text" name="qty_required" placeholder="소요량">
-                        <input type="text" name="remark" placeholder="비고">
+                            <div class="form-row full">
+                                <div class="taReadonlyText" id="selectedProduct"></div>
+                            </div>
 
-                        <div style="display:flex; gap:10px; margin-top:10px;">
+                            <div class="form-row">
+                                <label>원자재 코드</label>
+                                <input type="text" name="material_code" required>
+                            </div>
+
+                            <div class="form-row">
+                                <label>단위</label>
+                                <input type="text" name="unit" required>
+                            </div>
+
+                            <div class="form-row">
+                                <label>소요량</label>
+                                <input type="number" name="qty_required" step="0.1" min="1" required>
+                            </div>
+
+                            <div class="form-row full">
+                                <label>비고</label>
+                                <textarea name="remark"></textarea>
+                            </div>
+
+                        </div>
+
+                        <div class="taModalFooter">
+                            <button type="button" class="taBtn taBtnOutline taModalClose">취소</button>
                             <button type="submit" class="taBtn taBtnPrimary">등록</button>
-                            <button type="button" class="taBtn" onclick="openModal()">취소</button>
                         </div>
 
                     </form>
@@ -114,13 +153,12 @@
 
             </div>
             <script>
-                function openModal() {
-                    document.querySelector(".modal").classList.toggle("open")
-                }
 
                 function deleteSelected() {
-
-                    const checked = document.querySelectorAll("input[name='item_id']:checked");
+                    if (!confirm('선택한 BOM을 삭제하시겠습니까?')) {
+                        return false;
+                    }
+                    const checked = document.querySelectorAll("input[name='bom_detail_id']:checked");
 
                     if (checked.length === 0) {
                         alert("삭제할 항목을 선택하세요.");
@@ -129,12 +167,12 @@
 
                     const form = document.createElement("form");
                     form.method = "post";
-                    form.action = "${pageContext.request.contextPath}/item-del";
+                    form.action = "${pageContext.request.contextPath}/BOM-del";
 
                     checked.forEach(c => {
                         const input = document.createElement("input");
                         input.type = "hidden";
-                        input.name = "item_id";
+                        input.name = "bom_detail_id";
                         input.value = c.value;
                         form.appendChild(input);
                     });
@@ -162,7 +200,6 @@
                     select.addEventListener("change", function () {
 
                         const option = this.options[this.selectedIndex];
-
                         const code = option.value;
                         const name = option.getAttribute("data-name");
 
@@ -175,8 +212,8 @@
                         }
 
                         this.form.submit();
-                    });
-                });
+                    })
+                })
 
             </script>
 
