@@ -68,15 +68,15 @@
 	font-size: 12px;
 }
 
-/* 검색창 한 줄 정렬 */
-.workStatusPage .taToolbarRow {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	flex-wrap: nowrap;
-	width: 100%;
-	margin-bottom: 14px;
-}
+/* /* 검색창 한 줄 정렬 */ */
+/* .workStatusPage .taToolbarRow { */
+/* 	display: flex; */
+/* 	align-items: center; */
+/* 	gap: 10px; */
+/* 	flex-wrap: nowrap; */
+/* 	width: 100%; */
+/* 	margin-bottom: 14px; */
+/* } */
 
 .workStatusPage .taToolbarField {
 	display: flex;
@@ -84,10 +84,10 @@
 	min-width: 0;
 }
 
-.workStatusPage .taToolbarFieldGrow {
-	flex: 1;
-	min-width: 0;
-}
+/* .workStatusPage .taToolbarFieldGrow { */
+/* 	flex: 1; */
+/* 	min-width: 0; */
+/* } */
 
 .workStatusPage .taSearchBox {
 	display: flex;
@@ -96,16 +96,16 @@
 	width: 100%;
 }
 
-.workStatusPage .taSelect {
-	min-width: 150px;
-	height: 40px;
-}
+/* .workStatusPage .taSelect { */
+/* 	min-width: 150px; */
+/* 	height: 40px; */
+/* } */
 
-.workStatusPage .taSearchInput {
-	flex: 1;
-	min-width: 0;
-	height: 40px;
-}
+/* .workStatusPage .taSearchInput { */
+/* 	flex: 1; */
+/* 	min-width: 0; */
+/* 	height: 40px; */
+/* } */
 
 .workStatusPage .taSearchBtn, .workStatusPage .taSearchReset {
 	flex-shrink: 0;
@@ -225,74 +225,74 @@
 	white-space: nowrap;
 }
 
-/* 페이징 */
-.workStatusPage .taPagination {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	gap: 6px;
-	padding-top: 12px;
-	flex-wrap: wrap;
-}
+/* /* 페이징 */ */
+/* .workStatusPage .taPagination { */
+/* 	display: flex; */
+/* 	justify-content: center; */
+/* 	align-items: center; */
+/* 	gap: 6px; */
+/* 	padding-top: 12px; */
+/* 	flex-wrap: wrap; */
+/* } */
 
-.workStatusPage .taPageBtn {
-	min-width: 36px;
-	height: 36px;
-	padding: 0 10px;
-	border: 1px solid #d7deea;
-	border-radius: 8px;
-	background: #fff;
-	color: #243b63;
-	text-decoration: none;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	font-weight: 600;
-	cursor: pointer;
-}
+/* .workStatusPage .taPageBtn { */
+/* 	min-width: 36px; */
+/* 	height: 36px; */
+/* 	padding: 0 10px; */
+/* 	border: 1px solid #d7deea; */
+/* 	border-radius: 8px; */
+/* 	background: #fff; */
+/* 	color: #243b63; */
+/* 	text-decoration: none; */
+/* 	display: inline-flex; */
+/* 	align-items: center; */
+/* 	justify-content: center; */
+/* 	font-weight: 600; */
+/* 	cursor: pointer; */
+/* } */
 
-.workStatusPage .taPageBtn.active {
-	background: #0d47a1;
-	color: #fff;
-	border-color: #0d47a1;
-}
+/* .workStatusPage .taPageBtn.active { */
+/* 	background: #0d47a1; */
+/* 	color: #fff; */
+/* 	border-color: #0d47a1; */
+/* } */
 
-.workStatusPage .taPageBtn:disabled {
-	opacity: 0.5;
-	cursor: default;
-}
+/* .workStatusPage .taPageBtn:disabled { */
+/* 	opacity: 0.5; */
+/* 	cursor: default; */
+/* } */
 
 /* 반응형 */
-@media ( max-width : 1100px) {
-	.workStatusPage .taSummaryCards {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
-	.workStatusPage .taToolbarRow {
-		flex-wrap: wrap;
-	}
-	.workStatusPage .taToolbarField, .workStatusPage .taToolbarFieldGrow {
-		width: 100%;
-	}
-	.workStatusPage .taTableScroll {
-		overflow-x: auto;
-	}
-	.workStatusPage .taMesTable {
-		min-width: 980px;
-	}
-}
+/* @media ( max-width : 1100px) { */
+/* 	.workStatusPage .taSummaryCards { */
+/* 		grid-template-columns: repeat(2, minmax(0, 1fr)); */
+/* 	} */
+/* 	.workStatusPage .taToolbarRow { */
+/* 		flex-wrap: wrap; */
+/* 	} */
+/* 	.workStatusPage .taToolbarField, .workStatusPage .taToolbarFieldGrow { */
+/* 		width: 100%; */
+/* 	} */
+/* 	.workStatusPage .taTableScroll { */
+/* 		overflow-x: auto; */
+/* 	} */
+/* 	.workStatusPage .taMesTable { */
+/* 		min-width: 980px; */
+/* 	} */
+/* } */
 
-@media ( max-width : 640px) {
-	.workStatusPage .taSummaryCards {
-		grid-template-columns: 1fr;
-	}
-	.workStatusPage .taSearchBox {
-		flex-wrap: wrap;
-	}
-	.workStatusPage .taSelect, .workStatusPage .taSearchInput,
-		.workStatusPage .taSearchBtn, .workStatusPage .taSearchReset {
-		width: 100%;
-	}
-}
+/* @media ( max-width : 640px) { */
+/* 	.workStatusPage .taSummaryCards { */
+/* 		grid-template-columns: 1fr; */
+/* 	} */
+/* 	.workStatusPage .taSearchBox { */
+/* 		flex-wrap: wrap; */
+/* 	} */
+/* 	.workStatusPage .taSelect, .workStatusPage .taSearchInput, */
+/* 		.workStatusPage .taSearchBtn, .workStatusPage .taSearchReset { */
+/* 		width: 100%; */
+/* 	} */
+/* } */
 </style>
 
 <div class="workStatusPage">
@@ -360,7 +360,7 @@
 		<input type="hidden" name="page" id="paPage" value="${paCurrentPage}">
 
 		<div class="taToolbarRow">
-			<div class="taToolbarField">
+			<div class="taToolbarField taToolbarSpan3">
 				<!-- 			페이징때문에 주석처리함/령 -->
 				<!-- 				<select class="taSelect" name="searchType" id="workStatusSearchType"> -->
 				<!-- 					<option value="all">전체</option> -->
@@ -369,25 +369,34 @@
 				<!-- 					<option value="empName">담당자</option> -->
 				<!-- 					<option value="progressStatus">진행상태</option> -->
 				<!-- 				</select> -->
-				<select class="taSelect" name="searchType" id="workStatusSearchType">
+				<select
+					class="taSelect taAutoSelectColor ${empty searchType or searchType eq 'all' ? 'taSelectPlaceholder' : ''}"
+					name="searchType" id="workStatusSearchType">
+					<option value="" hidden
+						<c:if test="${empty searchType or searchType eq 'all'}">selected</c:if>>
+						전체 / 작업지시코드 ...</option>
 					<option value="all"
-						${empty searchType or searchType eq 'all' ? 'selected' : ''}>전체</option>
+						<c:if test="${searchType eq 'all'}">selected</c:if>>전체</option>
 					<option value="workOrderDisplayCode"
-						${searchType eq 'workOrderDisplayCode' ? 'selected' : ''}>작업지시코드</option>
+						<c:if test="${searchType eq 'workOrderDisplayCode'}">selected</c:if>>
+						작업지시코드</option>
 					<option value="itemName"
-						${searchType eq 'itemName' ? 'selected' : ''}>품목명</option>
+						<c:if test="${searchType eq 'itemName'}">selected</c:if>>
+						품목명</option>
 					<option value="empName"
-						${searchType eq 'empName' ? 'selected' : ''}>담당자</option>
+						<c:if test="${searchType eq 'empName'}">selected</c:if>>
+						담당자</option>
 					<option value="progressStatus"
-						${searchType eq 'progressStatus' ? 'selected' : ''}>진행상태</option>
+						<c:if test="${searchType eq 'progressStatus'}">selected</c:if>>
+						진행상태</option>
 				</select>
 			</div>
 
-			<div class="taToolbarField taToolbarFieldGrow">
+			<div class="taToolbarField taToolbarFieldGrow taToolbarSpan9">
 				<div class="taSearchBox">
+<!-- 					<input type="text" class="taSearchInput" name="keyword" -->
+<%-- 						id="workStatusKeyword" value="${keyword}" placeholder="검색키워드"> --%>
 					<!-- 				페이징떄문에 주석처리함 / 령 -->
-					<!-- 					<input type="text" class="taSearchInput" name="keyword" -->
-					<!-- 						id="workStatusKeyword" placeholder="작업지시코드, 품목, 담당자, 상태를 검색하세요"> -->
 					<!--                     <button type="submit" class="taSearchBtn">⌕</button> -->
 					<input type="text" class="taSearchInput" name="keyword"
 						id="workStatusKeyword" value="${keyword}"

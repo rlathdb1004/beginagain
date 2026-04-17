@@ -52,51 +52,86 @@
 		</form>
 	</div>
 </div>
+
 <form id="paSearchForm" method="post"
 	action="${pageContext.request.contextPath}/matInspRegInq">
-	<input type="hidden" name="cmd" value="list"><input
+	<input type="hidden" name="cmd" value="list"> <input
 		type="hidden" name="page" id="paPage" value="${paCurrentPage}">
+
 	<div class="taToolbarRow">
-		<div class="taToolbarField">
-			<select class="taSelect" name="resultType"><option
-					value="전체"
-					${empty matInspRegInqSearchDTO.resultType or matInspRegInqSearchDTO.resultType eq '전체' ? 'selected' : ''}>전체</option>
+
+		<!-- 1) 판정 -->
+		<div class="taToolbarField taToolbarSpan2">
+			<select
+				class="taSelect taAutoSelectColor ${empty matInspRegInqSearchDTO.resultType or matInspRegInqSearchDTO.resultType eq '전체' ? 'taSelectPlaceholder' : ''}"
+				name="resultType">
+				<option value="" hidden
+					<c:if test="${empty matInspRegInqSearchDTO.resultType or matInspRegInqSearchDTO.resultType eq '전체'}">selected</c:if>>
+					전체 / 합격 / 불합격</option>
+					<option value="all">전체</option>
 				<option value="합격"
-					${matInspRegInqSearchDTO.resultType eq '합격' ? 'selected' : ''}>합격</option>
+					<c:if test="${matInspRegInqSearchDTO.resultType eq '합격'}">selected</c:if>>
+					합격</option>
 				<option value="불합격"
-					${matInspRegInqSearchDTO.resultType eq '불합격' ? 'selected' : ''}>불합격</option></select>
+					<c:if test="${matInspRegInqSearchDTO.resultType eq '불합격'}">selected</c:if>>
+					불합격</option>
+			</select>
 		</div>
-		<div class="taToolbarField">
-			<div class="taSearchBox">
-				<input type="date" class="taSearchInput" name="startDate"
-					value="${matInspRegInqSearchDTO.startDate}"><input
-					type="date" class="taSearchInput" name="endDate"
-					value="${matInspRegInqSearchDTO.endDate}">
-			</div>
-		</div>
-		<div class="taToolbarField">
-			<select class="taSelect" name="searchType"><option value=""
-					${empty matInspRegInqSearchDTO.searchType ? 'selected' : ''}>전체</option>
+
+		<!-- 2) 조회기준 -->
+		<div class="taToolbarField taToolbarSpan2">
+			<select
+				class="taSelect taAutoSelectColor ${empty matInspRegInqSearchDTO.searchType ? 'taSelectPlaceholder' : ''}"
+				name="searchType">
+				<option value="" hidden
+					<c:if test="${empty matInspRegInqSearchDTO.searchType}">selected</c:if>>
+					전체 / 품목코드 / 품목명</option>
+					<option value="all">전체</option>
 				<option value="itemCode"
-					${matInspRegInqSearchDTO.searchType eq 'itemCode' ? 'selected' : ''}>품목코드</option>
+					<c:if test="${matInspRegInqSearchDTO.searchType eq 'itemCode'}">selected</c:if>>
+					품목코드</option>
 				<option value="itemName"
-					${matInspRegInqSearchDTO.searchType eq 'itemName' ? 'selected' : ''}>품목명</option></select>
+					<c:if test="${matInspRegInqSearchDTO.searchType eq 'itemName'}">selected</c:if>>
+					품목명</option>
+			</select>
 		</div>
-		<div class="taToolbarField taToolbarFieldGrow">
+
+		<!-- 3) 시작일 -->
+		<div class="taToolbarField taToolbarSpan2">
+			<input type="date" class="taSearchInput" name="startDate"
+				value="${matInspRegInqSearchDTO.startDate}">
+		</div>
+
+		<!-- 4) 종료일 -->
+		<div class="taToolbarField taToolbarSpan2">
+			<input type="date" class="taSearchInput" name="endDate"
+				value="${matInspRegInqSearchDTO.endDate}">
+		</div>
+
+		<!-- 5) 검색키워드 + 돋보기 + 초기화 -->
+		<div class="taToolbarField taToolbarFieldGrow taToolbarSpan4">
 			<div class="taSearchBox">
 				<input type="text" class="taSearchInput" name="keyword"
 					placeholder="검색키워드" value="${matInspRegInqSearchDTO.keyword}">
-				<button type="submit" class="taSearchBtn" aria-label="검색">
+
+				<button type="submit" class="taSearchBtn" aria-label="검색"
+					onclick="document.getElementById('paPage').value=1;">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
 						stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="7"></circle>
-        <path d="M20 20L16.65 16.65"></path>
-    </svg>
+						<circle cx="11" cy="11" r="7"></circle>
+						<path d="M20 20L16.65 16.65"></path>
+					</svg>
 				</button>
+
+				<button type="button" class="taBtn taBtnOutline taSearchReset"
+					onclick="location.href='${pageContext.request.contextPath}/matInspRegInq'">
+					초기화</button>
 			</div>
 		</div>
+
 	</div>
 </form>
+
 <form id="matInspDeleteForm" method="post"
 	action="${pageContext.request.contextPath}/matInspRegInq">
 	<input type="hidden" name="cmd" value="delete">

@@ -62,9 +62,9 @@
 
 		<!-- 1) 전체 / 품목코드 / 품목명 -->
 		<div class="taToolbarField taToolbarSpan2">
-			<select id="paSearchType"
-				class="taSelect taAutoSelectColor ${empty ioRegInqSearchDTO.searchType ? 'taSelectPlaceholder' : ''}"
-				name="searchType">
+			<select
+				class="taSelect taAutoSelectColor ${empty searchType or searchType eq 'all' ? 'taSelectPlaceholder' : ''}"
+				name="searchType" id="workStatusSearchType">
 				<option value="" hidden
 					<c:if test="${empty ioRegInqSearchDTO.searchType}">selected</c:if>>
 					전체 / 품목코드 / 품목명</option>

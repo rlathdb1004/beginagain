@@ -17,16 +17,15 @@
 		<input type="hidden" name="searched" value="Y"> <input
 			type="hidden" name="page" id="paPage" value="${paCurrentPage}">
 		<div class="taToolbarRow">
-			<div class="taToolbarField">
-				<div class="taSearchBox">
-					<input type="date" class="taSearchInput" name="startDate"
-						value="${param.startDate}"> <input type="date"
-						class="taSearchInput" name="endDate" value="${param.endDate}">
-				</div>
-			</div>
-			<div class="taToolbarField">
-				<select class="taSelect" name="searchType">
-					<option value="" ${empty param.searchType ? "selected" : ""}>전체</option>
+
+			<!-- 1) 첫 검색창 -->
+			<div class="taToolbarField taToolbarSpan2">
+				<select
+					class="taSelect taAutoSelectColor ${empty param.searchType ? 'taSelectPlaceholder' : ''}"
+					name="searchType">
+					<option value="" hidden ${emptyparam.searchType ? "selected" : ""}>
+						전체 / 작업지시번호 ...</option>
+					<option value="all" ${param.searchType eq 'all' ? "selected" : ""}>전체</option>
 					<option value="workOrderNo"
 						${param.searchType eq 'workOrderNo' ? "selected" : ""}>작업지시번호</option>
 					<option value="itemCode"
@@ -39,20 +38,40 @@
 						${param.searchType eq 'lotNo' ? "selected" : ""}>LOT</option>
 				</select>
 			</div>
-			<div class="taToolbarField taToolbarFieldGrow">
+
+			<!-- 2) 시작일 -->
+			<div class="taToolbarField taToolbarSpan2">
+				<input type="date" class="taSearchInput" name="startDate"
+					value="${param.startDate}">
+			</div>
+
+			<!-- 3) 종료일 -->
+			<div class="taToolbarField taToolbarSpan2">
+				<input type="date" class="taSearchInput" name="endDate"
+					value="${param.endDate}">
+			</div>
+
+			<!-- 4) 검색키워드 + 돋보기 + 초기화 -->
+			<div class="taToolbarField taToolbarFieldGrow taToolbarSpan6">
 				<div class="taSearchBox">
 					<input type="text" class="taSearchInput" name="keyword"
-						placeholder="작업지시번호 / 품목코드 / 품목명 / 라인 / LOT 검색"
-						value="${param.keyword}">
-					<button type="submit" class="taSearchBtn" aria-label="검색">
+						placeholder="검색키워드" value="${param.keyword}">
+
+					<button type="submit" class="taSearchBtn" aria-label="검색"
+						onclick="document.getElementById('paPage').value=1;">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
 							stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="7"></circle>
-        <path d="M20 20L16.65 16.65"></path>
-    </svg>
+					<circle cx="11" cy="11" r="7"></circle>
+					<path d="M20 20L16.65 16.65"></path>
+				</svg>
 					</button>
+
+					<button type="button" class="taBtn taBtnOutline taSearchReset"
+						onclick="location.href='${pageContext.request.contextPath}/prodperf'">
+						초기화</button>
 				</div>
 			</div>
+
 		</div>
 	</form>
 
