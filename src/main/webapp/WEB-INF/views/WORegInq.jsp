@@ -24,7 +24,7 @@
 				<select
 					class="taSelect taAutoSelectColor ${empty param.searchType ? 'taSelectPlaceholder' : ''}"
 					name="searchType">
-					<option value="" hidden ${empty param.searchType ? "selected" : ""}>
+					<option value=""hidden ${emptyparam.searchType ? "selected" : ""}>
 						전체 / 작업지시번호 ...</option>
 					<option value="all" ${param.searchType eq 'all' ? "selected" : ""}>
 						전체</option>
@@ -80,9 +80,9 @@
 
 	<form id="deleteForm" method="post"
 		action="${pageContext.request.contextPath}/woreginq">
-		<input type="hidden" name="cmd" value="delete">
-		<input type="hidden" name="searched" value="${param.searched}">
-		<input type="hidden" name="page" value="${page}"> <input
+		<input type="hidden" name="cmd" value="delete"> <input
+			type="hidden" name="searched" value="${param.searched}"> <input
+			type="hidden" name="page" value="${page}"> <input
 			type="hidden" name="startDate" value="${param.startDate}"> <input
 			type="hidden" name="endDate" value="${param.endDate}"> <input
 			type="hidden" name="searchType" value="${param.searchType}">
@@ -93,8 +93,8 @@
 				<table class="taMesTable">
 					<thead>
 						<tr>
-							<th class="taTableHeadCell taColCheck"><input type="checkbox"
-								id="checkAll"></th>
+							<th class="taTableHeadCell taColFit"><input type="checkbox"
+								id="checkAll" class="taCheckInput"></th>
 							<th class="taTableHeadCell taColFit">NO</th>
 							<th class="taTableHeadCell taColFit">작업지시번호</th>
 							<th class="taTableHeadCell taColDate">일자</th>
@@ -114,9 +114,8 @@
 					<tbody>
 						<c:forEach var="dto" items="${list}">
 							<tr class="taTableBodyRow">
-								<td class="taTableBodyCell taColCheck"><input
-									type="checkbox" name="seqNO" value="${dto.seqNO}"
-									class="rowCheck taCheckInput"></td>
+								<td class="taTableBodyCell taColFit"><input type="checkbox"
+									name="seqNO" value="${dto.seqNO}" class="rowCheck taCheckInput"></td>
 								<td class="taTableBodyCell taColFit">${dto.seqNO}</td>
 								<td class="taTableBodyCell taColFit">${dto.workOrderNo}</td>
 								<td class="taTableBodyCell taColDate">${dto.workDate}</td>
@@ -221,9 +220,11 @@
 		const rowChecks = document.querySelectorAll(".rowCheck");
 		rowChecks.forEach(function(checkbox) {
 			checkbox.addEventListener("change", function() {
-				const checkedCount = document.querySelectorAll(".rowCheck:checked").length;
+				const checkedCount = document
+						.querySelectorAll(".rowCheck:checked").length;
 				if (checkAll) {
-					checkAll.checked = rowChecks.length > 0 && checkedCount === rowChecks.length;
+					checkAll.checked = rowChecks.length > 0
+							&& checkedCount === rowChecks.length;
 				}
 			});
 		});
