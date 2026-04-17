@@ -54,20 +54,20 @@
 		<!-- 1) 전체 / 품목코드 / 품목명 -->
 		<div class="taToolbarField taToolbarSpan2">
 			<select
-				class="taSelect taAutoSelectColor ${empty matInspRegInqSearchDTO.resultType or matInspRegInqSearchDTO.resultType eq '전체' ? 'taSelectPlaceholder' : ''}"
-				name="resultType">
-				<option value="" hidden
-					<c:if test="${empty matInspRegInqSearchDTO.resultType or matInspRegInqSearchDTO.resultType eq '전체'}">selected</c:if>>
-					전체 / 합격 / 불합격</option>
-				<option value="전체"
-					<c:if test="${matInspRegInqSearchDTO.resultType eq '전체'}">selected</c:if>>
+				class="taSelect taAutoSelectColor ${empty invRegInqSearchDTO.searchType ? 'taSelectPlaceholder' : ''}"
+				name="searchType">
+				<option value="" disabled hidden
+					<c:if test="${empty invRegInqSearchDTO.searchType}">selected</c:if>>
+					전체 / 품목코드 / 품목명</option>
+				<option value="all"
+					<c:if test="${invRegInqSearchDTO.searchType eq 'all'}">selected</c:if>>
 					전체</option>
-				<option value="합격"
-					<c:if test="${matInspRegInqSearchDTO.resultType eq '합격'}">selected</c:if>>
-					합격</option>
-				<option value="불합격"
-					<c:if test="${matInspRegInqSearchDTO.resultType eq '불합격'}">selected</c:if>>
-					불합격</option>
+				<option value="itemCode"
+					<c:if test="${invRegInqSearchDTO.searchType eq 'itemCode'}">selected</c:if>>
+					품목코드</option>
+				<option value="itemName"
+					<c:if test="${invRegInqSearchDTO.searchType eq 'itemName'}">selected</c:if>>
+					품목명</option>
 			</select>
 		</div>
 
@@ -83,7 +83,7 @@
 				value="${invRegInqSearchDTO.endDate}">
 		</div>
 
-		<!-- 4) 검색키워드 + 5) 돋보기 + 6) 초기화 -->
+		<!-- 4) 검색키워드 + 돋보기 + 초기화 -->
 		<div class="taToolbarField taToolbarFieldGrow taToolbarSpan6">
 			<div class="taSearchBox">
 				<input type="text" class="taSearchInput" name="keyword"

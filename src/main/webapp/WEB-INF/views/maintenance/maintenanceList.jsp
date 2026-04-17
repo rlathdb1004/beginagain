@@ -13,7 +13,9 @@
 	<input type="hidden" name="page" id="paPage" value="${paCurrentPage}">
 
 	<div class="taToolbarRow">
-		<div class="taToolbarField">
+
+		<!-- 1) 첫 검색창 -->
+		<div class="taToolbarField taToolbarSpan3">
 			<select
 				class="taSelect taAutoSelectColor ${empty searchType or searchType eq 'all' ? 'taSelectPlaceholder' : ''}"
 				name="searchType">
@@ -37,7 +39,8 @@
 			</select>
 		</div>
 
-		<div class="taToolbarField taToolbarFieldGrow">
+		<!-- 2) 기존 두 번째 검색창 -->
+		<div class="taToolbarField taToolbarFieldGrow taToolbarSpan9">
 			<div class="taSearchBox">
 				<input type="text" class="taSearchInput" name="keyword"
 					value="${keyword}" placeholder="검색키워드">
@@ -56,6 +59,7 @@
 					초기화</button>
 			</div>
 		</div>
+
 	</div>
 </form>
 

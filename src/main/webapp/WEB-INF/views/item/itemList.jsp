@@ -11,39 +11,55 @@
 <form id="paSearchForm" method="get"
 	action="${pageContext.request.contextPath}/item/list">
 	<input type="hidden" name="page" id="paPage" value="${paCurrentPage}">
+
 	<div class="taToolbarRow">
-		<div class="taToolbarField">
-			<select class="taSelect" name="searchType">
+
+		<!-- 1) 첫 검색창 -->
+		<div class="taToolbarField taToolbarSpan3">
+			<select
+				class="taSelect taAutoSelectColor ${empty searchType or searchType eq 'all' ? 'taSelectPlaceholder' : ''}"
+				name="searchType">
+				<option value="" disabled hidden
+					<c:if test="${empty searchType or searchType eq 'all'}">selected</c:if>>
+					전체 / 품목코드 ...</option>
 				<option value="all"
-					${empty searchType or searchType eq 'all' ? 'selected' : ''}>전체</option>
+					<c:if test="${searchType eq 'all'}">selected</c:if>>전체</option>
 				<option value="itemCode"
-					${searchType eq 'itemCode' ? 'selected' : ''}>품목코드</option>
+					<c:if test="${searchType eq 'itemCode'}">selected</c:if>>
+					품목코드</option>
 				<option value="itemName"
-					${searchType eq 'itemName' ? 'selected' : ''}>품목명</option>
+					<c:if test="${searchType eq 'itemName'}">selected</c:if>>
+					품목명</option>
 				<option value="itemType"
-					${searchType eq 'itemType' ? 'selected' : ''}>품목유형</option>
+					<c:if test="${searchType eq 'itemType'}">selected</c:if>>
+					품목유형</option>
 				<option value="supplierName"
-					${searchType eq 'supplierName' ? 'selected' : ''}>공급처</option>
+					<c:if test="${searchType eq 'supplierName'}">selected</c:if>>
+					공급처</option>
 			</select>
 		</div>
 
-		<div class="taToolbarField taToolbarFieldGrow"
-			style="grid-column: span 2;">
+		<!-- 2) 기존 두 번째 검색창 -->
+		<div class="taToolbarField taToolbarFieldGrow taToolbarSpan9">
 			<div class="taSearchBox">
 				<input type="text" class="taSearchInput" name="keyword"
-					value="${keyword}" placeholder="검색어를 입력하세요">
-				<button type="submit" class="taSearchBtn" aria-label="검색">
+					value="${keyword}" placeholder="검색키워드">
+
+				<button type="submit" class="taSearchBtn" aria-label="검색"
+					onclick="document.getElementById('paPage').value=1;">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
 						stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="7"></circle>
-        <path d="M20 20L16.65 16.65"></path>
-    </svg>
+						<circle cx="11" cy="11" r="7"></circle>
+						<path d="M20 20L16.65 16.65"></path>
+					</svg>
 				</button>
+
 				<button type="button" class="taBtn taBtnOutline taSearchReset"
 					onclick="location.href='${pageContext.request.contextPath}/item/list'">
 					초기화</button>
 			</div>
 		</div>
+
 	</div>
 </form>
 

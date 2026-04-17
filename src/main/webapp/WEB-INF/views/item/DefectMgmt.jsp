@@ -24,23 +24,53 @@
 	</div>
 
 
-	<form method="get"
+	<form id="paSearchForm" method="get"
 		action="${pageContext.request.contextPath}/defect-mgmt">
 		<div class="taToolbarRow">
 
-			<div class="taToolbarField taToolbarFieldGrow">
+			<!-- 1) 첫 검색창 추가 -->
+			<div class="taToolbarField taToolbarSpan3">
+				<select
+					class="taSelect taAutoSelectColor ${empty param.searchType or param.searchType eq 'all' ? 'taSelectPlaceholder' : ''}"
+					name="searchType">
+					<option value="" disabled hidden
+						<c:if test="${empty param.searchType or param.searchType eq 'all'}">selected</c:if>>
+						전체 / 불량코드 ...</option>
+					<option value="all"
+						<c:if test="${param.searchType eq 'all'}">selected</c:if>>
+						전체</option>
+					<option value="defectCode"
+						<c:if test="${param.searchType eq 'defectCode'}">selected</c:if>>
+						불량코드</option>
+					<option value="defectName"
+						<c:if test="${param.searchType eq 'defectName'}">selected</c:if>>
+						불량명</option>
+					<option value="defectType"
+						<c:if test="${param.searchType eq 'defectType'}">selected</c:if>>
+						유형</option>
+				</select>
+			</div>
+
+			<!-- 2) 기존 검색창 -->
+			<div class="taToolbarField taToolbarFieldGrow taToolbarSpan9">
 				<div class="taSearchBox">
 					<input type="text" class="taSearchInput" name="keyword"
-						placeholder="불량코드/불량명 검색">
+						value="${param.keyword}" placeholder="검색키워드">
+
 					<button type="submit" class="taSearchBtn" aria-label="검색">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
 							stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="7"></circle>
-        <path d="M20 20L16.65 16.65"></path>
-    </svg>
+						<circle cx="11" cy="11" r="7"></circle>
+						<path d="M20 20L16.65 16.65"></path>
+					</svg>
 					</button>
+
+					<button type="button" class="taBtn taBtnOutline taSearchReset"
+						onclick="location.href='${pageContext.request.contextPath}/defect-mgmt'">
+						초기화</button>
 				</div>
 			</div>
+
 		</div>
 	</form>
 
