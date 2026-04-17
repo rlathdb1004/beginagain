@@ -14,31 +14,43 @@
 
 	<div class="taToolbarRow">
 		<div class="taToolbarField">
-			<select class="taSelect" name="searchType">
+			<select
+				class="taSelect taAutoSelectColor ${empty searchType or searchType eq 'all' ? 'taSelectPlaceholder' : ''}"
+				name="searchType">
+				<option value="" disabled hidden
+					<c:if test="${empty searchType or searchType eq 'all'}">selected</c:if>>
+					전체 / 설비코드 ...</option>
 				<option value="all"
-					${empty searchType or searchType eq 'all' ? 'selected' : ''}>전체</option>
+					<c:if test="${searchType eq 'all'}">selected</c:if>>전체</option>
 				<option value="equipmentCode"
-					${searchType eq 'equipmentCode' ? 'selected' : ''}>설비코드</option>
+					<c:if test="${searchType eq 'equipmentCode'}">selected</c:if>>
+					설비코드</option>
 				<option value="equipmentName"
-					${searchType eq 'equipmentName' ? 'selected' : ''}>설비명</option>
+					<c:if test="${searchType eq 'equipmentName'}">selected</c:if>>
+					설비명</option>
 				<option value="maintenanceType"
-					${searchType eq 'maintenanceType' ? 'selected' : ''}>정비유형</option>
-				<option value="status" ${searchType eq 'status' ? 'selected' : ''}>상태</option>
+					<c:if test="${searchType eq 'maintenanceType'}">selected</c:if>>
+					정비유형</option>
+				<option value="status"
+					<c:if test="${searchType eq 'status'}">selected</c:if>>상태
+				</option>
 			</select>
 		</div>
 
-		<div class="taToolbarField taToolbarFieldGrow"
-			style="grid-column: span 3;">
+		<div class="taToolbarField taToolbarFieldGrow">
 			<div class="taSearchBox">
 				<input type="text" class="taSearchInput" name="keyword"
-					value="${keyword}" placeholder="검색어를 입력하세요">
-				<button type="submit" class="taSearchBtn" aria-label="검색">
+					value="${keyword}" placeholder="검색키워드">
+
+				<button type="submit" class="taSearchBtn" aria-label="검색"
+					onclick="document.getElementById('paPage').value=1;">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
 						stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="7"></circle>
-        <path d="M20 20L16.65 16.65"></path>
-    </svg>
+						<circle cx="11" cy="11" r="7"></circle>
+						<path d="M20 20L16.65 16.65"></path>
+					</svg>
 				</button>
+
 				<button type="button" class="taBtn taBtnOutline taSearchReset"
 					onclick="location.href='${pageContext.request.contextPath}/maintenance/list'">
 					초기화</button>
