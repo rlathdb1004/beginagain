@@ -38,57 +38,99 @@
 		</form>
 	</div>
 </div>
+
 <form id="paSearchForm" method="post"
 	action="${pageContext.request.contextPath}/defectRegInq">
-	<input type="hidden" name="cmd" value="list"><input
+	<input type="hidden" name="cmd" value="list"> <input
 		type="hidden" name="page" id="paPage" value="${paCurrentPage}">
+
 	<div class="taToolbarRow">
-		<div class="taToolbarField">
-			<select class="taSelect" name="defectTypeSearch"><option
-					value="전체"
-					${empty defectRegInqSearchDTO.defectTypeSearch or defectRegInqSearchDTO.defectTypeSearch eq '전체' ? 'selected' : ''}>전체</option>
+
+		<!-- 1) 유형 -->
+		<div class="taToolbarField taToolbarSpan2">
+			<select
+				class="taSelect taAutoSelectColor ${empty defectRegInqSearchDTO.defectTypeSearch or defectRegInqSearchDTO.defectTypeSearch eq '전체' ? 'taSelectPlaceholder' : ''}"
+				name="defectTypeSearch">
+				<option value="" disabled hidden
+					<c:if test="${empty defectRegInqSearchDTO.defectTypeSearch or defectRegInqSearchDTO.defectTypeSearch eq '전체'}">selected</c:if>>
+					전체 / 공정 / 외관 / 치수</option>
+				<option value="전체"
+					<c:if test="${defectRegInqSearchDTO.defectTypeSearch eq '전체'}">selected</c:if>>
+					전체</option>
 				<option value="공정"
-					${defectRegInqSearchDTO.defectTypeSearch eq '공정' ? 'selected' : ''}>공정</option>
+					<c:if test="${defectRegInqSearchDTO.defectTypeSearch eq '공정'}">selected</c:if>>
+					공정</option>
 				<option value="외관"
-					${defectRegInqSearchDTO.defectTypeSearch eq '외관' ? 'selected' : ''}>외관</option>
+					<c:if test="${defectRegInqSearchDTO.defectTypeSearch eq '외관'}">selected</c:if>>
+					외관</option>
 				<option value="치수"
-					${defectRegInqSearchDTO.defectTypeSearch eq '치수' ? 'selected' : ''}>치수</option></select>
+					<c:if test="${defectRegInqSearchDTO.defectTypeSearch eq '치수'}">selected</c:if>>
+					치수</option>
+			</select>
 		</div>
-		<div class="taToolbarField">
-			<div class="taSearchBox">
-				<input type="date" class="taSearchInput" name="startDate"
-					value="${defectRegInqSearchDTO.startDate}"><input
-					type="date" class="taSearchInput" name="endDate"
-					value="${defectRegInqSearchDTO.endDate}">
-			</div>
-		</div>
-		<div class="taToolbarField">
-			<select class="taSelect" name="searchType"><option value=""
-					${empty defectRegInqSearchDTO.searchType ? 'selected' : ''}>전체</option>
+
+		<!-- 2) 조회기준 -->
+		<div class="taToolbarField taToolbarSpan2">
+			<select
+				class="taSelect taAutoSelectColor ${empty defectRegInqSearchDTO.searchType ? 'taSelectPlaceholder' : ''}"
+				name="searchType">
+				<option value="" disabled hidden
+					<c:if test="${empty defectRegInqSearchDTO.searchType}">selected</c:if>>
+					전체 / 품목코드 ...</option>
+				<option value="all"
+					<c:if test="${defectRegInqSearchDTO.searchType eq 'all'}">selected</c:if>>
+					전체</option>
 				<option value="itemCode"
-					${defectRegInqSearchDTO.searchType eq 'itemCode' ? 'selected' : ''}>품목코드</option>
+					<c:if test="${defectRegInqSearchDTO.searchType eq 'itemCode'}">selected</c:if>>
+					품목코드</option>
 				<option value="itemName"
-					${defectRegInqSearchDTO.searchType eq 'itemName' ? 'selected' : ''}>품목명</option>
+					<c:if test="${defectRegInqSearchDTO.searchType eq 'itemName'}">selected</c:if>>
+					품목명</option>
 				<option value="defectCode"
-					${defectRegInqSearchDTO.searchType eq 'defectCode' ? 'selected' : ''}>불량코드</option>
+					<c:if test="${defectRegInqSearchDTO.searchType eq 'defectCode'}">selected</c:if>>
+					불량코드</option>
 				<option value="defectName"
-					${defectRegInqSearchDTO.searchType eq 'defectName' ? 'selected' : ''}>불량명</option></select>
+					<c:if test="${defectRegInqSearchDTO.searchType eq 'defectName'}">selected</c:if>>
+					불량명</option>
+			</select>
 		</div>
-		<div class="taToolbarField taToolbarFieldGrow">
+
+		<!-- 3) 시작일 -->
+		<div class="taToolbarField taToolbarSpan2">
+			<input type="date" class="taSearchInput" name="startDate"
+				value="${defectRegInqSearchDTO.startDate}">
+		</div>
+
+		<!-- 4) 종료일 -->
+		<div class="taToolbarField taToolbarSpan2">
+			<input type="date" class="taSearchInput" name="endDate"
+				value="${defectRegInqSearchDTO.endDate}">
+		</div>
+
+		<!-- 5) 검색키워드 + 돋보기 + 초기화 -->
+		<div class="taToolbarField taToolbarFieldGrow taToolbarSpan4">
 			<div class="taSearchBox">
 				<input type="text" class="taSearchInput" name="keyword"
 					placeholder="검색키워드" value="${defectRegInqSearchDTO.keyword}">
-				<button type="submit" class="taSearchBtn" aria-label="검색">
+
+				<button type="submit" class="taSearchBtn" aria-label="검색"
+					onclick="document.getElementById('paPage').value=1;">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
 						stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="7"></circle>
-        <path d="M20 20L16.65 16.65"></path>
-    </svg>
+						<circle cx="11" cy="11" r="7"></circle>
+						<path d="M20 20L16.65 16.65"></path>
+					</svg>
 				</button>
+
+				<button type="button" class="taBtn taBtnOutline taSearchReset"
+					onclick="location.href='${pageContext.request.contextPath}/defectRegInq'">
+					초기화</button>
 			</div>
 		</div>
+
 	</div>
 </form>
+
 <form id="defectDeleteForm" method="post"
 	action="${pageContext.request.contextPath}/defectRegInq">
 	<input type="hidden" name="cmd" value="delete">

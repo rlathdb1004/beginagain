@@ -1,351 +1,351 @@
-/* =========================
-   WORegInq.css
-   작업지시 등록/조회 화면 전용 스타일
-   ========================= */
+/* /* ========================= */
+/*    WORegInq.css */
+/*    작업지시 등록/조회 화면 전용 스타일 */
+/*    ========================= */ */
 
-.woreg-page {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
-}
+/* .woreg-page { */
+/*     display: flex; */
+/*     flex-direction: column; */
+/*     gap: 12px; */
+/*     width: 100%; */
+/*     min-width: 0; */
+/*     box-sizing: border-box; */
+/* } */
 
-/* 상단 버튼 영역 */
-.woreg-page .taPageActions {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 8px;
-}
+/* /* 상단 버튼 영역 */ */
+/* .woreg-page .taPageActions { */
+/*     display: flex; */
+/*     justify-content: flex-end; */
+/*     align-items: center; */
+/*     gap: 8px; */
+/* } */
 
-/* 검색 영역 */
-.woreg-page .taToolbarRow {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    width: 100%;
-}
+/* /* 검색 영역 */ */
+/* .woreg-page .taToolbarRow { */
+/*     display: flex; */
+/*     align-items: center; */
+/*     gap: 12px; */
+/*     flex-wrap: wrap; */
+/*     width: 100%; */
+/* } */
 
-.woreg-page .taToolbarField {
-    display: flex;
-    align-items: center;
-}
+/* .woreg-page .taToolbarField { */
+/*     display: flex; */
+/*     align-items: center; */
+/* } */
 
-.woreg-page .taToolbarFieldGrow {
-    flex: 1;
-    min-width: 260px;
-}
+/* .woreg-page .taToolbarFieldGrow { */
+/*     flex: 1; */
+/*     min-width: 260px; */
+/* } */
 
-.woreg-page .taSearchBox {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-}
+/* .woreg-page .taSearchBox { */
+/*     display: flex; */
+/*     align-items: center; */
+/*     gap: 8px; */
+/*     width: 100%; */
+/* } */
 
-.woreg-page .taSearchInput {
-    min-width: 0;
-}
+/* .woreg-page .taSearchInput { */
+/*     min-width: 0; */
+/* } */
 
-.woreg-page .taToolbarFieldGrow .taSearchInput {
-    flex: 1;
-    width: 100%;
-}
+/* .woreg-page .taToolbarFieldGrow .taSearchInput { */
+/*     flex: 1; */
+/*     width: 100%; */
+/* } */
 
-.woreg-page .taSelect {
-    min-width: 140px;
-}
+/* .woreg-page .taSelect { */
+/*     min-width: 140px; */
+/* } */
 
-/* 테이블 영역 */
-.woreg-page .woreg-table-shell {
-    width: 100%;
-    min-width: 0;
-    overflow: hidden;
-    border-radius: 18px;
-}
+/* /* 테이블 영역 */ */
+/* .woreg-page .woreg-table-shell { */
+/*     width: 100%; */
+/*     min-width: 0; */
+/*     overflow: hidden; */
+/*     border-radius: 18px; */
+/* } */
 
-.woreg-page .taTableScroll {
-    width: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;
-}
+/* .woreg-page .taTableScroll { */
+/*     width: 100%; */
+/*     overflow-x: hidden; */
+/*     overflow-y: auto; */
+/* } */
 
-/* 테이블 */
-.woreg-page .taMesTable {
-    width: 100%;
-    table-layout: fixed;
-    border-collapse: collapse;
-    font-size: 13px;
-}
+/* /* 테이블 */ */
+/* .woreg-page .taMesTable { */
+/*     width: 100%; */
+/*     table-layout: fixed; */
+/*     border-collapse: collapse; */
+/*     font-size: 13px; */
+/* } */
 
-.woreg-page .taTableHeadCell,
-.woreg-page .taTableBodyCell {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    vertical-align: middle;
-    padding: 10px 6px;
-    box-sizing: border-box;
-}
+/* .woreg-page .taTableHeadCell, */
+/* .woreg-page .taTableBodyCell { */
+/*     white-space: nowrap; */
+/*     overflow: hidden; */
+/*     text-overflow: ellipsis; */
+/*     vertical-align: middle; */
+/*     padding: 10px 6px; */
+/*     box-sizing: border-box; */
+/* } */
 
-.woreg-page .taTableHeadCell {
-    font-weight: 700;
-}
+/* .woreg-page .taTableHeadCell { */
+/*     font-weight: 700; */
+/* } */
 
-/* 삭제 체크박스 컬럼 */
-.woreg-page .delete-col {
-    display: none;
-}
+/* /* 삭제 체크박스 컬럼 */ */
+/* .woreg-page .delete-col { */
+/*     display: none; */
+/* } */
 
-.woreg-page .delete-col.show-delete-col {
-    display: table-cell;
-}
+/* .woreg-page .delete-col.show-delete-col { */
+/*     display: table-cell; */
+/* } */
 
-.woreg-page .taColCheck {
-    width: 38px;
-    min-width: 38px;
-    max-width: 38px;
-    text-align: center;
-    padding-left: 4px;
-    padding-right: 4px;
-}
+/* .woreg-page .taColCheck { */
+/*     width: 38px; */
+/*     min-width: 38px; */
+/*     max-width: 38px; */
+/*     text-align: center; */
+/*     padding-left: 4px; */
+/*     padding-right: 4px; */
+/* } */
 
-/* 공통 컬럼 폭 */
-.woreg-page .taColFit {
-    width: 70px;
-    min-width: 70px;
-    max-width: 70px;
-    text-align: center;
-}
+/* /* 공통 컬럼 폭 */ */
+/* .woreg-page .taColFit { */
+/*     width: 70px; */
+/*     min-width: 70px; */
+/*     max-width: 70px; */
+/*     text-align: center; */
+/* } */
 
-.woreg-page .taColDate {
-    width: 88px;
-    min-width: 88px;
-    max-width: 88px;
-    text-align: center;
-}
+/* .woreg-page .taColDate { */
+/*     width: 88px; */
+/*     min-width: 88px; */
+/*     max-width: 88px; */
+/*     text-align: center; */
+/* } */
 
-.woreg-page .taColGrow {
-    width: 92px;
-    min-width: 92px;
-    max-width: 92px;
-}
+/* .woreg-page .taColGrow { */
+/*     width: 92px; */
+/*     min-width: 92px; */
+/*     max-width: 92px; */
+/* } */
 
-/* 상세보기 컬럼은 꼭 보이게 */
-.woreg-page .taColAction {
-    width: 84px;
-    min-width: 84px;
-    max-width: 84px;
-    text-align: center;
-    overflow: visible;
-    text-overflow: clip;
-}
+/* /* 상세보기 컬럼은 꼭 보이게 */ */
+/* .woreg-page .taColAction { */
+/*     width: 84px; */
+/*     min-width: 84px; */
+/*     max-width: 84px; */
+/*     text-align: center; */
+/*     overflow: visible; */
+/*     text-overflow: clip; */
+/* } */
 
-.woreg-page .taLastCol {
-    text-align: center;
-}
+/* .woreg-page .taLastCol { */
+/*     text-align: center; */
+/* } */
 
-.woreg-page .taLinkButton {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 58px;
-    height: 28px;
-    padding: 0 8px;
-    font-size: 12px;
-    line-height: 1;
-    white-space: nowrap;
-    overflow: visible;
-    text-overflow: clip;
-    cursor: pointer;
-}
+/* .woreg-page .taLinkButton { */
+/*     display: inline-flex; */
+/*     align-items: center; */
+/*     justify-content: center; */
+/*     min-width: 58px; */
+/*     height: 28px; */
+/*     padding: 0 8px; */
+/*     font-size: 12px; */
+/*     line-height: 1; */
+/*     white-space: nowrap; */
+/*     overflow: visible; */
+/*     text-overflow: clip; */
+/*     cursor: pointer; */
+/* } */
 
-/* === 작업지시 컬럼별 폭 세밀 조정 === */
-/* 체크박스 있을 때 기준으로 nth-child가 밀릴 수 있으므로
-   실제 컬럼 클래스도 같이 사용함 */
+/* /* === 작업지시 컬럼별 폭 세밀 조정 === */ */
+/* /* 체크박스 있을 때 기준으로 nth-child가 밀릴 수 있으므로 */
+/*    실제 컬럼 클래스도 같이 사용함 */ */
 
-/* NO */
-.woreg-page .taMesTable th:nth-child(2),
-.woreg-page .taMesTable td:nth-child(2) {
-    width: 56px;
-    min-width: 56px;
-    max-width: 56px;
-}
+/* /* NO */ */
+/* .woreg-page .taMesTable th:nth-child(2), */
+/* .woreg-page .taMesTable td:nth-child(2) { */
+/*     width: 56px; */
+/*     min-width: 56px; */
+/*     max-width: 56px; */
+/* } */
 
-/* 작업지시번호 */
-.woreg-page .taMesTable th:nth-child(3),
-.woreg-page .taMesTable td:nth-child(3) {
-    width: 92px;
-    min-width: 92px;
-    max-width: 92px;
-}
+/* /* 작업지시번호 */ */
+/* .woreg-page .taMesTable th:nth-child(3), */
+/* .woreg-page .taMesTable td:nth-child(3) { */
+/*     width: 92px; */
+/*     min-width: 92px; */
+/*     max-width: 92px; */
+/* } */
 
-/* 일자 */
-.woreg-page .taMesTable th:nth-child(4),
-.woreg-page .taMesTable td:nth-child(4) {
-    width: 88px;
-    min-width: 88px;
-    max-width: 88px;
-}
+/* /* 일자 */ */
+/* .woreg-page .taMesTable th:nth-child(4), */
+/* .woreg-page .taMesTable td:nth-child(4) { */
+/*     width: 88px; */
+/*     min-width: 88px; */
+/*     max-width: 88px; */
+/* } */
 
-/* 품목코드 */
-.woreg-page .taMesTable th:nth-child(5),
-.woreg-page .taMesTable td:nth-child(5) {
-    width: 86px;
-    min-width: 86px;
-    max-width: 86px;
-}
+/* /* 품목코드 */ */
+/* .woreg-page .taMesTable th:nth-child(5), */
+/* .woreg-page .taMesTable td:nth-child(5) { */
+/*     width: 86px; */
+/*     min-width: 86px; */
+/*     max-width: 86px; */
+/* } */
 
-/* 품목명 */
-.woreg-page .taMesTable th:nth-child(6),
-.woreg-page .taMesTable td:nth-child(6) {
-    width: 100px;
-    min-width: 100px;
-    max-width: 100px;
-}
+/* /* 품목명 */ */
+/* .woreg-page .taMesTable th:nth-child(6), */
+/* .woreg-page .taMesTable td:nth-child(6) { */
+/*     width: 100px; */
+/*     min-width: 100px; */
+/*     max-width: 100px; */
+/* } */
 
-/* 지시량(생산량) */
-.woreg-page .taMesTable th:nth-child(7),
-.woreg-page .taMesTable td:nth-child(7) {
-    width: 96px;
-    min-width: 96px;
-    max-width: 96px;
-}
+/* /* 지시량(생산량) */ */
+/* .woreg-page .taMesTable th:nth-child(7), */
+/* .woreg-page .taMesTable td:nth-child(7) { */
+/*     width: 96px; */
+/*     min-width: 96px; */
+/*     max-width: 96px; */
+/* } */
 
-/* 단위 */
-.woreg-page .taMesTable th:nth-child(8),
-.woreg-page .taMesTable td:nth-child(8) {
-    width: 54px;
-    min-width: 54px;
-    max-width: 54px;
-}
+/* /* 단위 */ */
+/* .woreg-page .taMesTable th:nth-child(8), */
+/* .woreg-page .taMesTable td:nth-child(8) { */
+/*     width: 54px; */
+/*     min-width: 54px; */
+/*     max-width: 54px; */
+/* } */
 
-/* 라인 */
-.woreg-page .taMesTable th:nth-child(9),
-.woreg-page .taMesTable td:nth-child(9) {
-    width: 66px;
-    min-width: 66px;
-    max-width: 66px;
-}
+/* /* 라인 */ */
+/* .woreg-page .taMesTable th:nth-child(9), */
+/* .woreg-page .taMesTable td:nth-child(9) { */
+/*     width: 66px; */
+/*     min-width: 66px; */
+/*     max-width: 66px; */
+/* } */
 
-/* 공정 */
-.woreg-page .taMesTable th:nth-child(10),
-.woreg-page .taMesTable td:nth-child(10) {
-    width: 74px;
-    min-width: 74px;
-    max-width: 74px;
-}
+/* /* 공정 */ */
+/* .woreg-page .taMesTable th:nth-child(10), */
+/* .woreg-page .taMesTable td:nth-child(10) { */
+/*     width: 74px; */
+/*     min-width: 74px; */
+/*     max-width: 74px; */
+/* } */
 
-/* 작업자 */
-.woreg-page .taMesTable th:nth-child(11),
-.woreg-page .taMesTable td:nth-child(11) {
-    width: 72px;
-    min-width: 72px;
-    max-width: 72px;
-}
+/* /* 작업자 */ */
+/* .woreg-page .taMesTable th:nth-child(11), */
+/* .woreg-page .taMesTable td:nth-child(11) { */
+/*     width: 72px; */
+/*     min-width: 72px; */
+/*     max-width: 72px; */
+/* } */
 
-/* BOM */
-.woreg-page .taMesTable th:nth-child(12),
-.woreg-page .taMesTable td:nth-child(12) {
-    width: 78px;
-    min-width: 78px;
-    max-width: 78px;
-}
+/* /* BOM */ */
+/* .woreg-page .taMesTable th:nth-child(12), */
+/* .woreg-page .taMesTable td:nth-child(12) { */
+/*     width: 78px; */
+/*     min-width: 78px; */
+/*     max-width: 78px; */
+/* } */
 
-/* 비고 - 넘치는 건 ... 처리 */
-.woreg-page .taMesTable th:nth-child(13),
-.woreg-page .taMesTable td:nth-child(13) {
-    width: 96px;
-    min-width: 96px;
-    max-width: 96px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+/* /* 비고 - 넘치는 건 ... 처리 */ */
+/* .woreg-page .taMesTable th:nth-child(13), */
+/* .woreg-page .taMesTable td:nth-child(13) { */
+/*     width: 96px; */
+/*     min-width: 96px; */
+/*     max-width: 96px; */
+/*     white-space: nowrap; */
+/*     overflow: hidden; */
+/*     text-overflow: ellipsis; */
+/* } */
 
-.woreg-page .taRemarkCell {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+/* .woreg-page .taRemarkCell { */
+/*     white-space: nowrap; */
+/*     overflow: hidden; */
+/*     text-overflow: ellipsis; */
+/* } */
 
-/* 마지막 컬럼: 상세보기 */
-.woreg-page .taMesTable th:last-child,
-.woreg-page .taMesTable td:last-child {
-    width: 84px;
-    min-width: 84px;
-    max-width: 84px;
-    text-align: center;
-    overflow: visible;
-    text-overflow: clip;
-}
+/* /* 마지막 컬럼: 상세보기 */ */
+/* .woreg-page .taMesTable th:last-child, */
+/* .woreg-page .taMesTable td:last-child { */
+/*     width: 84px; */
+/*     min-width: 84px; */
+/*     max-width: 84px; */
+/*     text-align: center; */
+/*     overflow: visible; */
+/*     text-overflow: clip; */
+/* } */
 
-/* 페이징 */
-.woreg-page .taPagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 6px;
-    padding-top: 8px;
-    flex-wrap: wrap;
-}
+/* /* 페이징 */ */
+/* .woreg-page .taPagination { */
+/*     display: flex; */
+/*     justify-content: center; */
+/*     align-items: center; */
+/*     gap: 6px; */
+/*     padding-top: 8px; */
+/*     flex-wrap: wrap; */
+/* } */
 
-.woreg-page .taPageBtn {
-    min-width: 36px;
-    height: 36px;
-    padding: 0 10px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    border-radius: 8px;
-    box-sizing: border-box;
-}
+/* .woreg-page .taPageBtn { */
+/*     min-width: 36px; */
+/*     height: 36px; */
+/*     padding: 0 10px; */
+/*     display: inline-flex; */
+/*     align-items: center; */
+/*     justify-content: center; */
+/*     text-decoration: none; */
+/*     border-radius: 8px; */
+/*     box-sizing: border-box; */
+/* } */
 
-.woreg-page .taPageBtn.active {
-    font-weight: 700;
-}
+/* .woreg-page .taPageBtn.active { */
+/*     font-weight: 700; */
+/* } */
 
-.woreg-page form {
-    margin: 0;
-}
+/* .woreg-page form { */
+/*     margin: 0; */
+/* } */
 
-/* 창이 좁아질 때만 가로스크롤 허용 */
-@media (max-width: 1280px) {
-    .woreg-page .taTableScroll {
-        overflow-x: auto;
-    }
+/* /* 창이 좁아질 때만 가로스크롤 허용 */ */
+/* @media (max-width: 1280px) { */
+/*     .woreg-page .taTableScroll { */
+/*         overflow-x: auto; */
+/*     } */
 
-    .woreg-page .taMesTable {
-        min-width: 1100px;
-    }
-}
+/*     .woreg-page .taMesTable { */
+/*         min-width: 1100px; */
+/*     } */
+/* } */
 
-@media (max-width: 900px) {
-    .woreg-page .taToolbarField,
-    .woreg-page .taToolbarFieldGrow {
-        width: 100%;
-        min-width: 0;
-    }
+/* @media (max-width: 900px) { */
+/*     .woreg-page .taToolbarField, */
+/*     .woreg-page .taToolbarFieldGrow { */
+/*         width: 100%; */
+/*         min-width: 0; */
+/*     } */
 
-    .woreg-page .taSearchBox {
-        width: 100%;
-        flex-wrap: wrap;
-    }
+/*     .woreg-page .taSearchBox { */
+/*         width: 100%; */
+/*         flex-wrap: wrap; */
+/*     } */
 
-    .woreg-page .taSelect,
-    .woreg-page .taSearchInput {
-        width: 100%;
-    }
+/*     .woreg-page .taSelect, */
+/*     .woreg-page .taSearchInput { */
+/*         width: 100%; */
+/*     } */
 
-    .woreg-page .taTableScroll {
-        overflow-x: auto;
-    }
+/*     .woreg-page .taTableScroll { */
+/*         overflow-x: auto; */
+/*     } */
 
-    .woreg-page .taMesTable {
-        min-width: 1100px;
-    }
-}
+/*     .woreg-page .taMesTable { */
+/*         min-width: 1100px; */
+/*     } */
+/* } */

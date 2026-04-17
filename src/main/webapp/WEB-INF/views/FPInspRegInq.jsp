@@ -44,51 +44,90 @@
 		</form>
 	</div>
 </div>
+
 <form id="paSearchForm" method="post"
 	action="${pageContext.request.contextPath}/fpInspRegInq">
-	<input type="hidden" name="cmd" value="list"><input
+	<input type="hidden" name="cmd" value="list"> <input
 		type="hidden" name="page" id="paPage" value="${paCurrentPage}">
+
 	<div class="taToolbarRow">
-		<div class="taToolbarField">
-			<select class="taSelect" name="resultType"><option
-					value="전체"
-					${empty fpInspRegInqSearchDTO.resultType or fpInspRegInqSearchDTO.resultType eq '전체' ? 'selected' : ''}>전체</option>
+
+		<!-- 1) 판정 -->
+		<div class="taToolbarField taToolbarSpan2">
+			<select
+				class="taSelect taAutoSelectColor ${empty fpInspRegInqSearchDTO.resultType or fpInspRegInqSearchDTO.resultType eq '전체' ? 'taSelectPlaceholder' : ''}"
+				name="resultType">
+				<option value="" disabled hidden
+					<c:if test="${empty fpInspRegInqSearchDTO.resultType or fpInspRegInqSearchDTO.resultType eq '전체'}">selected</c:if>>
+					전체 / 합격 / 불합격</option>
+				<option value="전체"
+					<c:if test="${fpInspRegInqSearchDTO.resultType eq '전체'}">selected</c:if>>
+					전체</option>
 				<option value="합격"
-					${fpInspRegInqSearchDTO.resultType eq '합격' ? 'selected' : ''}>합격</option>
+					<c:if test="${fpInspRegInqSearchDTO.resultType eq '합격'}">selected</c:if>>
+					합격</option>
 				<option value="불합격"
-					${fpInspRegInqSearchDTO.resultType eq '불합격' ? 'selected' : ''}>불합격</option></select>
+					<c:if test="${fpInspRegInqSearchDTO.resultType eq '불합격'}">selected</c:if>>
+					불합격</option>
+			</select>
 		</div>
-		<div class="taToolbarField">
-			<div class="taSearchBox">
-				<input type="date" class="taSearchInput" name="startDate"
-					value="${fpInspRegInqSearchDTO.startDate}"><input
-					type="date" class="taSearchInput" name="endDate"
-					value="${fpInspRegInqSearchDTO.endDate}">
-			</div>
-		</div>
-		<div class="taToolbarField">
-			<select class="taSelect" name="searchType"><option value=""
-					${empty fpInspRegInqSearchDTO.searchType ? 'selected' : ''}>전체</option>
+
+		<!-- 2) 조회기준 -->
+		<div class="taToolbarField taToolbarSpan2">
+			<select
+				class="taSelect taAutoSelectColor ${empty fpInspRegInqSearchDTO.searchType ? 'taSelectPlaceholder' : ''}"
+				name="searchType">
+				<option value="" disabled hidden
+					<c:if test="${empty fpInspRegInqSearchDTO.searchType}">selected</c:if>>
+					전체 / 품목코드 / 품목명</option>
+				<option value="all"
+					<c:if test="${fpInspRegInqSearchDTO.searchType eq 'all'}">selected</c:if>>
+					전체</option>
 				<option value="itemCode"
-					${fpInspRegInqSearchDTO.searchType eq 'itemCode' ? 'selected' : ''}>품목코드</option>
+					<c:if test="${fpInspRegInqSearchDTO.searchType eq 'itemCode'}">selected</c:if>>
+					품목코드</option>
 				<option value="itemName"
-					${fpInspRegInqSearchDTO.searchType eq 'itemName' ? 'selected' : ''}>품목명</option></select>
+					<c:if test="${fpInspRegInqSearchDTO.searchType eq 'itemName'}">selected</c:if>>
+					품목명</option>
+			</select>
 		</div>
-		<div class="taToolbarField taToolbarFieldGrow">
+
+		<!-- 3) 시작일 -->
+		<div class="taToolbarField taToolbarSpan2">
+			<input type="date" class="taSearchInput" name="startDate"
+				value="${fpInspRegInqSearchDTO.startDate}">
+		</div>
+
+		<!-- 4) 종료일 -->
+		<div class="taToolbarField taToolbarSpan2">
+			<input type="date" class="taSearchInput" name="endDate"
+				value="${fpInspRegInqSearchDTO.endDate}">
+		</div>
+
+		<!-- 5) 검색키워드 + 돋보기 + 초기화 -->
+		<div class="taToolbarField taToolbarFieldGrow taToolbarSpan4">
 			<div class="taSearchBox">
 				<input type="text" class="taSearchInput" name="keyword"
 					placeholder="검색키워드" value="${fpInspRegInqSearchDTO.keyword}">
-				<button type="submit" class="taSearchBtn" aria-label="검색">
+
+				<button type="submit" class="taSearchBtn" aria-label="검색"
+					onclick="document.getElementById('paPage').value=1;">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
 						stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="7"></circle>
-        <path d="M20 20L16.65 16.65"></path>
-    </svg>
+						<circle cx="11" cy="11" r="7"></circle>
+						<path d="M20 20L16.65 16.65"></path>
+					</svg>
 				</button>
+
+				<button type="button" class="taBtn taBtnOutline taSearchReset"
+					onclick="location.href='${pageContext.request.contextPath}/fpInspRegInq'">
+					초기화</button>
 			</div>
 		</div>
+
 	</div>
 </form>
+
 <form id="fpInspDeleteForm" method="post"
 	action="${pageContext.request.contextPath}/fpInspRegInq">
 	<input type="hidden" name="cmd" value="delete">

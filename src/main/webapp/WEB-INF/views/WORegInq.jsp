@@ -23,7 +23,8 @@
 
 	<%-- 상단 버튼 영역 --%>
 	<div class="taPageActions">
-		<button type="button" class="taBtn taBtnPrimary" data-modal-target="registerModal">등록</button>
+		<button type="button" class="taBtn taBtnPrimary"
+			data-modal-target="registerModal">등록</button>
 
 		<%-- 삭제 버튼: 1차 클릭 시 체크박스 표시, 2차 클릭 시 삭제 --%>
 		<button type="button" id="deleteToggleBtn" class="taBtn taBtnOutline"
@@ -39,53 +40,78 @@
 			type="hidden" name="page" id="paPage" value="${paCurrentPage}">
 
 		<div class="taToolbarRow">
-			<%-- 기간 검색 --%>
-			<div class="taToolbarField">
-				<div class="taSearchBox">
-					<input type="date" class="taSearchInput" name="startDate"
-						value="${param.startDate}"> <input type="date"
-						class="taSearchInput" name="endDate" value="${param.endDate}">
-				</div>
-			</div>
 
-			<%-- 검색 기준 선택 --%>
-			<div class="taToolbarField">
-				<select class="taSelect" name="searchType">
-					<option value="" ${empty param.searchType ? "selected" : ""}>전체</option>
-					<option value="workOrderNo"
-						${param.searchType eq 'workOrderNo' ? "selected" : ""}>작업지시번호</option>
-					<option value="itemCode"
-						${param.searchType eq 'itemCode' ? "selected" : ""}>품목코드</option>
-					<option value="itemName"
-						${param.searchType eq 'itemName' ? "selected" : ""}>품목명</option>
-					<option value="lineCode"
-						${param.searchType eq 'lineCode' ? "selected" : ""}>라인</option>
-					<option value="processCode"
-						${param.searchType eq 'processCode' ? "selected" : ""}>공정</option>
-					<option value="empName"
-						${param.searchType eq 'empName' ? "selected" : ""}>작업자</option>
-					<option value="bomCode"
-						${param.searchType eq 'bomCode' ? "selected" : ""}>BOM</option>
-				</select>
-			</div>
+		<!-- 1) 첫 검색창 -->
+		<div class="taToolbarField taToolbarSpan2">
+			<select
+				class="taSelect taAutoSelectColor ${empty param.searchType ? 'taSelectPlaceholder' : ''}"
+				name="searchType">
+				<option value="" hidden ${empty param.searchType ? "selected" : ""}>
+					전체 / 작업지시번호 ...
+				</option>
+				<option value="all" ${param.searchType eq 'all' ? "selected" : ""}>
+					전체
+				</option>
+				<option value="workOrderNo" ${param.searchType eq 'workOrderNo' ? "selected" : ""}>
+					작업지시번호
+				</option>
+				<option value="itemCode" ${param.searchType eq 'itemCode' ? "selected" : ""}>
+					품목코드
+				</option>
+				<option value="itemName" ${param.searchType eq 'itemName' ? "selected" : ""}>
+					품목명
+				</option>
+				<option value="lineCode" ${param.searchType eq 'lineCode' ? "selected" : ""}>
+					라인
+				</option>
+				<option value="processCode" ${param.searchType eq 'processCode' ? "selected" : ""}>
+					공정
+				</option>
+				<option value="empName" ${param.searchType eq 'empName' ? "selected" : ""}>
+					작업자
+				</option>
+				<option value="bomCode" ${param.searchType eq 'bomCode' ? "selected" : ""}>
+					BOM
+				</option>
+			</select>
+		</div>
 
-			<%-- 검색어 입력 --%>
-			<div class="taToolbarField taToolbarFieldGrow">
-				<div class="taSearchBox">
-					<input type="text" class="taSearchInput" name="keyword"
-						placeholder="작업지시번호 / 품목코드 / 품목명 / 라인 / 공정 / 작업자 / BOM 검색"
-						value="${param.keyword}">
+		<!-- 2) 시작일 -->
+		<div class="taToolbarField taToolbarSpan2">
+			<input type="date" class="taSearchInput" name="startDate"
+				value="${param.startDate}">
+		</div>
 
-					<!--                     <button type="submit" class="taSearchBtn" aria-label="검색">⌕</button> -->
-					<button type="submit" class="taSearchBtn" aria-label="검색">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-							stroke-width="2">
-                        <circle cx="11" cy="11" r="7"></circle>
-                        <path d="M20 20L16.65 16.65"></path></svg>
-					</button>
-				</div>
+		<!-- 3) 종료일 -->
+		<div class="taToolbarField taToolbarSpan2">
+			<input type="date" class="taSearchInput" name="endDate"
+				value="${param.endDate}">
+		</div>
+
+		<!-- 4) 검색키워드 + 돋보기 + 초기화 -->
+		<div class="taToolbarField taToolbarFieldGrow taToolbarSpan6">
+			<div class="taSearchBox">
+				<input type="text" class="taSearchInput" name="keyword"
+					placeholder="검색키워드"
+					value="${param.keyword}">
+
+				<button type="submit" class="taSearchBtn" aria-label="검색"
+					onclick="document.getElementById('paPage').value=1;">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<circle cx="11" cy="11" r="7"></circle>
+						<path d="M20 20L16.65 16.65"></path>
+					</svg>
+				</button>
+
+				<button type="button" class="taBtn taBtnOutline taSearchReset"
+					onclick="location.href=document.getElementById('paSearchForm').action">
+					초기화
+				</button>
 			</div>
 		</div>
+
+	</div>
+
 	</form>
 
 	<%-- 삭제용 폼 --%>
@@ -160,8 +186,9 @@
 									title="${dto.remark}">${dto.remark}</td>
 
 								<%-- 상세보기는 마지막 컬럼으로 고정 --%>
-								<td class="taTableBodyCell taColAction taLastCol">
-									<a class="taLinkAnchor" href="${pageContext.request.contextPath}/woreginq/detail?seqNO=${dto.seqNO}">상세보기</a>
+								<td class="taTableBodyCell taColAction taLastCol"><a
+									class="taLinkAnchor"
+									href="${pageContext.request.contextPath}/woreginq/detail?seqNO=${dto.seqNO}">상세보기</a>
 								</td>
 							</tr>
 						</c:forEach>
@@ -237,23 +264,24 @@
 			<h3 class="taModalTitle">작업지시 등록</h3>
 			<button type="button" class="taModalClose">&times;</button>
 		</div>
-		<form action="${pageContext.request.contextPath}/woreginq/register" method="post">
+		<form action="${pageContext.request.contextPath}/woreginq/register"
+			method="post">
 			<div class="taModalBody taModalGrid">
 				<div class="form-row">
-					<label>생산계획</label>
-					<select name="planId" required>
+					<label>생산계획</label> <select name="planId" required>
 						<option value="">선택</option>
 						<c:forEach var="plan" items="${planOptions}">
-							<option value="${plan.planId}">계획 ${plan.planId} / ${plan.itemName} / ${plan.lineCode}</option>
+							<option value="${plan.planId}">계획 ${plan.planId} /
+								${plan.itemName} / ${plan.lineCode}</option>
 						</c:forEach>
 					</select>
 				</div>
 				<div class="form-row">
-					<label>작업자</label>
-					<select name="empId" required>
+					<label>작업자</label> <select name="empId" required>
 						<option value="">선택</option>
 						<c:forEach var="emp" items="${empOptions}">
-							<option value="${emp.empId}">${emp.empName} (${emp.empNo})</option>
+							<option value="${emp.empId}">${emp.empName}
+								(${emp.empNo})</option>
 						</c:forEach>
 					</select>
 				</div>
@@ -261,18 +289,19 @@
 					<label>작업일자</label><input type="date" name="workDate" required>
 				</div>
 				<div class="form-row">
-					<label>지시량</label><input type="number" name="workQty" min="0" required>
+					<label>지시량</label><input type="number" name="workQty" min="0"
+						required>
 				</div>
 				<div class="form-row">
-					<label>상태</label>
-					<select name="status" required>
+					<label>상태</label> <select name="status" required>
 						<option value="대기">대기</option>
 						<option value="진행중">진행중</option>
 						<option value="완료">완료</option>
 					</select>
 				</div>
 				<div class="form-row full">
-					<label>비고</label><textarea name="remark"></textarea>
+					<label>비고</label>
+					<textarea name="remark"></textarea>
 				</div>
 			</div>
 			<div class="taModalFooter">
@@ -306,8 +335,8 @@
 			const rowChecks = document.querySelectorAll(".rowCheck");
 
 			if (rowChecks.length === 0) {
-			    alert("삭제할 데이터가 없습니다.");
-			    return;
+				alert("삭제할 데이터가 없습니다.");
+				return;
 			}
 
 			// 1차 클릭: 체크박스 보이기

@@ -401,6 +401,7 @@ body {
 .taToolbarSpan4 { grid-column: span 4; }
 .taToolbarSpan5 { grid-column: span 5; }
 .taToolbarSpan6 { grid-column: span 6; }
+.taToolbarSpan9 { grid-column: span 9; }
 .taToolbarSpan12 { grid-column: span 12; }
 
 .taSearchBox {
@@ -543,6 +544,7 @@ body {
   .taToolbarSpan4,
   .taToolbarSpan5,
   .taToolbarSpan6,
+  .taToolbarSpan9,
   .taToolbarSpan12 {
     grid-column: auto;
   }
