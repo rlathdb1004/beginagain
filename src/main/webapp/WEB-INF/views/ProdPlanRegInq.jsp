@@ -7,8 +7,10 @@
 	<div class="taPageActions">
 		<button type="button" class="taOpenModal taBtn taBtnPrimary"
 			data-modal-target="prodPlanRegisterModal">등록</button>
-		<button type="button" id="deleteToggleBtn" class="taBtn taBtnOutline"
-			onclick="handleDeleteButton()">삭제</button>
+		<!-- 		<button type="button" id="deleteToggleBtn" class="taBtn taBtnOutline" -->
+		<!-- 			onclick="handleDeleteButton()">삭제</button> -->
+		<button type="submit" form="deleteForm" class="taBtn taBtnOutline">
+			선택삭제</button>
 	</div>
 
 	<div id="prodPlanRegisterModal" class="taModal" hidden
@@ -150,9 +152,8 @@
 				<table class="taMesTable">
 					<thead>
 						<tr>
-							<!-- 						css주석하면서 같이 주석 -->
-							<!-- 							<th class="taTableHeadCell taColCheck delete-col"><input -->
-							<!-- 								type="checkbox" id="checkAll"></th> -->
+							<th class="taTableHeadCell taColFit delete-col"><input
+								type="checkbox" id="checkAll" class="taCheckInput"></th>
 							<th class="taTableHeadCell taColFit">NO</th>
 							<th class="taTableHeadCell taColFit">생산계획번호</th>
 							<th class="taTableHeadCell taColDate">일자</th>
@@ -168,9 +169,9 @@
 					<tbody>
 						<c:forEach var="dto" items="${list}">
 							<tr class="taTableBodyRow">
-								<td class="taTableBodyCell taColCheck delete-col"><input
+								<td class="taTableBodyCell taColFit delete-col"><input
 									type="checkbox" name="seqNO" value="${dto.seqNO}"
-									class="rowCheck"></td>
+									class="rowCheck taCheckInput"></td>
 								<td class="taTableBodyCell taColFit">${dto.seqNO}</td>
 								<td class="taTableBodyCell taColFit">${dto.planNo}</td>
 								<td class="taTableBodyCell taColDate">${dto.planDate}</td>
@@ -198,56 +199,56 @@
 	</form>
 </div>
 
-<script>
-	document.addEventListener("DOMContentLoaded", function() {
-		const checkAll = document.getElementById("checkAll");
-		const deleteModeInput = document.getElementById("deleteMode");
-		const deleteToggleBtn = document.getElementById("deleteToggleBtn");
-		const deleteForm = document.getElementById("deleteForm");
-		if (checkAll) {
-			checkAll.addEventListener("change", function() {
-				document.querySelectorAll(".rowCheck").forEach(
-						function(checkbox) {
-							checkbox.checked = checkAll.checked;
-						});
-			});
-		}
-		window.handleDeleteButton = function() {
-			const deleteCols = document.querySelectorAll(".delete-col");
-			const rowChecks = document.querySelectorAll(".rowCheck");
-			if (rowChecks.length === 0) {
-				alert("삭제할 데이터가 없습니다.");
-				return;
-			}
-			if (deleteModeInput.value === "N") {
-				deleteCols.forEach(function(col) {
-					col.classList.add("show-delete-col");
-				});
-				deleteModeInput.value = "Y";
-				deleteToggleBtn.textContent = "삭제확인";
-				return;
-			}
-			let checkedCount = 0;
-			rowChecks.forEach(function(checkbox) {
-				if (checkbox.checked)
-					checkedCount++;
-			});
-			if (checkedCount === 0) {
-				alert("삭제할 항목을 선택하세요.");
-				if (checkAll)
-					checkAll.checked = false;
-				rowChecks.forEach(function(checkbox) {
-					checkbox.checked = false;
-				});
-				deleteCols.forEach(function(col) {
-					col.classList.remove("show-delete-col");
-				});
-				deleteModeInput.value = "N";
-				deleteToggleBtn.textContent = "삭제";
-				return;
-			}
-			if (confirm("선택한 생산계획을 삭제하시겠습니까?"))
-				deleteForm.submit();
-		};
-	});
-</script>
+<!-- <!-- <script> -->
+<!-- // 	document.addEventListener("DOMContentLoaded", function() { -->
+<!-- // 		const checkAll = document.getElementById("checkAll"); -->
+<!-- // 		const deleteModeInput = document.getElementById("deleteMode"); -->
+<!-- // 		const deleteToggleBtn = document.getElementById("deleteToggleBtn"); -->
+<!-- // 		const deleteForm = document.getElementById("deleteForm"); -->
+<!-- // 		if (checkAll) { -->
+<!-- // 			checkAll.addEventListener("change", function() { -->
+<!-- // 				document.querySelectorAll(".rowCheck").forEach( -->
+<!-- // 						function(checkbox) { -->
+<!-- // 							checkbox.checked = checkAll.checked; -->
+<!-- // 						}); -->
+<!-- // 			}); -->
+<!-- // 		} -->
+<!-- // 		window.handleDeleteButton = function() { -->
+<!-- // 			const deleteCols = document.querySelectorAll(".delete-col"); -->
+<!-- // 			const rowChecks = document.querySelectorAll(".rowCheck"); -->
+<!-- // 			if (rowChecks.length === 0) { -->
+<!-- // 				alert("삭제할 데이터가 없습니다."); -->
+<!-- // 				return; -->
+<!-- // 			} -->
+<!-- // 			if (deleteModeInput.value === "N") { -->
+<!-- // 				deleteCols.forEach(function(col) { -->
+<!-- // 					col.classList.add("show-delete-col"); -->
+<!-- // 				}); -->
+<!-- // 				deleteModeInput.value = "Y"; -->
+<!-- // 				deleteToggleBtn.textContent = "삭제확인"; -->
+<!-- // 				return; -->
+<!-- // 			} -->
+<!-- // 			let checkedCount = 0; -->
+<!-- // 			rowChecks.forEach(function(checkbox) { -->
+<!-- // 				if (checkbox.checked) -->
+<!-- // 					checkedCount++; -->
+<!-- // 			}); -->
+<!-- // 			if (checkedCount === 0) { -->
+<!-- // 				alert("삭제할 항목을 선택하세요."); -->
+<!-- // 				if (checkAll) -->
+<!-- // 					checkAll.checked = false; -->
+<!-- // 				rowChecks.forEach(function(checkbox) { -->
+<!-- // 					checkbox.checked = false; -->
+<!-- // 				}); -->
+<!-- // 				deleteCols.forEach(function(col) { -->
+<!-- // 					col.classList.remove("show-delete-col"); -->
+<!-- // 				}); -->
+<!-- // 				deleteModeInput.value = "N"; -->
+<!-- // 				deleteToggleBtn.textContent = "삭제"; -->
+<!-- // 				return; -->
+<!-- // 			} -->
+<!-- // 			if (confirm("선택한 생산계획을 삭제하시겠습니까?")) -->
+<!-- // 				deleteForm.submit(); -->
+<!-- // 		}; -->
+<!-- // 	}); -->
+<!-- <!-- </script> -->
