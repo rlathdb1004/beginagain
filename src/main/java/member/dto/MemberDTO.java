@@ -1,6 +1,7 @@
 package member.dto;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 
 public class MemberDTO {
 
@@ -17,8 +18,8 @@ public class MemberDTO {
 	private String useYn;
 	private String tempPwdYn;
 	private String remark;
-	private Date createdAt;
-	private Date updatedAt;
+	private Timestamp createdAt;
+	private Timestamp updatedAt;
 
 	public MemberDTO() {
 	}
@@ -127,19 +128,21 @@ public class MemberDTO {
 		this.remark = remark;
 	}
 
-	public Date getCreatedAt() {
+	public Timestamp getCreatedAt() {
 		return createdAt;
 	}
 
-	public void setCreatedAt(Date createdAt) {
+	public void setCreatedAt(Timestamp createdAt) {
 		this.createdAt = createdAt;
 	}
 
-	public Date getUpdatedAt() {
+	public Timestamp getUpdatedAt() {
 		return updatedAt;
 	}
 
-	public void setUpdatedAt(Date updatedAt) {
+	public void setUpdatedAt(Timestamp updatedAt) {
 		this.updatedAt = updatedAt;
 	}
+
+	
 }

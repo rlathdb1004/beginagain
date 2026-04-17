@@ -14,10 +14,25 @@
             <input type="hidden" name="empId" value="${member.empId}">
             <div class="taPageActions">
                 <button type="button" id="memberUpdateFormEditBtn" class="taBtn taBtnPrimary">수정</button>
+                <c:if test="${sessionScope.loginUser.roleName eq '관리자'}">
+                    <button type="button" id="memberResetPasswordBtn" class="taBtn taBtnOutline">비밀번호 초기화</button>
+                </c:if>
                 <button type="submit" id="memberUpdateFormSaveBtn" class="taBtn taBtnPrimary" style="display:none;">수정완료</button>
                 <button type="button" id="memberUpdateFormCancelBtn" class="taBtn taBtnOutline" style="display:none;">취소</button>
                 <a class="taBtn taBtnOutline" href="${pageContext.request.contextPath}/member/list" style="text-decoration:none;">목록</a>
             </div>
+            <c:if test="${param.resetSuccess eq 'Y'}">
+                <div class="taFormShell" style="margin-bottom:16px; border:1px solid #d7e3ff; background:#f7faff; padding:16px 24px 16px 18px; box-sizing:border-box;">
+                    <div style="font-weight:700; margin-bottom:8px; color:#1f4fa3;">비밀번호 초기화 완료</div>
+                    <div style="line-height:1.7; padding-right:8px;">임시 비밀번호: <strong>${param.tempPassword}</strong></div>
+                    <div style="margin-top:6px; color:#666; font-size:13px; padding-right:8px;">해당 사원은 다음 로그인 시 새 비밀번호로 반드시 변경해야 합니다.</div>
+                </div>
+            </c:if>
+            <c:if test="${param.resetSuccess eq 'N'}">
+                <div class="taFormShell" style="margin-bottom:16px; border:1px solid #ffd7d7; background:#fff8f8; color:#b42318;">
+                    비밀번호 초기화에 실패했습니다. 다시 시도해주세요.
+                </div>
+            </c:if>
             <div class="taFormShell">
                 <table class="taFormTable">
                     <tr><th class="taFormLabel">ID</th><td class="taFormValue"><span class="taReadonlyText">${member.empId}</span></td></tr>
@@ -34,6 +49,12 @@
                 </table>
             </div>
         </form>
+
+        <c:if test="${sessionScope.loginUser.roleName eq '관리자'}">
+            <form id="memberResetPasswordForm" action="${pageContext.request.contextPath}/member/resetPassword" method="post" style="display:none;">
+                <input type="hidden" name="empId" value="${member.empId}">
+            </form>
+        </c:if>
 <script>
 (function() {
     const form = document.getElementById("memberUpdateForm");
@@ -43,6 +64,8 @@
     const saveBtn = document.getElementById("memberUpdateFormSaveBtn");
     const cancelBtn = document.getElementById("memberUpdateFormCancelBtn");
     const fields = form.querySelectorAll('.taEditableField');
+    const resetBtn = document.getElementById('memberResetPasswordBtn');
+    const resetForm = document.getElementById('memberResetPasswordForm');
 
     function setViewMode() {
         fields.forEach(function(field) {
@@ -77,6 +100,14 @@
     editBtn.addEventListener('click', function() {
         setEditMode();
     });
+
+    if (resetBtn && resetForm) {
+        resetBtn.addEventListener('click', function() {
+            if (confirm('해당 사원의 비밀번호를 임시 비밀번호로 초기화하시겠습니까?')) {
+                resetForm.submit();
+            }
+        });
+    }
 
     cancelBtn.addEventListener('click', function() {
         fields.forEach(function(field) {

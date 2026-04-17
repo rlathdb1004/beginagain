@@ -35,24 +35,20 @@
 		<div class="taToolbarField taToolbarFieldGrow"
 			style="grid-column: span 3;">
 			<div class="taSearchBox">
-				<!-- 			페이징때문에 아래 내용주석처리함 -->
-				<!-- 				<input type="text" class="taSearchInput" name="keyword" -->
-				<!-- 					placeholder="검색어를 입력하세요"> -->
+<!-- 			페이징때문에 아래 내용주석처리함 -->
+<!-- 				<input type="text" class="taSearchInput" name="keyword" -->
+<!-- 					placeholder="검색어를 입력하세요"> -->
 
 				<input type="text" class="taSearchInput" name="keyword"
 					value="${keyword}" placeholder="검색어를 입력하세요">
-				<button type="submit" class="taSearchBtn" aria-label="검색">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-						stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="7"></circle>
-        <path d="M20 20L16.65 16.65"></path>
-    </svg>
-				</button>
-				<!-- 				페이징 때문에 주석처리함 -->
-				<!-- 				<button type="button" class="taBtn taBtnOutline taSearchReset">초기화</button> -->
-				<button type="button" class="taBtn taBtnOutline taSearchReset"
-					onclick="location.href='${pageContext.request.contextPath}/member/list'">
-					초기화</button>
+				<button type="submit" class="taSearchBtn">⌕</button>
+<!-- 				페이징 때문에 주석처리함 -->
+<!-- 				<button type="button" class="taBtn taBtnOutline taSearchReset">초기화</button> -->
+			<button type="button"
+        class="taBtn taBtnOutline taSearchReset"
+        onclick="location.href='${pageContext.request.contextPath}/member/list'">
+    초기화
+</button>
 			</div>
 		</div>
 	</div>
@@ -60,7 +56,7 @@
 <form id="deleteForm"
 	action="${pageContext.request.contextPath}/member/delete" method="post">
 	<div class="taTableShell">
-		<!-- 	페이징때문에 id="paTableBox" 추가함  -->
+<!-- 	페이징때문에 id="paTableBox" 추가함  -->
 		<div class="taTableScroll" id="paTableBox">
 			<table class="taMesTable" id="memberTable">
 				<thead>
@@ -129,20 +125,10 @@
 					<label>이름</label><input type="text" name="empName" required>
 				</div>
 				<div class="form-row">
-					<label>부서코드</label><select name="deptCode"><option
-							value="PROD">생산</option>
-						<option value="QUAL">품질</option>
-						<option value="MTRL">자재</option>
-						<option value="FAC">설비</option>
-						<option value="ADMIN">관리</option></select>
+					<label>부서코드</label><select name="deptCode"><option value="PROD">생산</option><option value="QUAL">품질</option><option value="MTRL">자재</option><option value="FAC">설비</option><option value="ADMIN">관리</option></select>
 				</div>
 				<div class="form-row">
-					<label>직급</label><select name="positionName"><option
-							value="사원">사원</option>
-						<option value="대리">대리</option>
-						<option value="과장">과장</option>
-						<option value="차장">차장</option>
-						<option value="부장">부장</option></select>
+					<label>직급</label><select name="positionName"><option value="사원">사원</option><option value="대리">대리</option><option value="과장">과장</option><option value="차장">차장</option><option value="부장">부장</option></select>
 				</div>
 				<div class="form-row">
 					<label>이메일</label><input type="email" name="email">
@@ -151,15 +137,10 @@
 					<label>전화번호</label><input type="text" name="phone">
 				</div>
 				<div class="form-row">
-					<label>상태</label><select name="status"><option value="재직"
-							selected>재직</option>
-						<option value="휴직">휴직</option>
-						<option value="퇴사">퇴사</option></select>
+					<label>상태</label><select name="status"><option value="재직" selected>재직</option><option value="휴직">휴직</option><option value="퇴사">퇴사</option></select>
 				</div>
 				<div class="form-row">
-					<label>권한</label><select name="roleName"><option
-							value="USER" selected>USER</option>
-						<option value="ADMIN">ADMIN</option></select>
+					<label>권한</label><select name="roleName"><option value="USER" selected>USER</option><option value="ADMIN">ADMIN</option></select>
 				</div>
 				<div class="form-row full">
 					<label>비고</label>
