@@ -10,7 +10,7 @@
 		<!-- 		<button type="button" id="deleteToggleBtn" class="taBtn taBtnOutline" -->
 		<!-- 			onclick="handleDeleteButton()">삭제</button> -->
 		<button type="submit" form="deleteForm" class="taBtn taBtnOutline">
-			선택삭제</button>
+			선택 삭제</button>
 	</div>
 
 	<div id="prodPlanRegisterModal" class="taModal" hidden
