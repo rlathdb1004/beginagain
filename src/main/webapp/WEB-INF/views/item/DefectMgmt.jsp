@@ -22,11 +22,20 @@
 
             <form method="get" action="${pageContext.request.contextPath}/defect-mgmt">
                 <div class="taToolbarRow">
-
-                    <div class="taToolbarField taToolbarFieldGrow">
+                    <div class="taToolbarField taToolbarFieldGrow taToolbarSpan6">
                         <div class="taSearchBox">
                             <input type="text" class="taSearchInput" name="keyword" placeholder="불량코드/불량명 검색">
-                            <button type="submit" class="taSearchBtn">⌕</button>
+                            <button type="submit" class="taSearchBtn" aria-label="검색"
+                                onclick="document.getElementById('paPage').value=1;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                                    <circle cx="11" cy="11" r="7"></circle>
+                                    <path d="M20 20L16.65 16.65"></path>
+                                </svg>
+                            </button>
+
+                            <button type="button" class="taBtn taBtnOutline taSearchReset"
+                                onclick="location.href='${pageContext.request.contextPath}/defect-mgmt'">
+                                초기화</button>
                         </div>
                     </div>
                 </div>
@@ -56,7 +65,7 @@
                                     <td class="taTableBodyCell">${dto.defect_name}</td>
                                     <td class="taTableBodyCell">${dto.defect_type}</td>
                                     <td class="taTableBodyCell">${dto.remark}</td>
-                                   <td class="taTableBodyCell taColAction taLastCol">
+                                    <td class="taTableBodyCell taColAction taLastCol">
                                         <a class="taLinkAnchor"
                                             href="${pageContext.request.contextPath}/defect-detail?defectCodeId=${dto.defect_code_id}">
                                             상세보기
