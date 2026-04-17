@@ -1,4 +1,4 @@
-package MasterDataMgmt.DefectManagement;
+package MasterDataMgmt.DefectManagement.controller;
 
 import java.io.IOException;
 import java.util.List;
@@ -9,6 +9,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import MasterDataMgmt.DefectManagement.dto.DefectMgmtDTO;
+import MasterDataMgmt.DefectManagement.dto.DefectMgmtSearchDTO;
+import MasterDataMgmt.DefectManagement.service.DefectMgmtService;
+
 
 @WebServlet("/defect-mgmt")
 public class DefectMgmtCon extends HttpServlet {
@@ -18,25 +22,20 @@ public class DefectMgmtCon extends HttpServlet {
         response.setContentType("text/html; charset=utf-8");
 
         String keyword = request.getParameter("keyword");
-
        
         DefectMgmtSearchDTO dto = new DefectMgmtSearchDTO();
         dto.setKeyword(keyword);
-
-        
         DefectMgmtService service = new DefectMgmtService();
         List<DefectMgmtDTO> list = service.getList(dto);
 
         
-        request.setAttribute("defectList", list);
-        
+        request.setAttribute("defectList", list);        
         request.setAttribute("contentPage", "/WEB-INF/views/item/DefectMgmt.jsp");
-
+        request.setAttribute("pageTitle", "불량 관리");
+        request.setAttribute("pageSubTitle", "불량 코드 조회 및 등록");
         request.getRequestDispatcher("/WEB-INF/views/table.jsp")
                .forward(request, response);
 	}
-
-	
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 	        throws ServletException, IOException {
@@ -60,7 +59,6 @@ public class DefectMgmtCon extends HttpServlet {
 	    dto.setDescription(description);
 	    dto.setUse_yn(use_yn);
 	    dto.setRemark(remark);
-
 	   
 	    DefectMgmtService service = new DefectMgmtService();
 	    if (id != null && !id.isEmpty()) {

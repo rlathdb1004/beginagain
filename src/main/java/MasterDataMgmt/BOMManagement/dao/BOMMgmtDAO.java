@@ -1,4 +1,4 @@
-package MasterDataMgmt.BOMManagement;
+package MasterDataMgmt.BOMManagement.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,6 +10,8 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
+import MasterDataMgmt.BOMManagement.dto.BOMMgmtDTO;
+import MasterDataMgmt.BOMManagement.dto.BOMMgmtSearchDTO;
 import MasterDataMgmt.ItemMgmt.ItemMgmtDTO;
 import MasterDataMgmt.ItemMgmt.ItemMgmtSearchDTO;
 
@@ -32,6 +34,7 @@ public class BOMMgmtDAO {
 			StringBuilder sql = new StringBuilder();
 
 			sql.append("SELECT ");
+			sql.append(" d.BOM_DETAIL_ID, ");
 			sql.append(" b.BOM_ID, ");
 			sql.append(" p.ITEM_CODE AS PRODUCT_CODE, ");
 			sql.append(" p.ITEM_NAME AS PRODUCT_NAME, ");
@@ -67,6 +70,7 @@ public class BOMMgmtDAO {
 
 				BOMMgmtDTO dtoBOM = new BOMMgmtDTO();
 
+				dtoBOM.setBom_detail_id(rs.getInt("BOM_DETAIL_ID"));
 				dtoBOM.setBOM_id(rs.getInt("BOM_ID"));
 
 				dtoBOM.setProduct_code(rs.getString("PRODUCT_CODE"));
@@ -204,6 +208,134 @@ public class BOMMgmtDAO {
 	    }
 
 	    return bomId;
+	}
+
+	public int delete(int id) {
+		Connection conn = null;
+	    PreparedStatement ps = null;
+
+	    try {
+	        Context ctx = new InitialContext();
+	        DataSource dataFactory = (DataSource) ctx.lookup("java:comp/env/jdbc/oracle");
+
+	        conn = dataFactory.getConnection();
+		
+	        String sql = "DELETE FROM BOM_DETAIL WHERE BOM_DETAIL_ID = ?";
+        
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, id);
+
+            return ps.executeUpdate(); 
+
+	    } catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (ps != null)
+					ps.close();
+			} catch (Exception e) {
+			}
+			try {
+				if (conn != null)
+					conn.close();
+			} catch (Exception e) {
+			}
+		}
+        return 0;
+	}
+	
+	public BOMMgmtDTO selectOne(int bomDetailId) {
+
+	    BOMMgmtDTO dto = null;
+	    Connection conn = null;
+	    PreparedStatement ps = null;
+	    ResultSet rs = null;
+
+	    try {
+	        Context ctx = new InitialContext();
+	        DataSource ds = (DataSource) ctx.lookup("java:comp/env/jdbc/oracle");
+
+	        conn = ds.getConnection();
+
+	        String sql =
+	            "SELECT " +
+	            " b.BOM_ID, " +
+	            " p.ITEM_CODE AS PRODUCT_CODE, " +
+	            " p.ITEM_NAME AS PRODUCT_NAME, " +
+	            " d.BOM_DETAIL_ID, " +
+	            " m.ITEM_CODE AS MATERIAL_CODE, " +
+	            " m.ITEM_NAME AS MATERIAL_NAME, " +
+	            " d.QTY_REQUIRED, " +
+	            " d.UNIT " +
+	            "FROM BOM b " +
+	            "JOIN ITEM p ON b.ITEM_ID = p.ITEM_ID " +
+	            "JOIN BOM_DETAIL d ON b.BOM_ID = d.BOM_ID " +
+	            "JOIN ITEM m ON d.ITEM_ID = m.ITEM_ID " +
+	            "WHERE d.BOM_DETAIL_ID = ?";
+
+	        ps = conn.prepareStatement(sql);
+	        ps.setInt(1, bomDetailId);
+
+	        rs = ps.executeQuery();
+
+	        if (rs.next()) {
+	            dto = new BOMMgmtDTO();
+
+	            dto.setBOM_id(rs.getInt("BOM_ID"));
+	            dto.setBom_detail_id(rs.getInt("BOM_DETAIL_ID"));
+
+	            dto.setProduct_code(rs.getString("PRODUCT_CODE"));
+	            dto.setProduct_name(rs.getString("PRODUCT_NAME"));
+
+	            dto.setMaterial_code(rs.getString("MATERIAL_CODE"));
+	            dto.setMaterial_name(rs.getString("MATERIAL_NAME"));
+
+	            dto.setQty_required(rs.getDouble("QTY_REQUIRED"));
+	            dto.setUnit(rs.getString("UNIT"));
+	        }
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    } finally {
+	        try { if (rs != null) rs.close(); } catch(Exception e) {}
+	        try { if (ps != null) ps.close(); } catch(Exception e) {}
+	        try { if (conn != null) conn.close(); } catch(Exception e) {}
+	    }
+
+	    return dto;
+	}
+
+	public static int updateBom(Connection conn, BOMMgmtDTO dto) {
+		 PreparedStatement ps = null;
+		    int result = 0;
+
+		    String sql = ""
+		    	    + "UPDATE BOM_DETAIL "
+		    	    + "SET ITEM_ID = (SELECT ITEM_ID FROM ITEM WHERE ITEM_CODE = ? AND ROWNUM = 1), "
+		    	    + "    QTY_REQUIRED = ?, "
+		    	    + "    UNIT = ?, "                 
+		    	    + "    REMARK = ?, "
+		    	    + "    UPDATED_AT = SYSDATE "
+		    	    + "WHERE BOM_DETAIL_ID = ?";
+
+		    try {
+		        ps = conn.prepareStatement(sql);
+
+		        ps.setString(1, dto.getMaterial_code());
+		        ps.setDouble(2, dto.getQty_required());
+		        ps.setString(3, dto.getUnit());       
+		        ps.setString(4, dto.getRemark());
+		        ps.setInt(5, dto.getBom_detail_id());
+
+		        result = ps.executeUpdate();
+        } catch (Exception e) {
+	        e.printStackTrace();
+	    } finally {	        
+	        try { if (ps != null) ps.close(); } catch(Exception e) {}
+	        try { if (conn != null) conn.close(); } catch(Exception e) {}
+	    }
+
+        return result;
 	}
 
 }

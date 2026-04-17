@@ -1,18 +1,22 @@
-package MasterDataMgmt.BOMManagement;
+package MasterDataMgmt.BOMManagement.dto;
 
 import java.time.LocalDate;
 
 public class BOMMgmtDTO {
 
     private int bom_id;
-    public int getBOM_id() {
-        return bom_id;
-    }
-    public void setBOM_id(int bom_id) {
-        this.bom_id = bom_id;
-    }
+    public int getBOM_id() {return bom_id;}
+    public void setBOM_id(int bom_id) {this.bom_id = bom_id;}
 
-    private int item_id;        
+    private int item_id;
+    public int getItem_id() {return item_id;}
+    public void setItem_id(int item_id) {this.item_id = item_id;}
+    
+    private int bom_detail_id;
+    public int getBom_detail_id() {return bom_detail_id;}
+    public void setBom_detail_id(int bom_detail_id) {this.bom_detail_id = bom_detail_id;}
+    
+    
     private String remark;
     private String use_yn;
 
@@ -32,15 +36,6 @@ public class BOMMgmtDTO {
     private java.time.LocalDate updated_at;
 
    
-
-    public int getItem_id() {
-        return item_id;
-    }
-
-    public void setItem_id(int item_id) {
-        this.item_id = item_id;
-    }
-
     public String getRemark() {
         return remark;
     }

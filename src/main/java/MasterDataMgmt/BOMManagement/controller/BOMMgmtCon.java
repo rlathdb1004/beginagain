@@ -1,4 +1,4 @@
-package MasterDataMgmt.BOMManagement;
+package MasterDataMgmt.BOMManagement.controller;
 
 import java.io.IOException;
 import java.util.List;
@@ -9,6 +9,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import MasterDataMgmt.BOMManagement.dto.BOMMgmtDTO;
+import MasterDataMgmt.BOMManagement.dto.BOMMgmtSearchDTO;
+import MasterDataMgmt.BOMManagement.service.BOMMgmtService;
 import MasterDataMgmt.ItemMgmt.ItemMgmtDTO;
 import MasterDataMgmt.ItemMgmt.ItemMgmtSearchDTO;
 import MasterDataMgmt.ItemMgmt.ItemMgmtService;
@@ -33,7 +36,8 @@ public class BOMMgmtCon extends HttpServlet {
 
         request.setAttribute("BOMList", list);
         request.setAttribute("contentPage", "/WEB-INF/views/item/BOMMgmt.jsp");
-
+        request.setAttribute("pageTitle", "BOM 관리");
+        request.setAttribute("pageSubTitle", "BOM 조회 및 등록");
         request.getRequestDispatcher("/WEB-INF/views/table.jsp")
                .forward(request, response);
     }

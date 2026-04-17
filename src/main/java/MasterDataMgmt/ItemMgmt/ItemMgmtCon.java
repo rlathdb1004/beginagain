@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import MasterDataMgmt.DefectManagement.DefectMgmtService;
+import MasterDataMgmt.DefectManagement.service.DefectMgmtService;
 
 @WebServlet("/master-item")
 public class ItemMgmtCon extends HttpServlet {
@@ -45,6 +45,8 @@ public class ItemMgmtCon extends HttpServlet {
 
 		request.setAttribute("itemList", list);
 		request.setAttribute("contentPage", "/WEB-INF/views/item/ItemMgmt.jsp");
+		request.setAttribute("pageTitle", "품목 관리");
+		request.setAttribute("pageSubTitle", "품목 조회 및 등록");
 
 		request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
 	}

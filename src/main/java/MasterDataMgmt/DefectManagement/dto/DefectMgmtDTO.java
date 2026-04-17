@@ -1,4 +1,4 @@
-package MasterDataMgmt.DefectManagement;
+package MasterDataMgmt.DefectManagement.dto;
 
 import java.time.LocalDate;
 

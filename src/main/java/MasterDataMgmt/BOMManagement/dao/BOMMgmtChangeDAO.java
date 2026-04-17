@@ -1,4 +1,4 @@
-package MasterDataMgmt.BOMManagement;
+package MasterDataMgmt.BOMManagement.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

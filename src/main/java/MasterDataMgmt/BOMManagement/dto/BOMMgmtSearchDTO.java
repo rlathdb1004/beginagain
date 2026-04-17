@@ -1,4 +1,4 @@
-package MasterDataMgmt.BOMManagement;
+package MasterDataMgmt.BOMManagement.dto;
 
 public class BOMMgmtSearchDTO {
 	private String product_code;

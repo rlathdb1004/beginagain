@@ -1,4 +1,4 @@
-package MasterDataMgmt.DefectManagement;
+package MasterDataMgmt.DefectManagement.dto;
 
 public class DefectMgmtSearchDTO {
 

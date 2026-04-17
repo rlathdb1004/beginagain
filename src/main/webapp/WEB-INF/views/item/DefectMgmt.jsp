@@ -1,154 +1,128 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" %>
+    <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<!DOCTYPE html>
-<html lang="ko">
+        <!DOCTYPE html>
+        <html lang="ko">
 
-<head>
-<meta charset="UTF-8">
-<title>자재 불량 관리</title>
+        <head>
+            <meta charset="UTF-8">
+            <title>자재 불량 관리</title>
 
-<link rel="stylesheet"
-	href="${pageContext.request.contextPath}/assets/css/common.css" />
-<link rel="stylesheet"
-	href="${pageContext.request.contextPath}/assets/css/table.css" />
-</head>
+            <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/common.css" />
+            <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/table.css" />
+        </head>
 
-<body>
+        <body>
 
-	<div class="taPageActions">
-		<button type="button" class="taBtn taBtnPrimary" onclick="openModal()">등록</button>
-		<button type="button" class="taBtn taBtnDanger"
-			onclick="deleteSelected()">삭제</button>
-
-	</div>
+            <div class="taPageActions">
+                <button type="button" class="taBtn taBtnPrimary" data-modal-target="registerModal">등록</button>
+                <button class="taBtn taBtnOutline" onclick="deleteSelected()">선택 삭제</button>
+            </div>
 
 
-	<form id="paSearchForm" method="get"
-		action="${pageContext.request.contextPath}/defect-mgmt">
-		<div class="taToolbarRow">
+            <form method="get" action="${pageContext.request.contextPath}/defect-mgmt">
+                <div class="taToolbarRow">
 
-			<!-- 1) 첫 검색창 추가 -->
-			<div class="taToolbarField taToolbarSpan3">
-				<select
-					class="taSelect taAutoSelectColor ${empty param.searchType or param.searchType eq 'all' ? 'taSelectPlaceholder' : ''}"
-					name="searchType">
-					<option value="" disabled hidden
-						<c:if test="${empty param.searchType or param.searchType eq 'all'}">selected</c:if>>
-						전체 / 불량코드 ...</option>
-					<option value="all"
-						<c:if test="${param.searchType eq 'all'}">selected</c:if>>
-						전체</option>
-					<option value="defectCode"
-						<c:if test="${param.searchType eq 'defectCode'}">selected</c:if>>
-						불량코드</option>
-					<option value="defectName"
-						<c:if test="${param.searchType eq 'defectName'}">selected</c:if>>
-						불량명</option>
-					<option value="defectType"
-						<c:if test="${param.searchType eq 'defectType'}">selected</c:if>>
-						유형</option>
-				</select>
-			</div>
+                    <div class="taToolbarField taToolbarFieldGrow">
+                        <div class="taSearchBox">
+                            <input type="text" class="taSearchInput" name="keyword" placeholder="불량코드/불량명 검색">
+                            <button type="submit" class="taSearchBtn">⌕</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
 
-			<!-- 2) 기존 검색창 -->
-			<div class="taToolbarField taToolbarFieldGrow taToolbarSpan9">
-				<div class="taSearchBox">
-					<input type="text" class="taSearchInput" name="keyword"
-						value="${param.keyword}" placeholder="검색키워드">
+            <div class="taTableShell">
+                <div class="taTableScroll">
 
-					<button type="submit" class="taSearchBtn" aria-label="검색">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-							stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<circle cx="11" cy="11" r="7"></circle>
-						<path d="M20 20L16.65 16.65"></path>
-					</svg>
-					</button>
+                    <table class="taMesTable">
+                        <thead>
+                            <tr>
+                                <th class="taTableHeadCell"><input type="checkbox" id="checkAll"></th>
+                                <th class="taTableHeadCell">코드</th>
+                                <th class="taTableHeadCell">불량명</th>
+                                <th class="taTableHeadCell">유형</th>
+                                <th class="taTableHeadCell">비고</th>
+                                <th class="taTableHeadCell taColAction taLastCol">상세</th>
+                            </tr>
+                        </thead>
 
-					<button type="button" class="taBtn taBtnOutline taSearchReset"
-						onclick="location.href='${pageContext.request.contextPath}/defect-mgmt'">
-						초기화</button>
-				</div>
-			</div>
+                        <tbody>
+                            <c:forEach var="dto" items="${defectList}">
+                                <tr class="taTableBodyRow">
+                                    <td class="taTableBodyCell"><input type="checkbox" class="row-check"
+                                            name="defect_code_id" value="${dto.defect_code_id}"></td>
+                                    <td class="taTableBodyCell">${dto.defect_code}</td>
+                                    <td class="taTableBodyCell">${dto.defect_name}</td>
+                                    <td class="taTableBodyCell">${dto.defect_type}</td>
+                                    <td class="taTableBodyCell">${dto.remark}</td>
+                                   <td class="taTableBodyCell taColAction taLastCol">
+                                        <a class="taLinkAnchor"
+                                            href="${pageContext.request.contextPath}/defect-detail?defectCodeId=${dto.defect_code_id}">
+                                            상세보기
+                                        </a>
+                                    </td>
+                                </tr>
+                            </c:forEach>
 
-		</div>
-	</form>
-
-	<div class="taTableShell">
-		<div class="taTableScroll">
-
-			<table class="taMesTable">
-				<thead>
-					<tr>
-						<th class="taTableHeadCell"><input type="checkbox"
-							id="checkAll"></th>
-						<th class="taTableHeadCell">ID</th>
-						<th class="taTableHeadCell">코드</th>
-						<th class="taTableHeadCell">불량명</th>
-						<th class="taTableHeadCell">유형</th>
-						<th class="taTableHeadCell">비고</th>
-						<th class="taTableHeadCell">수정</th>
-					</tr>
-				</thead>
-
-				<tbody>
-					<c:forEach var="dto" items="${defectList}">
-						<tr class="taTableBodyRow">
-							<td class="taTableBodyCell"><input type="checkbox"
-								class="row-check" name="defect_code_id"
-								value="${dto.defect_code_id}"></td>
-							<td class="taTableBodyCell">${dto.defect_code_id}</td>
-							<td class="taTableBodyCell">${dto.defect_code}</td>
-							<td class="taTableBodyCell">${dto.defect_name}</td>
-							<td class="taTableBodyCell">${dto.defect_type}</td>
-							<td class="taTableBodyCell">${dto.remark}</td>
-							<td class="taTableBodyCell"><button type="button"
-									class="taBtn"
-									onclick="editDefect('${dto.defect_code_id}','${dto.defect_code}','${dto.defect_name}','${dto.defect_type}','${dto.remark}')">수정</button>
-							</td>
-						</tr>
-					</c:forEach>
+                            <c:if test="${empty defectList}">
+                                <tr>
+                                    <td colspan="6" style="text-align:center;">
+                                        조회된 데이터가 없습니다.
+                                    </td>
+                                </tr>
+                            </c:if>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
 
-					<c:if test="${empty defectList}">
-						<tr>
-							<td colspan="7" style="text-align: center;">조회된 데이터가 없습니다.</td>
-						</tr>
-					</c:if>
-				</tbody>
-			</table>
+            <div class="taModal" id="registerModal" hidden aria-hidden="true">
+                <div class="taModalDialog modal-lg">
 
-		</div>
-	</div>
+                    <div class="taModalHeader">
+                        <h3 class="taModalTitle">불량 등록</h3>
+                        <button type="button" class="taModalClose">&times;</button>
+                    </div>
 
+                    <form method="post" action="${pageContext.request.contextPath}/defect-mgmt">
 
-	<div class="modal">
-		<div class="modal-box">
-			<div class="modal-title">불량 등록</div>
+                        <input type="hidden" name="defect_code_id" id="defect_code_id">
 
-			<form method="post"
-				action="${pageContext.request.contextPath}/defect-mgmt"
-				class="form-row">
-				<input type="hidden" name="defect_code_id" id="defect_code_id">
+                        <div class="taModalBody taModalGrid">
 
-				<input type="text" name="defect_code" id="defect_code"
-					placeholder="불량코드"> <input type="text" name="defect_name"
-					id="defect_name" placeholder="불량명"> <input type="text"
-					name="defect_type" id="defect_type" placeholder="유형"> <input
-					type="text" name="remark" id="remark" placeholder="비고">
+                            <div class="form-row">
+                                <label>불량코드</label>
+                                <input type="text" name="defect_code" id="defect_code" required>
+                            </div>
 
-				<div style="display: flex; gap: 10px; margin-top: 10px;">
-					<button type="submit" class="taBtn taBtnPrimary">등록</button>
-					<button type="button" class="taBtn" onclick="openModal()">취소</button>
-				</div>
-			</form>
-		</div>
-	</div>
+                            <div class="form-row">
+                                <label>불량명</label>
+                                <input type="text" name="defect_name" id="defect_name" required>
+                            </div>
 
-	<script>
-                function openModal() {
-                    document.querySelector(".modal").classList.toggle("open")
-                }
+                            <div class="form-row">
+                                <label>유형</label>
+                                <input type="text" name="defect_type" id="defect_type">
+                            </div>
+
+                            <div class="form-row full">
+                                <label>비고</label>
+                                <textarea name="remark" id="remark"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="taModalFooter">
+                            <button type="button" class="taBtn taBtnOutline taModalClose">취소</button>
+                            <button type="submit" class="taBtn taBtnPrimary">등록</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+            <script>
 
                 function deleteSelected() {
 
@@ -156,6 +130,10 @@
 
                     if (checked.length === 0) {
                         alert("삭제할 항목을 선택하세요.");
+                        return;
+                    }
+
+                    if (!confirm("선택한 항목을 삭제하시겠습니까?")) {
                         return;
                     }
 
@@ -175,21 +153,10 @@
                     form.submit();
                 }
 
-                function editDefect(id, code, name, type, remark) {
-
-                    document.getElementById("defect_code_id").value = id;
-                    document.getElementById("defect_code").value = code;
-                    document.getElementById("defect_name").value = name;
-                    document.getElementById("defect_type").value = type;
-                    document.getElementById("remark").value = remark;
-
-                    openModal();
-                }
-
                 document.addEventListener("DOMContentLoaded", function () {
                     const checkAll = document.getElementById("checkAll");
                     const rowChecks = document.querySelectorAll(".row-check");
-                    
+
                     checkAll.addEventListener("change", function () {
                         rowChecks.forEach(cb => {
                             cb.checked = checkAll.checked;
@@ -205,6 +172,6 @@
                 })
             </script>
 
-</body>
+        </body>
 
-</html>
+        </html>
