@@ -497,11 +497,7 @@
 		var ruleEmpNo = document.getElementById('ruleEmpNo');
 
 		var empNo = '${user.empNo}';
-		var hasPwdError = $
-		{
-			hasPwdError
-		}
-		;
+		var hasPwdError = ${hasPwdError};
 
 		function openModal() {
 			pwdModal.style.display = 'flex';
