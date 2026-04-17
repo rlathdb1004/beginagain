@@ -148,7 +148,7 @@
 						<th class="taTableHeadCell taColFit">LOT번호</th>
 						<th class="taTableHeadCell taColFit">불량코드</th>
 						<th class="taTableHeadCell taColFit">불량명</th>
-						<th class="taTableHeadCell taColFit">유형</th>
+<!-- 						<th class="taTableHeadCell taColFit">유형</th> -->
 						<th class="taTableHeadCell taColAction taLastCol">상세보기</th>
 					</tr>
 				</thead>
@@ -165,7 +165,7 @@
 							<td class="taTableBodyCell taColFit">${dto.lotNo}</td>
 							<td class="taTableBodyCell taColFit">${dto.defectCode}</td>
 							<td class="taTableBodyCell taColFit">${dto.defectName}</td>
-							<td class="taTableBodyCell taColFit">${dto.defectType}</td>
+<%-- 							<td class="taTableBodyCell taColFit">${dto.defectType}</td> --%>
 							<td class="taTableBodyCell taColAction taLastCol"><a
 								class="taLinkAnchor"
 								href="${pageContext.request.contextPath}/defectRegInq?defectProductId=${dto.defectProductId}">상세보기</a></td>

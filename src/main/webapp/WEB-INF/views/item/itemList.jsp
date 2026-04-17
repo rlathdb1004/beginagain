@@ -75,8 +75,8 @@
 						<th class="taTableHeadCell taColFit">품목번호</th>
 						<th class="taTableHeadCell taColFit">품목코드</th>
 						<th class="taTableHeadCell taColGrow">품목명</th>
-						<th class="taTableHeadCell taColFit">품목유형</th>
-						<th class="taTableHeadCell taColFit">단위</th>
+<!-- 						<th class="taTableHeadCell taColFit">품목유형</th> -->
+<!-- 						<th class="taTableHeadCell taColFit">단위</th> -->
 						<th class="taTableHeadCell taColGrow">규격</th>
 						<th class="taTableHeadCell taColGrow">공급처</th>
 						<th class="taTableHeadCell taColFit">안전재고</th>
@@ -94,8 +94,8 @@
 									<td class="taTableBodyCell taColFit">${item.itemId}</td>
 									<td class="taTableBodyCell taColFit">${item.itemCode}</td>
 									<td class="taTableBodyCell taColGrow">${item.itemName}</td>
-									<td class="taTableBodyCell taColFit">${item.itemType}</td>
-									<td class="taTableBodyCell taColFit">${item.unit}</td>
+<%-- 									<td class="taTableBodyCell taColFit">${item.itemType}</td> --%>
+<%-- 									<td class="taTableBodyCell taColFit">${item.unit}</td> --%>
 									<td class="taTableBodyCell taColGrow">${item.spec}</td>
 									<td class="taTableBodyCell taColGrow">${item.supplierName}</td>
 									<td class="taTableBodyCell taColFit">${item.safetyStock}</td>

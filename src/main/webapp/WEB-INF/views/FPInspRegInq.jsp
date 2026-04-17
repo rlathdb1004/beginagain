@@ -139,14 +139,14 @@
 						<th class="taTableHeadCell taColFit"><input type="checkbox"
 							id="checkAll" class="taCheckInput"></th>
 						<th class="taTableHeadCell taColFit">NO</th>
-						<th class="taTableHeadCell taColFit">생산실적번호</th>
+<!-- 						<th class="taTableHeadCell taColFit">생산실적번호</th> -->
 						<th class="taTableHeadCell taColFit">작업지시번호</th>
 						<th class="taTableHeadCell taColFit">품목코드</th>
 						<th class="taTableHeadCell taColGrow">품목명</th>
 						<th class="taTableHeadCell taColFit">LOT번호</th>
 						<th class="taTableHeadCell taColFit">검사수량</th>
 						<th class="taTableHeadCell taColFit">판정</th>
-						<th class="taTableHeadCell taColDate">검사일</th>
+						<!-- 						<th class="taTableHeadCell taColDate">검사일</th> -->
 						<th class="taTableHeadCell taColAction taLastCol">상세보기</th>
 					</tr>
 				</thead>
@@ -157,14 +157,14 @@
 								class="taCheckInput" name="finalInspectionIds"
 								value="${dto.finalInspectionId}"></td>
 							<td class="taTableBodyCell taColFit">${dto.finalInspectionId}</td>
-							<td class="taTableBodyCell taColFit">${dto.resultId}</td>
+<%-- 							<td class="taTableBodyCell taColFit">${dto.resultId}</td> --%>
 							<td class="taTableBodyCell taColFit">${dto.workOrderId}</td>
 							<td class="taTableBodyCell taColFit">${dto.itemCode}</td>
 							<td class="taTableBodyCell taColGrow">${dto.itemName}</td>
 							<td class="taTableBodyCell taColFit">${dto.lotNo}</td>
 							<td class="taTableBodyCell taColFit">${dto.inspectQty}</td>
 							<td class="taTableBodyCell taColFit">${dto.result}</td>
-							<td class="taTableBodyCell taColDate">${dto.inspectionDate}</td>
+							<%-- 							<td class="taTableBodyCell taColDate">${dto.inspectionDate}</td> --%>
 							<td class="taTableBodyCell taColAction taLastCol"><a
 								class="taLinkAnchor"
 								href="${pageContext.request.contextPath}/fpInspRegInq?finalInspectionId=${dto.finalInspectionId}">상세보기</a></td>

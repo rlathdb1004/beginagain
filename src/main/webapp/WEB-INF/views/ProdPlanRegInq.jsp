@@ -156,11 +156,11 @@
 								type="checkbox" id="checkAll" class="taCheckInput"></th>
 							<th class="taTableHeadCell taColFit">NO</th>
 							<th class="taTableHeadCell taColFit">생산계획번호</th>
-							<th class="taTableHeadCell taColDate">일자</th>
+<!-- 							<th class="taTableHeadCell taColDate">일자</th> -->
 							<th class="taTableHeadCell taColFit">품목코드</th>
 							<th class="taTableHeadCell taColGrow">품목명</th>
 							<th class="taTableHeadCell taColFit">생산계획량</th>
-							<th class="taTableHeadCell taColFit">단위</th>
+<!-- 							<th class="taTableHeadCell taColFit">단위</th> -->
 							<th class="taTableHeadCell taColFit">라인</th>
 							<th class="taTableHeadCell taColGrow">비고</th>
 							<th class="taTableHeadCell taColAction taLastCol">상세보기</th>
@@ -174,11 +174,11 @@
 									class="rowCheck taCheckInput"></td>
 								<td class="taTableBodyCell taColFit">${dto.seqNO}</td>
 								<td class="taTableBodyCell taColFit">${dto.planNo}</td>
-								<td class="taTableBodyCell taColDate">${dto.planDate}</td>
+<%-- 								<td class="taTableBodyCell taColDate">${dto.planDate}</td> --%>
 								<td class="taTableBodyCell taColFit">${dto.planCode}</td>
 								<td class="taTableBodyCell taColGrow">${dto.planName}</td>
 								<td class="taTableBodyCell taColFit">${dto.planAmount}</td>
-								<td class="taTableBodyCell taColFit">${dto.planUnit}</td>
+<%-- 								<td class="taTableBodyCell taColFit">${dto.planUnit}</td> --%>
 								<td class="taTableBodyCell taColFit">${dto.planLine}</td>
 								<td class="taTableBodyCell taColGrow">${dto.memo}</td>
 								<td class="taTableBodyCell taColAction taLastCol"><a

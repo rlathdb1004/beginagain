@@ -94,14 +94,14 @@
 							type="checkbox" id="checkAll" class="taCheckInput"></th>
 							<th class="taTableHeadCell taColFit">NO</th>
 							<th class="taTableHeadCell taColFit">작업지시번호</th>
-							<th class="taTableHeadCell taColDate">일자</th>
+<!-- 							<th class="taTableHeadCell taColDate">일자</th> -->
 							<th class="taTableHeadCell taColFit">품목코드</th>
 							<th class="taTableHeadCell taColGrow">품목명</th>
 							<th class="taTableHeadCell taColFit">생산량</th>
-							<th class="taTableHeadCell taColFit">단위</th>
+<!-- 							<th class="taTableHeadCell taColFit">단위</th> -->
 							<th class="taTableHeadCell taColFit">라인</th>
 							<th class="taTableHeadCell taColFit">LOT</th>
-							<th class="taTableHeadCell taColGrow">비고</th>
+<!-- 							<th class="taTableHeadCell taColGrow">비고</th> -->
 							<th class="taTableHeadCell taColAction taLastCol">상세보기</th>
 						</tr>
 					</thead>
@@ -113,14 +113,14 @@
 							class="taCheckInput rowCheck"></td>
 								<td class="taTableBodyCell taColFit">${dto.seqNO}</td>
 								<td class="taTableBodyCell taColFit">${dto.workOrderNo}</td>
-								<td class="taTableBodyCell taColDate">${dto.resultDate}</td>
+<%-- 								<td class="taTableBodyCell taColDate">${dto.resultDate}</td> --%>
 								<td class="taTableBodyCell taColFit">${dto.itemCode}</td>
 								<td class="taTableBodyCell taColGrow">${dto.itemName}</td>
 								<td class="taTableBodyCell taColFit">${dto.producedQty}</td>
-								<td class="taTableBodyCell taColFit">${dto.unit}</td>
+<%-- 								<td class="taTableBodyCell taColFit">${dto.unit}</td> --%>
 								<td class="taTableBodyCell taColFit">${dto.lineCode}</td>
 								<td class="taTableBodyCell taColFit">${dto.lotNo}</td>
-								<td class="taTableBodyCell taColGrow">${dto.remark}</td>
+<%-- 								<td class="taTableBodyCell taColGrow">${dto.remark}</td> --%>
 								<td class="taTableBodyCell taColAction taLastCol"><a
 									class="taLinkAnchor"
 									href="${pageContext.request.contextPath}/prodperf/detail?seqNO=${dto.seqNO}">상세보기</a></td>

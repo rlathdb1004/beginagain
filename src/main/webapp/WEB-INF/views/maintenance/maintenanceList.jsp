@@ -79,8 +79,8 @@
 						<th class="taTableHeadCell taColGrow">설비명</th>
 						<th class="taTableHeadCell taColFit">정비유형</th>
 						<th class="taTableHeadCell taColGrow">정비내용</th>
-						<th class="taTableHeadCell taColFit">다음정비일</th>
-						<th class="taTableHeadCell taColFit">상태</th>
+<!-- 						<th class="taTableHeadCell taColFit">다음정비일</th> -->
+<!-- 						<th class="taTableHeadCell taColFit">상태</th> -->
 						<th class="taTableHeadCell taColAction taLastCol">상세</th>
 					</tr>
 				</thead>
@@ -98,8 +98,8 @@
 									<td class="taTableBodyCell taColGrow">${m.equipmentName}</td>
 									<td class="taTableBodyCell taColFit">${m.maintenanceType}</td>
 									<td class="taTableBodyCell taColGrow">${m.maintenanceContent}</td>
-									<td class="taTableBodyCell taColFit">${m.nextMaintenanceDate}</td>
-									<td class="taTableBodyCell taColFit">${m.status}</td>
+<%-- 									<td class="taTableBodyCell taColFit">${m.nextMaintenanceDate}</td> --%>
+<%-- 									<td class="taTableBodyCell taColFit">${m.status}</td> --%>
 									<td class="taTableBodyCell taColAction taLastCol"><a
 										class="taLinkAnchor"
 										href="${pageContext.request.contextPath}/maintenance/detail?maintenanceId=${m.maintenanceId}">

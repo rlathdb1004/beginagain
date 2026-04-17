@@ -101,8 +101,8 @@
 						<th class="taTableHeadCell taColGrow">설비명</th>
 						<th class="taTableHeadCell taColFit">모델명</th>
 						<th class="taTableHeadCell taColFit">위치</th>
-						<th class="taTableHeadCell taColFit">제조사</th>
-						<th class="taTableHeadCell taColFit">공급업체</th>
+<!-- 						<th class="taTableHeadCell taColFit">제조사</th> -->
+<!-- 						<th class="taTableHeadCell taColFit">공급업체</th> -->
 						<th class="taTableHeadCell taColFit">설비가격</th>
 						<th class="taTableHeadCell taColAction taLastCol">상세</th>
 					</tr>
@@ -122,9 +122,9 @@
 										data-search-key="equipmentName">${equipment.equipmentName}</td>
 									<td class="taTableBodyCell taColFit">${equipment.modelName}</td>
 									<td class="taTableBodyCell taColFit" data-search-key="location">${equipment.location}</td>
-									<td class="taTableBodyCell taColFit">${equipment.manufacturer}</td>
-									<td class="taTableBodyCell taColFit"
-										data-search-key="vendorName">${equipment.vendorName}</td>
+<%-- 									<td class="taTableBodyCell taColFit">${equipment.manufacturer}</td> --%>
+<!-- 									<td class="taTableBodyCell taColFit" -->
+<%-- 										data-search-key="vendorName">${equipment.vendorName}</td> --%>
 									<td class="taTableBodyCell taColFit">${equipment.equipmentPrice}</td>
 									<td class="taTableBodyCell taColAction taLastCol"><a
 										class="taLinkAnchor"
