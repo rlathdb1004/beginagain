@@ -48,38 +48,59 @@
 	action="${pageContext.request.contextPath}/invRegInq">
 	<input type="hidden" name="cmd" value="list"> <input
 		type="hidden" name="page" id="paPage" value="${paCurrentPage}">
+
 	<div class="taToolbarRow">
-		<div class="taToolbarField">
-			<select class="taSelect" name="searchType">
-				<option value=""
-					${empty invRegInqSearchDTO.searchType ? 'selected' : ''}>전체</option>
+
+		<!-- 1) 전체 / 품목코드 / 품목명 -->
+		<div class="taToolbarField taToolbarSpan2">
+			<select id="paSearchType"
+				class="taSelect taAutoSelectColor ${empty ioRegInqSearchDTO.searchType ? 'taSelectPlaceholder' : ''}"
+				name="searchType">
+				<option value="" hidden
+					<c:if test="${empty invRegInqSearchDTO.searchType}">selected</c:if>>
+					전체 / 품목코드 / 품목명</option>
+				<option value="all">전체</option>
 				<option value="itemCode"
-					${invRegInqSearchDTO.searchType eq 'itemCode' ? 'selected' : ''}>품목코드</option>
+					<c:if test="${invRegInqSearchDTO.searchType eq 'itemCode'}">selected</c:if>>
+					품목코드</option>
 				<option value="itemName"
-					${invRegInqSearchDTO.searchType eq 'itemName' ? 'selected' : ''}>품목명</option>
+					<c:if test="${invRegInqSearchDTO.searchType eq 'itemName'}">selected</c:if>>
+					품목명</option>
 			</select>
 		</div>
-		<div class="taToolbarField">
-			<div class="taSearchBox">
-				<input type="date" class="taSearchInput" name="startDate"
-					value="${invRegInqSearchDTO.startDate}"> <input type="date"
-					class="taSearchInput" name="endDate"
-					value="${invRegInqSearchDTO.endDate}">
-			</div>
+
+		<!-- 2) 시작일 -->
+		<div class="taToolbarField taToolbarSpan2">
+			<input type="date" class="taSearchInput" name="startDate"
+				value="${invRegInqSearchDTO.startDate}">
 		</div>
-		<div class="taToolbarField taToolbarFieldGrow">
+
+		<!-- 3) 종료일 -->
+		<div class="taToolbarField taToolbarSpan2">
+			<input type="date" class="taSearchInput" name="endDate"
+				value="${invRegInqSearchDTO.endDate}">
+		</div>
+
+		<!-- 4) 검색키워드 + 5) 돋보기 + 6) 초기화 -->
+		<div class="taToolbarField taToolbarFieldGrow taToolbarSpan6">
 			<div class="taSearchBox">
 				<input type="text" class="taSearchInput" name="keyword"
 					placeholder="검색키워드" value="${invRegInqSearchDTO.keyword}">
-				<button type="submit" class="taSearchBtn" aria-label="검색">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-						stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="7"></circle>
-        <path d="M20 20L16.65 16.65"></path>
-    </svg>
+
+				<button type="submit" class="taSearchBtn" aria-label="검색"
+					onclick="document.getElementById('paPage').value=1;">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+						<circle cx="11" cy="11" r="7"></circle>
+						<path d="M20 20L16.65 16.65"></path>
+					</svg>
 				</button>
+
+				<button type="button" class="taBtn taBtnOutline taSearchReset"
+					onclick="location.href='${pageContext.request.contextPath}/invRegInq'">
+					초기화</button>
 			</div>
 		</div>
+
 	</div>
 </form>
 
@@ -132,3 +153,4 @@
 		</div>
 	</div>
 </form>
+

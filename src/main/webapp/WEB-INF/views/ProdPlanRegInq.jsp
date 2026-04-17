@@ -65,108 +65,136 @@
 		</div>
 	</div>
 
-	<form id="paSearchForm" method="get"
-		action="${pageContext.request.contextPath}/prodplan">
-		<input type="hidden" name="searched" value="Y"> <input
-			type="hidden" name="page" id="paPage" value="${paCurrentPage}">
-		<div class="taToolbarRow">
-			<div class="taToolbarField">
-				<div class="taSearchBox">
-					<input type="date" class="taSearchInput" name="startDate"
-						value="${param.startDate}"> <input type="date"
-						class="taSearchInput" name="endDate" value="${param.endDate}">
-				</div>
-			</div>
-			<div class="taToolbarField">
-				<select class="taSelect" name="searchType">
-					<option value="" ${empty param.searchType ? "selected" : ""}>전체</option>
-					<option value="planNo"
-						${param.searchType eq 'planNo' ? "selected" : ""}>생산계획번호</option>
-					<option value="planCode"
-						${param.searchType eq 'planCode' ? "selected" : ""}>품목코드</option>
-					<option value="planName"
-						${param.searchType eq 'planName' ? "selected" : ""}>품목명</option>
-					<option value="planLine"
-						${param.searchType eq 'planLine' ? "selected" : ""}>라인</option>
-				</select>
-			</div>
-			<div class="taToolbarField taToolbarFieldGrow">
-				<div class="taSearchBox">
-					<input type="text" class="taSearchInput" name="keyword"
-						placeholder="생산계획번호 / 품목코드 / 품목명 / 라인 검색" value="${param.keyword}">
-					<button type="submit" class="taSearchBtn" aria-label="검색">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-							stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="7"></circle>
-        <path d="M20 20L16.65 16.65"></path>
-    </svg>
-					</button>
-				</div>
+	<div class="taToolbarRow">
+
+		<!-- 1) 첫 검색창 -->
+		<div class="taToolbarField taToolbarSpan2">
+			<select id="paSearchType"
+				class="taSelect taAutoSelectColor ${empty param.searchType ? 'taSelectPlaceholder' : ''}"
+				name="searchType">
+				<option value="" hidden
+					<c:if test="${empty param.searchType}">selected</c:if>>
+					전체 / 생산계획번호 / 품목코드 / 품목명 / 라인
+				</option>
+				<option value="all"
+					<c:if test="${param.searchType eq 'all'}">selected</c:if>>
+					전체
+				</option>
+				<option value="planNo"
+					<c:if test="${param.searchType eq 'planNo'}">selected</c:if>>
+					생산계획번호
+				</option>
+				<option value="planCode"
+					<c:if test="${param.searchType eq 'planCode'}">selected</c:if>>
+					품목코드
+				</option>
+				<option value="planName"
+					<c:if test="${param.searchType eq 'planName'}">selected</c:if>>
+					품목명
+				</option>
+				<option value="planLine"
+					<c:if test="${param.searchType eq 'planLine'}">selected</c:if>>
+					라인
+				</option>
+			</select>
+		</div>
+
+		<!-- 2) 시작일 -->
+		<div class="taToolbarField taToolbarSpan2">
+			<input type="date" class="taSearchInput" name="startDate"
+				value="${param.startDate}">
+		</div>
+
+		<!-- 3) 종료일 -->
+		<div class="taToolbarField taToolbarSpan2">
+			<input type="date" class="taSearchInput" name="endDate"
+				value="${param.endDate}">
+		</div>
+
+		<!-- 4) 검색키워드 + 돋보기 + 초기화 -->
+		<div class="taToolbarField taToolbarFieldGrow taToolbarSpan4">
+			<div class="taSearchBox">
+				<input type="text" class="taSearchInput" name="keyword"
+					placeholder="검색키워드" value="${param.keyword}">
+
+				<button type="submit" class="taSearchBtn" aria-label="검색"
+					onclick="document.getElementById('paPage').value=1;">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+						<circle cx="11" cy="11" r="7"></circle>
+						<path d="M20 20L16.65 16.65"></path>
+					</svg>
+				</button>
+
+				<button type="button" class="taBtn taBtnOutline taSearchReset"
+					onclick="location.href='${pageContext.request.contextPath}/prodplan'">
+					초기화
+				</button>
 			</div>
 		</div>
-	</form>
 
-	<form id="deleteForm" method="post"
-		action="${pageContext.request.contextPath}/prodplan">
-		<input type="hidden" name="cmd" value="delete"> <input
-			type="hidden" id="deleteMode" value="N"> <input type="hidden"
-			name="searched" value="${param.searched}"> <input
-			type="hidden" name="page" value="${page}"> <input
-			type="hidden" name="startDate" value="${param.startDate}"> <input
-			type="hidden" name="endDate" value="${param.endDate}"> <input
-			type="hidden" name="searchType" value="${param.searchType}">
-		<input type="hidden" name="keyword" value="${param.keyword}">
+	</div>
 
-		<div class="taTableShell prodplan-table-shell">
-			<div class="taTableScroll">
-				<table class="taMesTable">
-					<thead>
-						<tr>
-							<th class="taTableHeadCell taColCheck delete-col"><input
-								type="checkbox" id="checkAll"></th>
-							<th class="taTableHeadCell taColFit">NO</th>
-							<th class="taTableHeadCell taColFit">생산계획번호</th>
-							<th class="taTableHeadCell taColDate">일자</th>
-							<th class="taTableHeadCell taColFit">품목코드</th>
-							<th class="taTableHeadCell taColGrow">품목명</th>
-							<th class="taTableHeadCell taColFit">생산계획량</th>
-							<th class="taTableHeadCell taColFit">단위</th>
-							<th class="taTableHeadCell taColFit">라인</th>
-							<th class="taTableHeadCell taColGrow">비고</th>
-							<th class="taTableHeadCell taColAction taLastCol">상세보기</th>
+<form id="deleteForm" method="post"
+	action="${pageContext.request.contextPath}/prodplan">
+	<input type="hidden" name="cmd" value="delete"> <input
+		type="hidden" id="deleteMode" value="N"> <input type="hidden"
+		name="searched" value="${param.searched}"> <input
+		type="hidden" name="page" value="${page}"> <input
+		type="hidden" name="startDate" value="${param.startDate}"> <input
+		type="hidden" name="endDate" value="${param.endDate}"> <input
+		type="hidden" name="searchType" value="${param.searchType}"> <input
+		type="hidden" name="keyword" value="${param.keyword}">
+
+	<div class="taTableShell prodplan-table-shell">
+		<div class="taTableScroll">
+			<table class="taMesTable">
+				<thead>
+					<tr>
+						<th class="taTableHeadCell taColCheck delete-col"><input
+							type="checkbox" id="checkAll"></th>
+						<th class="taTableHeadCell taColFit">NO</th>
+						<th class="taTableHeadCell taColFit">생산계획번호</th>
+						<th class="taTableHeadCell taColDate">일자</th>
+						<th class="taTableHeadCell taColFit">품목코드</th>
+						<th class="taTableHeadCell taColGrow">품목명</th>
+						<th class="taTableHeadCell taColFit">생산계획량</th>
+						<th class="taTableHeadCell taColFit">단위</th>
+						<th class="taTableHeadCell taColFit">라인</th>
+						<th class="taTableHeadCell taColGrow">비고</th>
+						<th class="taTableHeadCell taColAction taLastCol">상세보기</th>
+					</tr>
+				</thead>
+				<tbody>
+					<c:forEach var="dto" items="${list}">
+						<tr class="taTableBodyRow">
+							<td class="taTableBodyCell taColCheck delete-col"><input
+								type="checkbox" name="seqNO" value="${dto.seqNO}"
+								class="rowCheck"></td>
+							<td class="taTableBodyCell taColFit">${dto.seqNO}</td>
+							<td class="taTableBodyCell taColFit">${dto.planNo}</td>
+							<td class="taTableBodyCell taColDate">${dto.planDate}</td>
+							<td class="taTableBodyCell taColFit">${dto.planCode}</td>
+							<td class="taTableBodyCell taColGrow">${dto.planName}</td>
+							<td class="taTableBodyCell taColFit">${dto.planAmount}</td>
+							<td class="taTableBodyCell taColFit">${dto.planUnit}</td>
+							<td class="taTableBodyCell taColFit">${dto.planLine}</td>
+							<td class="taTableBodyCell taColGrow">${dto.memo}</td>
+							<td class="taTableBodyCell taColAction taLastCol"><a
+								class="taLinkAnchor"
+								href="${pageContext.request.contextPath}/prodplan?seqNO=${dto.seqNO}">상세보기</a></td>
 						</tr>
-					</thead>
-					<tbody>
-						<c:forEach var="dto" items="${list}">
-							<tr class="taTableBodyRow">
-								<td class="taTableBodyCell taColCheck delete-col"><input
-									type="checkbox" name="seqNO" value="${dto.seqNO}"
-									class="rowCheck"></td>
-								<td class="taTableBodyCell taColFit">${dto.seqNO}</td>
-								<td class="taTableBodyCell taColFit">${dto.planNo}</td>
-								<td class="taTableBodyCell taColDate">${dto.planDate}</td>
-								<td class="taTableBodyCell taColFit">${dto.planCode}</td>
-								<td class="taTableBodyCell taColGrow">${dto.planName}</td>
-								<td class="taTableBodyCell taColFit">${dto.planAmount}</td>
-								<td class="taTableBodyCell taColFit">${dto.planUnit}</td>
-								<td class="taTableBodyCell taColFit">${dto.planLine}</td>
-								<td class="taTableBodyCell taColGrow">${dto.memo}</td>
-								<td class="taTableBodyCell taColAction taLastCol"><a
-									class="taLinkAnchor"
-									href="${pageContext.request.contextPath}/prodplan?seqNO=${dto.seqNO}">상세보기</a></td>
-							</tr>
-						</c:forEach>
-						<c:if test="${empty list}">
-							<tr class="taTableBodyRow">
-								<td class="taTableBodyCell taLastCol" colspan="11"
-									style="text-align: center;">조회된 데이터가 없습니다.</td>
-							</tr>
-						</c:if>
-					</tbody>
-				</table>
-			</div>
+					</c:forEach>
+					<c:if test="${empty list}">
+						<tr class="taTableBodyRow">
+							<td class="taTableBodyCell taLastCol" colspan="11"
+								style="text-align: center;">조회된 데이터가 없습니다.</td>
+						</tr>
+					</c:if>
+				</tbody>
+			</table>
 		</div>
-	</form>
+	</div>
+</form>
 </div>
 
 <script>
@@ -221,4 +249,6 @@
 				deleteForm.submit();
 		};
 	});
+	
+
 </script>

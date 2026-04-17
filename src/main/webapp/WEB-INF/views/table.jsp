@@ -50,6 +50,8 @@
 		src="${pageContext.request.contextPath}/assets/js/common.js?v=4"></script>
 	<script
 		src="${pageContext.request.contextPath}/assets/js/pagination.js?v=1"></script>
+<!-- 등록삭제아래 바 js연결 글씨색검은색 변경 -->
+<script src="${pageContext.request.contextPath}/assets/js/taAutoSelectColor.js"></script>
 
 </body>
 </html>

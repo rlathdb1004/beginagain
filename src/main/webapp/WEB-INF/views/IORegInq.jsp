@@ -57,47 +57,59 @@
 	action="${pageContext.request.contextPath}/ioRegInq">
 	<input type="hidden" name="cmd" value="list"> <input
 		type="hidden" name="page" id="paPage" value="${paCurrentPage}">
+
 	<div class="taToolbarRow">
-		<div class="taToolbarField">
-			<select class="taSelect" name="inoutType">
-				<option value="전체"
-					<c:if test="${empty ioRegInqSearchDTO.inoutType or ioRegInqSearchDTO.inoutType eq '전체'}">selected</c:if>>전체</option>
-				<option value="입고"
-					<c:if test="${ioRegInqSearchDTO.inoutType eq '입고'}">selected</c:if>>입고</option>
-				<option value="출고"
-					<c:if test="${ioRegInqSearchDTO.inoutType eq '출고'}">selected</c:if>>출고</option>
-				<option value="반품"
-					<c:if test="${ioRegInqSearchDTO.inoutType eq '반품'}">selected</c:if>>반품</option>
+
+		<!-- 1) 전체 / 품목코드 / 품목명 -->
+		<div class="taToolbarField taToolbarSpan2">
+			<select id="paSearchType"
+				class="taSelect taAutoSelectColor ${empty ioRegInqSearchDTO.searchType ? 'taSelectPlaceholder' : ''}"
+				name="searchType">
+				<option value="" hidden
+					<c:if test="${empty ioRegInqSearchDTO.searchType}">selected</c:if>>
+					전체 / 품목코드 / 품목명</option>
+				<option value="all">전체</option>
+				<option value="itemCode"
+					<c:if test="${ioRegInqSearchDTO.searchType eq 'itemCode'}">selected</c:if>>
+					품목코드</option>
+				<option value="itemName"
+					<c:if test="${ioRegInqSearchDTO.searchType eq 'itemName'}">selected</c:if>>
+					품목명</option>
 			</select>
 		</div>
-		<div class="taToolbarField">
+
+		<!-- 2) 시작일 -->
+		<div class="taToolbarField taToolbarSpan2">
+			<input type="date" class="taSearchInput" name="startDate"
+				value="${ioRegInqSearchDTO.startDate}">
+		</div>
+
+		<!-- 3) 종료일 -->
+		<div class="taToolbarField taToolbarSpan2">
+			<input type="date" class="taSearchInput" name="endDate"
+				value="${ioRegInqSearchDTO.endDate}">
+		</div>
+
+		<!-- 4) 검색키워드 + 5) 돋보기 + 6) 초기화 -->
+		<div class="taToolbarField taToolbarFieldGrow taToolbarSpan6">
 			<div class="taSearchBox">
-				<input type="date" class="taSearchInput" name="startDate"
-					value="${ioRegInqSearchDTO.startDate}"><input type="date"
-					class="taSearchInput" name="endDate"
-					value="${ioRegInqSearchDTO.endDate}">
+				<input type="text" class="taSearchInput" name="keyword"
+					placeholder="검색키워드" value="${ioRegInqSearchDTO.keyword}">
+
+				<button type="submit" class="taSearchBtn" aria-label="검색"
+					onclick="document.getElementById('paPage').value=1;">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+						<circle cx="11" cy="11" r="7"></circle>
+						<path d="M20 20L16.65 16.65"></path>
+					</svg>
+				</button>
+
+				<button type="button" class="taBtn taBtnOutline taSearchReset"
+					onclick="location.href='${pageContext.request.contextPath}/ioRegInq'">
+					초기화</button>
 			</div>
 		</div>
-		<div class="taToolbarField">
-			<select class="taSelect" name="searchType">
-				<option value=""
-					<c:if test="${empty ioRegInqSearchDTO.searchType}">selected</c:if>>전체</option>
-				<option value="itemCode"
-					<c:if test="${ioRegInqSearchDTO.searchType eq 'itemCode'}">selected</c:if>>품목코드</option>
-				<option value="itemName"
-					<c:if test="${ioRegInqSearchDTO.searchType eq 'itemName'}">selected</c:if>>품목명</option>
-				<option value="orderNo"
-					<c:if test="${ioRegInqSearchDTO.searchType eq 'orderNo'}">selected</c:if>>발주번호</option>
-			</select>
-		</div>
-		<button type="submit" class="taSearchBtn" aria-label="검색"
-			onclick="document.getElementById('paPage').value=1;">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-				stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="7"></circle>
-        <path d="M20 20L16.65 16.65"></path>
-    </svg>
-		</button>
+
 	</div>
 </form>
 
