@@ -51,7 +51,13 @@
 			<div class="taSearchBox">
 				<input type="text" class="taSearchInput" name="keyword"
 					value="${keyword}" placeholder="검색어를 입력하세요">
-				<button type="submit" class="taSearchBtn">⌕</button>
+				<button type="submit" class="taSearchBtn" aria-label="검색">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+						stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="7"></circle>
+        <path d="M20 20L16.65 16.65"></path>
+    </svg>
+				</button>
 				<button type="button" class="taBtn taBtnOutline taSearchReset"
 					onclick="location.href='${pageContext.request.contextPath}/downtime/list'">
 					초기화</button>

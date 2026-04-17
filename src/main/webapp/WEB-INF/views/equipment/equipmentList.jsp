@@ -29,43 +29,53 @@
 <!-- 		</div> -->
 <!-- 	</div> -->
 <!-- </form> -->
-<form id="paSearchForm" method="get" action="${pageContext.request.contextPath}/equipment/list">
-  <input type="hidden" name="page" id="paPage" value="${paCurrentPage}">
+<form id="paSearchForm" method="get"
+	action="${pageContext.request.contextPath}/equipment/list">
+	<input type="hidden" name="page" id="paPage" value="${paCurrentPage}">
 
-  <div class="taToolbarRow">
-    <div class="taToolbarField">
-      <select class="taSelect" name="searchType">
-        <option value="all" ${empty searchType or searchType eq 'all' ? 'selected' : ''}>전체</option>
-        <option value="equipmentCode" ${searchType eq 'equipmentCode' ? 'selected' : ''}>설비코드</option>
-        <option value="equipmentName" ${searchType eq 'equipmentName' ? 'selected' : ''}>설비명</option>
-        <option value="modelName" ${searchType eq 'modelName' ? 'selected' : ''}>모델명</option>
-        <option value="location" ${searchType eq 'location' ? 'selected' : ''}>위치</option>
-        <option value="manufacturer" ${searchType eq 'manufacturer' ? 'selected' : ''}>제조사</option>
-        <option value="vendorName" ${searchType eq 'vendorName' ? 'selected' : ''}>공급업체</option>
-      </select>
-    </div>
+	<div class="taToolbarRow">
+		<div class="taToolbarField">
+			<select class="taSelect" name="searchType">
+				<option value="all"
+					${empty searchType or searchType eq 'all' ? 'selected' : ''}>전체</option>
+				<option value="equipmentCode"
+					${searchType eq 'equipmentCode' ? 'selected' : ''}>설비코드</option>
+				<option value="equipmentName"
+					${searchType eq 'equipmentName' ? 'selected' : ''}>설비명</option>
+				<option value="modelName"
+					${searchType eq 'modelName' ? 'selected' : ''}>모델명</option>
+				<option value="location"
+					${searchType eq 'location' ? 'selected' : ''}>위치</option>
+				<option value="manufacturer"
+					${searchType eq 'manufacturer' ? 'selected' : ''}>제조사</option>
+				<option value="vendorName"
+					${searchType eq 'vendorName' ? 'selected' : ''}>공급업체</option>
+			</select>
+		</div>
 
-    <div class="taToolbarField taToolbarFieldGrow" style="grid-column: span 3;">
-      <div class="taSearchBox">
-        <input type="text"
-               class="taSearchInput"
-               name="keyword"
-               value="${keyword}"
-               placeholder="검색어를 입력하세요">
-        <button type="submit" class="taSearchBtn">⌕</button>
-        <button type="button"
-                class="taBtn taBtnOutline taSearchReset"
-                onclick="location.href='${pageContext.request.contextPath}/equipment/list'">
-          초기화
-        </button>
-      </div>
-    </div>
-  </div>
+		<div class="taToolbarField taToolbarFieldGrow"
+			style="grid-column: span 3;">
+			<div class="taSearchBox">
+				<input type="text" class="taSearchInput" name="keyword"
+					value="${keyword}" placeholder="검색어를 입력하세요">
+				<button type="submit" class="taSearchBtn" aria-label="검색">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+						stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="7"></circle>
+        <path d="M20 20L16.65 16.65"></path>
+    </svg>
+				</button>
+				<button type="button" class="taBtn taBtnOutline taSearchReset"
+					onclick="location.href='${pageContext.request.contextPath}/equipment/list'">
+					초기화</button>
+			</div>
+		</div>
+	</div>
 </form>
 <form id="deleteForm"
 	action="${pageContext.request.contextPath}/equipment/delete"
 	method="post">
-<!-- 	페이징을 위해 아이디 추가함 id="paTableBox" / 령 -->
+	<!-- 	페이징을 위해 아이디 추가함 id="paTableBox" / 령 -->
 	<div class="taTableShell" id="paTableBox">
 		<div class="taTableScroll">
 			<table class="taMesTable" id="equipmentTable">

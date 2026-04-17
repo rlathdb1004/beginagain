@@ -60,74 +60,10 @@ body {
   color: #0A1E3C;
 }
 
-/* 검색 조건 한 줄 전체
-   4칸 그리드 구조로 정렬 */
-.taToolbarRow {
-  display: grid;
-  grid-template-columns: 0.9fr 0.9fr 0.9fr 1.2fr;
-  gap: 10px;
-  align-items: end;
-  margin-bottom: 16px;
-}
-
 /* 개별 검색 필드 박스
    현재는 기본 block 처리만 담당 */
 .taToolbarField {
   display: block;
-}
-
-/* 마지막 검색창 영역 확장용 클래스
-   현재 1칸 사용 */
-.taToolbarFieldGrow {
-  grid-column: span 1;
-}
-
-/* select 박스 공통 스타일 */
-.taSelect {
-  width: 100%;
-  height: 38px;
-  border: 1px solid #d7e1f0;
-  border-radius: 10px;
-  padding: 0 10px;
-  background: #ffffff;
-  color: #0A1E3C;
-  font-size: 13px;
-  font-family: 'A2z', sans-serif;
-  box-sizing: border-box;
-}
-
-/* 검색창 input + 검색 버튼 묶음 */
-.taSearchBox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* 검색 input 스타일 */
-.taSearchInput {
-  width: 100%;
-  height: 38px;
-  border: 1px solid #d7e1f0;
-  border-radius: 10px;
-  padding: 0 10px;
-  background: #ffffff;
-  color: #0A1E3C;
-  font-size: 13px;
-  font-family: 'A2z', sans-serif;
-  box-sizing: border-box;
-}
-
-/* 검색 버튼 스타일 */
-.taSearchBtn {
-  width: 38px;
-  height: 38px;
-  border: 1px solid #d7e1f0;
-  border-radius: 10px;
-  background: #ffffff;
-  cursor: pointer;
-  font-size: 14px;
-  flex-shrink: 0;
-  font-family: 'A2z', sans-serif;
 }
 
 /* 테이블 바깥 카드 박스
@@ -439,32 +375,88 @@ body {
 }
 
 
-/* ===== 검색 UI 개선 ===== */
+/* ===== 검색 UI 최종 공통 ===== */
+/* ===== 검색 UI 공통 ===== */
 .taToolbarRow {
-  grid-template-columns: 220px minmax(0, 1fr) auto;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 12px;
+  align-items: end;
+  margin-bottom: 16px;
+}
+
+.taToolbarField {
+  display: block;
+  min-width: 0;
+  grid-column: span 3;
 }
 
 .taToolbarFieldGrow {
   min-width: 0;
 }
 
+/* 검색영역 span 공통 */
+.taToolbarSpan2 { grid-column: span 2; }
+.taToolbarSpan3 { grid-column: span 3; }
+.taToolbarSpan4 { grid-column: span 4; }
+.taToolbarSpan5 { grid-column: span 5; }
+.taToolbarSpan6 { grid-column: span 6; }
+.taToolbarSpan12 { grid-column: span 12; }
+
 .taSearchBox {
   width: 100%;
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: nowrap;
 }
 
 .taSearchInput,
 .taSelect {
+  width: 100%;
+  min-width: 0;
   height: 46px;
+  padding: 0 12px;
+  box-sizing: border-box;
   border-radius: 14px;
   border: 1px solid #cfdbed;
   background: #fff;
   font-size: 14px;
+  font-family: 'A2z', sans-serif;
+  color: #0A1E3C;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
+}
+
+.taSelectPlaceholder {
+  color: #98A2B3;
+}
+
+.taSelect {
+  color: #0A1E3C;
+}
+
+.taSelect.taSelectPlaceholder {
+  color: #98A2B3;
+}
+
+.taSelect option {
+  color: #0A1E3C;
+}
+
+
+.taSearchBox {
+  min-width: 0;
+}
+
+.taSearchInput,
+.taSelect,
+.taSearchReset {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .taSearchInput::placeholder {
@@ -478,6 +470,7 @@ body {
   box-shadow: 0 0 0 4px rgba(0, 71, 171, 0.10);
 }
 
+/* 돋보기 모양 CSS */
 .taSearchBtn,
 .taSearchBox .taSearchReset {
   height: 46px;
@@ -489,16 +482,36 @@ body {
 
 .taSearchBtn {
   width: 46px;
+  padding: 0;
   border: 1px solid #cfe0f7;
   background: linear-gradient(180deg, #ffffff 0%, #f3f8ff 100%);
   color: #0A1E3C;
   box-shadow: 0 6px 14px rgba(0, 71, 171, 0.08);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.taSearchBtn svg,
+.taSearchBtn i {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  color: #0A1E3C;
+  fill: none;
+  flex-shrink: 0;
+  pointer-events: none;
 }
 
 .taSearchBtn:hover {
   border-color: #89ace3;
   background: linear-gradient(180deg, #ffffff 0%, #ebf3ff 100%);
 }
+
+/* 돋보기 CSS위까지 끝  */
 
 .taSearchBox .taSearchReset {
   padding: 0 18px;
@@ -516,6 +529,32 @@ body {
 .taPageActions .taBtn {
   min-height: 40px;
   white-space: nowrap;
+}
+
+@media (max-width: 1100px) {
+  .taToolbarRow {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .taToolbarField,
+  .taToolbarSpan2,
+  .taToolbarSpan3,
+  .taToolbarSpan4,
+  .taToolbarSpan5,
+  .taToolbarSpan6,
+  .taToolbarSpan12 {
+    grid-column: auto;
+  }
+
+  .taSearchBox {
+    flex-wrap: wrap;
+  }
+
+  .taSearchInput {
+    flex: 1 1 220px;
+    min-width: 0;
+  }
 }
 
 /* =========================================
@@ -568,24 +607,3 @@ body {
   color: #c0c7d1;
   cursor: default;
 }
-
-@media (max-width: 900px) {
-  .taToolbarRow {
-    grid-template-columns: 1fr;
-    align-items: stretch;
-  }
-
-  .taToolbarFieldGrow {
-    grid-column: auto !important;
-  }
-
-  .taSearchBox {
-    flex-wrap: wrap;
-  }
-
-  .taSearchInput {
-    min-width: 0;
-    flex: 1 1 220px;
-  }
-}
-
