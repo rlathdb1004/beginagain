@@ -39,61 +39,6 @@
 </form>
 
 <form id="deleteForm"
-<<<<<<< HEAD
-	action="${pageContext.request.contextPath}/item/delete" method="post">
-	<div class="taTableShell" id="paTableBox">
-		<div class="taTableScroll">
-			<table class="taMesTable">
-				<thead>
-					<tr>
-						<th class="taTableHeadCell taCheckCell"><input
-							type="checkbox" id="checkAll" class="taCheckInput"></th>
-						<th class="taTableHeadCell taColFit">품목번호</th>
-						<th class="taTableHeadCell taColFit">품목코드</th>
-						<th class="taTableHeadCell taColGrow">품목명</th>
-<!-- 						<th class="taTableHeadCell taColFit">품목유형</th> -->
-<!-- 						<th class="taTableHeadCell taColFit">단위</th> -->
-						<th class="taTableHeadCell taColGrow">규격</th>
-						<th class="taTableHeadCell taColGrow">공급처</th>
-						<th class="taTableHeadCell taColFit">안전재고</th>
-						<th class="taTableHeadCell taColAction taLastCol">상세</th>
-					</tr>
-				</thead>
-				<tbody>
-					<c:choose>
-						<c:when test="${not empty itemList}">
-							<c:forEach var="item" items="${itemList}">
-								<tr class="taTableBodyRow">
-									<td class="taTableBodyCell taCheckCell"><input
-										type="checkbox" name="itemId" value="${item.itemId}"
-										class="taCheckInput"></td>
-									<td class="taTableBodyCell taColFit">${item.itemId}</td>
-									<td class="taTableBodyCell taColFit">${item.itemCode}</td>
-									<td class="taTableBodyCell taColGrow">${item.itemName}</td>
-<%-- 									<td class="taTableBodyCell taColFit">${item.itemType}</td> --%>
-<%-- 									<td class="taTableBodyCell taColFit">${item.unit}</td> --%>
-									<td class="taTableBodyCell taColGrow">${item.spec}</td>
-									<td class="taTableBodyCell taColGrow">${item.supplierName}</td>
-									<td class="taTableBodyCell taColFit">${item.safetyStock}</td>
-									<td class="taTableBodyCell taColAction taLastCol"><a
-										class="taLinkAnchor"
-										href="${pageContext.request.contextPath}/item/detail?itemId=${item.itemId}">
-											상세보기 </a></td>
-								</tr>
-							</c:forEach>
-						</c:when>
-						<c:otherwise>
-							<tr class="taTableBodyRow">
-								<td class="taTableBodyCell taLastCol" colspan="10"
-									style="text-align: center;">조회된 품목이 없습니다.</td>
-							</tr>
-						</c:otherwise>
-					</c:choose>
-				</tbody>
-			</table>
-		</div>
-	</div>
-=======
     action="${pageContext.request.contextPath}/item/delete"
     method="post">
     <div class="taTableShell" id="paTableBox">
@@ -146,7 +91,6 @@
             </table>
         </div>
     </div>
->>>>>>> d991ce902344e59b82b7bca4dae3615878c6f389
 </form>
 
 <div class="taModal" id="registerModal" hidden aria-hidden="true">
