@@ -8,8 +8,8 @@
 	<div class="taPageActions">
 		<button type="button" class="taBtn taBtnPrimary"
 			data-modal-target="registerModal">등록</button>
-		<button type="button" id="deleteToggleBtn" class="taBtn taBtnOutline"
-			onclick="handleDeleteButton()">삭제</button>
+		<button type="submit" form="deleteForm" class="taBtn taBtnOutline"
+			onclick="return confirmDeleteProdPerf();">선택 삭제</button>
 	</div>
 
 	<form id="paSearchForm" method="get"
@@ -77,8 +77,7 @@
 
 	<form id="deleteForm" method="post"
 		action="${pageContext.request.contextPath}/prodperf">
-		<input type="hidden" name="cmd" value="delete"> <input
-			type="hidden" id="deleteMode" value="N"> <input type="hidden"
+		<input type="hidden" name="cmd" value="delete"> <input type="hidden"
 			name="searched" value="${param.searched}"> <input
 			type="hidden" name="page" value="${page}"> <input
 			type="hidden" name="startDate" value="${param.startDate}"> <input
@@ -91,8 +90,8 @@
 				<table class="taMesTable">
 					<thead>
 						<tr>
-							<th class="taTableHeadCell taColCheck delete-col"><input
-								type="checkbox" id="checkAll"></th>
+							<th class="taTableHeadCell taColFit"><input
+							type="checkbox" id="checkAll" class="taCheckInput"></th>
 							<th class="taTableHeadCell taColFit">NO</th>
 							<th class="taTableHeadCell taColFit">작업지시번호</th>
 							<th class="taTableHeadCell taColDate">일자</th>
@@ -109,9 +108,9 @@
 					<tbody>
 						<c:forEach var="dto" items="${list}">
 							<tr class="taTableBodyRow">
-								<td class="taTableBodyCell taColCheck delete-col"><input
-									type="checkbox" name="seqNO" value="${dto.seqNO}"
-									class="rowCheck"></td>
+								<td class="taTableBodyCell taColFit"><input
+							type="checkbox" name="seqNO" value="${dto.seqNO}"
+							class="taCheckInput rowCheck"></td>
 								<td class="taTableBodyCell taColFit">${dto.seqNO}</td>
 								<td class="taTableBodyCell taColFit">${dto.workOrderNo}</td>
 								<td class="taTableBodyCell taColDate">${dto.resultDate}</td>
@@ -209,135 +208,80 @@
 </div>
 
 <script>
-	document
-			.addEventListener(
-					"DOMContentLoaded",
-					function() {
-						const checkAll = document.getElementById("checkAll");
-						const deleteModeInput = document
-								.getElementById("deleteMode");
-						const deleteToggleBtn = document
-								.getElementById("deleteToggleBtn");
-						const deleteForm = document
-								.getElementById("deleteForm");
+	document.addEventListener("DOMContentLoaded", function() {
+		const checkAll = document.getElementById("checkAll");
+		const registerModal = document.getElementById("registerModal");
+		const registerOpenBtn = document.querySelector('[data-modal-target="registerModal"]');
+		const registerCloseBtns = document.querySelectorAll("#registerModal .taModalClose");
+		const registerWorkOrderId = document.getElementById("registerWorkOrderId");
+		const registerItemCode = document.getElementById("registerItemCode");
+		const registerItemName = document.getElementById("registerItemName");
+		const registerLineCode = document.getElementById("registerLineCode");
+		const registerUnit = document.getElementById("registerUnit");
 
-						if (checkAll) {
-							checkAll
-									.addEventListener(
-											"change",
-											function() {
-												document
-														.querySelectorAll(
-																".rowCheck")
-														.forEach(
-																function(
-																		checkbox) {
-																	checkbox.checked = checkAll.checked;
-																});
-											});
-						}
+		if (checkAll) {
+			checkAll.addEventListener("change", function() {
+				document.querySelectorAll(".rowCheck").forEach(function(checkbox) {
+					checkbox.checked = checkAll.checked;
+				});
+			});
+		}
 
-						window.handleDeleteButton = function() {
-							const deleteCols = document
-									.querySelectorAll(".delete-col");
-							const rowChecks = document
-									.querySelectorAll(".rowCheck");
-							if (rowChecks.length === 0) {
-								alert("삭제할 데이터가 없습니다.");
-								return;
-							}
-							if (deleteModeInput.value === "N") {
-								deleteCols.forEach(function(col) {
-									col.classList.add("show-delete-col");
-								});
-								deleteModeInput.value = "Y";
-								deleteToggleBtn.textContent = "삭제확인";
-								return;
-							}
-							let checkedCount = 0;
-							rowChecks.forEach(function(checkbox) {
-								if (checkbox.checked)
-									checkedCount++;
-							});
-							if (checkedCount === 0) {
-								alert("삭제할 항목을 선택하세요.");
-								if (checkAll)
-									checkAll.checked = false;
-								rowChecks.forEach(function(checkbox) {
-									checkbox.checked = false;
-								});
-								deleteCols.forEach(function(col) {
-									col.classList.remove("show-delete-col");
-								});
-								deleteModeInput.value = "N";
-								deleteToggleBtn.textContent = "삭제";
-								return;
-							}
-							if (confirm("선택한 생산실적을 삭제하시겠습니까?")) {
-								deleteForm.submit();
-							}
-						};
+		window.confirmDeleteProdPerf = function() {
+			const rowChecks = document.querySelectorAll(".rowCheck");
+			if (rowChecks.length === 0) {
+				alert("삭제할 데이터가 없습니다.");
+				return false;
+			}
 
-						const registerModal = document
-								.getElementById("registerModal");
-						const registerOpenBtn = document
-								.querySelector('[data-modal-target="registerModal"]');
-						const registerCloseBtns = document
-								.querySelectorAll("#registerModal .taModalClose");
-						const registerWorkOrderId = document
-								.getElementById("registerWorkOrderId");
-						const registerItemCode = document
-								.getElementById("registerItemCode");
-						const registerItemName = document
-								.getElementById("registerItemName");
-						const registerLineCode = document
-								.getElementById("registerLineCode");
-						const registerUnit = document
-								.getElementById("registerUnit");
+			const hasChecked = Array.from(rowChecks).some(function(checkbox) {
+				return checkbox.checked;
+			});
 
-						function syncRegisterWorkOrderMeta() {
-							const opt = registerWorkOrderId
-									&& registerWorkOrderId.options[registerWorkOrderId.selectedIndex];
-							registerItemCode.value = opt ? (opt.dataset.itemCode || "")
-									: "";
-							registerItemName.value = opt ? (opt.dataset.itemName || "")
-									: "";
-							registerLineCode.value = opt ? (opt.dataset.lineCode || "")
-									: "";
-							registerUnit.value = opt ? (opt.dataset.unit || "")
-									: "";
-						}
+			if (!hasChecked) {
+				alert("삭제할 항목을 선택하세요.");
+				return false;
+			}
 
-						if (registerOpenBtn && registerModal) {
-							registerOpenBtn.addEventListener("click",
-									function() {
-										registerModal.hidden = false;
-										registerModal.setAttribute(
-												"aria-hidden", "false");
-										syncRegisterWorkOrderMeta();
-									});
-						}
-						registerCloseBtns.forEach(function(btn) {
-							btn.addEventListener("click", function() {
-								registerModal.hidden = true;
-								registerModal.setAttribute("aria-hidden",
-										"true");
-							});
-						});
-						if (registerModal) {
-							registerModal.addEventListener("click",
-									function(e) {
-										if (e.target === registerModal) {
-											registerModal.hidden = true;
-											registerModal.setAttribute(
-													"aria-hidden", "true");
-										}
-									});
-						}
-						if (registerWorkOrderId) {
-							registerWorkOrderId.addEventListener("change",
-									syncRegisterWorkOrderMeta);
-							syncRegisterWorkOrderMeta();
-						}
-					});
+			return confirm("선택한 생산실적을 삭제하시겠습니까?");
+		};
+
+		function syncRegisterWorkOrderMeta() {
+			const opt = registerWorkOrderId
+				&& registerWorkOrderId.options[registerWorkOrderId.selectedIndex];
+			registerItemCode.value = opt ? (opt.dataset.itemCode || "") : "";
+			registerItemName.value = opt ? (opt.dataset.itemName || "") : "";
+			registerLineCode.value = opt ? (opt.dataset.lineCode || "") : "";
+			registerUnit.value = opt ? (opt.dataset.unit || "") : "";
+		}
+
+		if (registerOpenBtn && registerModal) {
+			registerOpenBtn.addEventListener("click", function() {
+				registerModal.hidden = false;
+				registerModal.setAttribute("aria-hidden", "false");
+				syncRegisterWorkOrderMeta();
+			});
+		}
+
+		registerCloseBtns.forEach(function(btn) {
+			btn.addEventListener("click", function() {
+				registerModal.hidden = true;
+				registerModal.setAttribute("aria-hidden", "true");
+			});
+		});
+
+		if (registerModal) {
+			registerModal.addEventListener("click", function(e) {
+				if (e.target === registerModal) {
+					registerModal.hidden = true;
+					registerModal.setAttribute("aria-hidden", "true");
+				}
+			});
+		}
+
+		if (registerWorkOrderId) {
+			registerWorkOrderId.addEventListener("change", syncRegisterWorkOrderMeta);
+			syncRegisterWorkOrderMeta();
+		}
+	});
 </script>
