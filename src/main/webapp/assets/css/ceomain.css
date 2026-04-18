@@ -137,7 +137,7 @@
 /* KPI */
 .ceoKpiGrid {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 16px;
 }
 
@@ -220,6 +220,78 @@
     line-height: 1.4;
 }
 
+/* 생산달성률 / 일일생산원가 단순 리스트형 */
+.ceoKpiSimpleList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ceoKpiSimpleRow {
+    align-items: center;
+    gap: 12px;
+/*     min-height: 24px; */
+}
+
+.ceoKpiSimpleName {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ceoKpiSimpleInfo {
+    flex-shrink: 0;
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* 생산달성률 / 일일생산원가의 상단 높이를 맞춰서
+   첫 줄 시작 위치를 OEE 첫 줄 높이로 내림 */
+/* .ceoKpiCardProduction .ceoKpiTop, */
+/* .ceoKpiCardCostSimple .ceoKpiTop { */
+/*     min-height: 72px; */
+/* } */
+
+/* .ceoKpiCardProduction .ceoKpiBottom, */
+/* .ceoKpiCardCostSimple .ceoKpiBottom { */
+/*     margin-top: 14px; */
+/*     gap: 8px; */
+/* } */
+
+/* 일일생산원가 카드 확장형 */
+.ceoKpiCardCostSimple {
+    min-height: 164px;
+}
+
+.ceoKpiCardCostSimple .ceoKpiTop {
+    gap: 8px;
+}
+
+.ceoKpiCardCostSimple .ceoKpiMetaRow {
+    align-items: center;
+    gap: 12px;
+}
+
+.ceoKpiCardCostSimple .ceoKpiMetaLabel {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: keep-all;
+    line-height: 1.4;
+    text-align: left;
+}
+
+.ceoKpiCardCostSimple .ceoKpiMetaValue {
+    flex-shrink: 0;
+    white-space: nowrap;
+    text-align: right;
+}
+
 /* 리스크 + 상태맵 */
 .ceoRiskStatusLayout {
     display: grid;
@@ -233,15 +305,17 @@
 }
 
 .ceoRightStack {
-    display: grid;
-    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 20px;
+    display: flex;
+    flex-direction: column;
     min-width: 0;
     height: 100%;
 }
 
 .ceoStatusPanel,
 .ceoDailyCostPanel {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
     height: 100%;
 }
 
@@ -336,11 +410,16 @@
 .ceoStatusGrid {
     display: grid;
     gap: 14px;
+    min-width: 0;
 }
 
 .ceoStatusGridCompact {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-auto-rows: minmax(0, 1fr);
     gap: 12px;
+    flex: 1;
+    min-height: 0;
+    align-content: stretch;
 }
 
 .ceoStatusCard {
@@ -348,31 +427,37 @@
     border-radius: 18px;
     padding: 14px;
     background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-    min-height: 150px;
+    min-height: 0;
+    height: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start;
+    overflow: hidden;
 }
 
 .ceoStatusName {
     font-size: 14px;
     font-weight: 800;
     color: #0A1E3C;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 
 .ceoStatusScoreRow {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    gap: 8px;
-    margin-bottom: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    column-gap: 8px;
+    row-gap: 8px;
+    margin-bottom: 8px;
 }
 
 .ceoStatusScoreWrap {
     display: flex;
     align-items: baseline;
     gap: 6px;
+    min-width: 0;
+    flex: 1 1 auto;
 }
 
 .ceoStatusScore {
@@ -387,13 +472,20 @@
     color: #7A8799;
 }
 
+.ceoStatusScoreRow .ceoChip {
+    flex: 0 0 auto;
+    max-width: 100%;
+    margin-left: auto;
+}
+
 .ceoProgress {
     width: 100%;
     height: 10px;
     border-radius: 999px;
     overflow: hidden;
     background: #E9EFF8;
-    margin: 10px 0 12px;
+    margin: 8px 0 12px;
+    flex-shrink: 0;
 }
 
 .ceoProgressBar {
@@ -403,107 +495,13 @@
 }
 
 .ceoStatusBottom {
+    margin-top: auto;
     display: flex;
     flex-direction: column;
     gap: 4px;
     font-size: 12px;
     color: #6F7B8D;
     line-height: 1.45;
-}
-
-/* 일일 생산원가 */
-.ceoTopCostGrid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
-}
-
-.ceoTopCostGridCompact {
-    grid-template-columns: 1fr;
-    gap: 12px;
-}
-
-.ceoTopCostCard {
-    border: 1px solid #e1e9f5;
-    border-radius: 18px;
-    padding: 14px;
-    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    min-height: 0;
-}
-
-.ceoTopCostHead {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-}
-
-.ceoTopCostRank {
-    width: 38px;
-    height: 38px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #0A1E3C 0%, #20457E 100%);
-    color: #ffffff;
-    font-size: 14px;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.ceoTopCostNameWrap {
-    flex: 1;
-    min-width: 0;
-}
-
-.ceoTopCostName {
-    font-size: 16px;
-    font-weight: 800;
-    color: #0A1E3C;
-    line-height: 1.4;
-    word-break: keep-all;
-}
-
-.ceoTopCostCode {
-    margin-top: 4px;
-    font-size: 12px;
-    color: #7A8799;
-    font-weight: 700;
-}
-
-.ceoTopCostBody {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.ceoTopCostRow {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
-    border-radius: 14px;
-    background: #ffffff;
-    border: 1px solid #e8eef8;
-}
-
-.ceoTopCostLabel {
-    font-size: 12px;
-    color: #7A8799;
-    font-weight: 700;
-}
-
-.ceoTopCostValue {
-    font-size: 14px;
-    color: #0A1E3C;
-    font-weight: 800;
-    text-align: right;
-    line-height: 1.4;
-    white-space: nowrap;
 }
 
 /* 원인 분석 */
@@ -659,7 +657,7 @@
     flex-direction: column;
     justify-content: flex-end;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 .ceoTrendBarWrap {
@@ -697,9 +695,9 @@
     font-size: 12px;
     font-weight: 800;
     color: #0A1E3C;
-    white-space: nowrap;
     text-align: center;
     line-height: 1.4;
+/*     white-space: nowrap; */
 }
 
 .ceoTrendLabel {
@@ -708,6 +706,7 @@
     text-align: center;
     line-height: 1.4;
     word-break: keep-all;
+    white-space: nowrap;
 }
 
 /* empty */
@@ -721,69 +720,68 @@
     background: #fbfdff;
 }
 
-/* 일일생산원가 - 단순형 */
-.ceoKpiCardCostSimple {
-    min-height: 164px;
-}
-
-.ceoKpiCardCostSimple .ceoKpiTop {
-    gap: 8px;
-}
-
-.ceoKpiCardCostSimple .ceoKpiBottom {
-    margin-top: 12px;
-    gap: 10px;
-}
-
-.ceoKpiCardCostSimple .ceoKpiMetaRow {
-    align-items: flex-start;
-    gap: 12px;
-}
-
-.ceoKpiCardCostSimple .ceoKpiMetaLabel {
-    flex: 1;
-    min-width: 0;
-    white-space: normal;
-    word-break: keep-all;
-    line-height: 1.4;
-}
-
-.ceoKpiCardCostSimple .ceoKpiMetaValue {
-    flex-shrink: 0;
-    white-space: nowrap;
+/* 페이지 하단 정보 갱신일자 */
+.ceoPageUpdate {
+    margin-top: 24px;
+    padding-top: 12px;
+    border-top: 1px solid #e5e7eb;
+    font-size: 12px;
+    color: #6b7280;
     text-align: right;
 }
 
 /* 반응형 */
-@media (max-width: 1500px) {
-    .ceoKpiGrid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-}
-
 @media (max-width: 1280px) {
     .ceoRiskStatusLayout {
         grid-template-columns: 1fr;
     }
 
     .ceoRightStack {
-        grid-template-rows: auto;
+        height: auto;
+    }
+
+    .ceoStatusPanel,
+    .ceoDailyCostPanel {
+        height: auto;
     }
 
     .ceoCauseGrid,
-    .ceoTrendGrid,
-    .ceoTopCostGrid {
+    .ceoTrendGrid {
         grid-template-columns: 1fr;
     }
 
     .ceoStatusGridCompact {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-auto-rows: auto;
+    }
+
+    .ceoTrendChart {
+        gap: 8px;
+    }
+
+    .ceoTrendValue {
+        font-size: 11px;
+        line-height: 1.25;
+        white-space: normal;
+        max-width: 100%;
+        word-break: keep-all;
+    }
+
+    .ceoTrendLabel {
+        font-size: 11px;
+        line-height: 1.25;
+        white-space: normal;
+        max-width: 100%;
+    }
+
+    .ceoTrendBar {
+        width: 62%;
     }
 }
 
 @media (max-width: 900px) {
     .ceoKpiGrid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: 1fr;
     }
 
     .ceoRiskItem {
@@ -794,6 +792,32 @@
         grid-column: 2 / 3;
         text-align: left;
         -webkit-line-clamp: 3;
+    }
+
+    .ceoStatusGridCompact {
+        grid-template-columns: 1fr;
+    }
+
+    .ceoTrendChart {
+        gap: 6px;
+    }
+
+    .ceoTrendValue {
+        font-size: 10px;
+        line-height: 1.2;
+        white-space: normal;
+        max-width: 100%;
+    }
+
+    .ceoTrendLabel {
+        font-size: 10px;
+        line-height: 1.2;
+        white-space: normal;
+        max-width: 100%;
+    }
+
+    .ceoTrendBar {
+        width: 56%;
     }
 }
 
@@ -810,13 +834,6 @@
     .ceoPanelHead {
         flex-direction: column;
         align-items: flex-start;
-    }
-
-    .ceoKpiGrid,
-    .ceoStatusGridCompact,
-    .ceoCauseGrid,
-    .ceoTrendGrid {
-        grid-template-columns: 1fr;
     }
 
     .ceoBriefingRow,
@@ -859,13 +876,33 @@
     .ceoKpiCardCostSimple .ceoKpiMetaRow {
         gap: 10px;
     }
+
+    .ceoKpiSimpleName {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: initial;
+    }
+
+    .ceoKpiSimpleInfo {
+        white-space: normal;
+    }
+}
+
+.ceoChipTarget {
+    min-width: 92px;
+}
+
+.ceoChipTargetWide {
+    min-width: 110px;
+    padding: 0 14px;
+    font-size: 11px;
+}
+
+.ceoTextDanger {
+    color: #E5484D;
 }
 
 @media (max-width: 520px) {
-    .ceoKpiGrid {
-        grid-template-columns: 1fr;
-    }
-
     .ceoKpiValue {
         font-size: 22px;
     }

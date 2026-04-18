@@ -104,6 +104,39 @@ public class CeoMainDAO {
         Map<String, Object> result = new HashMap<String, Object>();
 
         String sql =
+                "WITH prod_item AS ( " +
+                "    SELECT WO.ITEM_ID, " +
+                "           SUM(PR.PRODUCED_QTY) AS actual_qty " +
+                "      FROM PRODUCTION_RESULT PR " +
+                "      JOIN WORK_ORDER WO ON WO.WORK_ORDER_ID = PR.WORK_ORDER_ID " +
+                "     WHERE TRUNC(PR.RESULT_DATE) = TRUNC(?) " +
+                "       AND NVL(PR.USE_YN, 'Y') = 'Y' " +
+                "     GROUP BY WO.ITEM_ID " +
+                "), actual_cost_item AS ( " +
+                "    SELECT ACD.ITEM_ID, " +
+                "           AVG(ACD.ACTUAL_UNIT_COST) AS actual_unit_cost " +
+                "      FROM ACTUAL_COST_DAILY ACD " +
+                "     WHERE TRUNC(ACD.COST_DATE) = TRUNC(?) " +
+                "       AND NVL(ACD.USE_YN, 'Y') = 'Y' " +
+                "     GROUP BY ACD.ITEM_ID " +
+                "), standard_cost_item AS ( " +
+                "    SELECT SC.ITEM_ID, " +
+                "           AVG(SC.STANDARD_UNIT_COST) AS standard_unit_cost " +
+                "      FROM STANDARD_COST SC " +
+                "     WHERE TRUNC(?) BETWEEN NVL(TRUNC(SC.EFFECTIVE_FROM), TRUNC(?)) " +
+                "                         AND NVL(TRUNC(SC.EFFECTIVE_TO), TRUNC(?)) " +
+                "       AND NVL(SC.USE_YN, 'Y') = 'Y' " +
+                "     GROUP BY SC.ITEM_ID " +
+                "), weighted_cost AS ( " +
+                "    SELECT SUM(NVL(ACI.actual_unit_cost, 0) * PI.actual_qty) AS total_actual_cost, " +
+                "           SUM(NVL(SCI.standard_unit_cost, 0) * PI.actual_qty) AS total_standard_cost, " +
+                "           SUM(PI.actual_qty) AS total_actual_qty, " +
+                "           ROUND(SUM(NVL(ACI.actual_unit_cost, 0) * PI.actual_qty) / NULLIF(SUM(PI.actual_qty), 0), 2) AS actual_unit_cost, " +
+                "           ROUND(SUM(NVL(SCI.standard_unit_cost, 0) * PI.actual_qty) / NULLIF(SUM(PI.actual_qty), 0), 2) AS standard_unit_cost " +
+                "      FROM prod_item PI " +
+                "      LEFT JOIN actual_cost_item ACI ON ACI.ITEM_ID = PI.ITEM_ID " +
+                "      LEFT JOIN standard_cost_item SCI ON SCI.ITEM_ID = PI.ITEM_ID " +
+                ") " +
                 "SELECT " +
                 "    NVL(plan_data.plan_qty, 0) AS plan_qty, " +
                 "    NVL(prod_data.actual_qty, 0) AS actual_qty, " +
@@ -117,32 +150,34 @@ public class CeoMainDAO {
                 "    NVL(line_data.total_line_count, 0) AS total_line_count, " +
                 "    NVL(inv_data.inventory_risk_count, 0) AS inventory_risk_count, " +
                 "    NVL(po_data.urgent_order_count, 0) AS urgent_order_count, " +
-                "    NVL(cost_data.actual_unit_cost, 0) AS actual_unit_cost, " +
-                "    NVL(std_cost_data.standard_unit_cost, 0) AS standard_unit_cost " +
+                "    NVL(weighted_cost.actual_unit_cost, 0) AS actual_unit_cost, " +
+                "    NVL(weighted_cost.standard_unit_cost, 0) AS standard_unit_cost, " +
+                "    NVL(weighted_cost.total_actual_cost, 0) AS total_actual_cost, " +
+                "    NVL(weighted_cost.total_standard_cost, 0) AS total_standard_cost " +
                 "FROM " +
                 "    (SELECT SUM(PP.PLAN_QTY) AS plan_qty " +
                 "       FROM PRODUCTION_PLAN PP " +
-                "      WHERE TRUNC(PP.PLAN_DATE) = ? " +
+                "      WHERE TRUNC(PP.PLAN_DATE) = TRUNC(?) " +
                 "        AND NVL(PP.USE_YN, 'Y') = 'Y') plan_data, " +
                 "    (SELECT SUM(PR.PRODUCED_QTY) AS actual_qty, " +
                 "            SUM(PR.LOSS_QTY) AS defect_qty, " +
                 "            SUM(PR.PRODUCED_QTY - NVL(PR.LOSS_QTY, 0)) AS good_qty " +
                 "       FROM PRODUCTION_RESULT PR " +
-                "      WHERE TRUNC(PR.RESULT_DATE) = ? " +
+                "      WHERE TRUNC(PR.RESULT_DATE) = TRUNC(?) " +
                 "        AND NVL(PR.USE_YN, 'Y') = 'Y') prod_data, " +
                 "    (SELECT SUM(FI.INSPECT_QTY) AS inspect_qty " +
                 "       FROM FINAL_INSPECTION FI " +
-                "      WHERE TRUNC(FI.INSPECTION_DATE) = ? " +
+                "      WHERE TRUNC(FI.INSPECTION_DATE) = TRUNC(?) " +
                 "        AND NVL(FI.USE_YN, 'Y') = 'Y') inspect_data, " +
                 "    (SELECT COUNT(*) AS delivery_target_count, " +
                 "            SUM(CASE WHEN NVL(S.ON_TIME_YN, 'N') = 'Y' THEN 1 ELSE 0 END) AS on_time_count, " +
                 "            SUM(CASE WHEN NVL(S.ON_TIME_YN, 'N') = 'N' THEN 1 ELSE 0 END) AS delay_count " +
                 "       FROM SHIPMENT S " +
-                "      WHERE TRUNC(NVL(S.DUE_DATE, S.SHIP_DATE)) = ? " +
+                "      WHERE TRUNC(NVL(S.DUE_DATE, S.SHIP_DATE)) = TRUNC(?) " +
                 "        AND NVL(S.USE_YN, 'Y') = 'Y') delivery_data, " +
                 "    (SELECT SUM(ED.DOWNTIME_MIN) AS downtime_min " +
                 "       FROM EQUIPMENT_DOWNTIME ED " +
-                "      WHERE TRUNC(ED.START_TIME) = ? " +
+                "      WHERE TRUNC(ED.START_TIME) = TRUNC(?) " +
                 "        AND NVL(ED.USE_YN, 'Y') = 'Y') downtime_data, " +
                 "    (SELECT COUNT(*) AS total_line_count " +
                 "       FROM LINE L " +
@@ -153,16 +188,9 @@ public class CeoMainDAO {
                 "    (SELECT COUNT(*) AS urgent_order_count " +
                 "       FROM PURCHASE_ORDER PO " +
                 "      WHERE NVL(PO.USE_YN, 'Y') = 'Y' " +
-                "        AND TRUNC(PO.EXPECTED_IN_DATE) <= ? " +
+                "        AND TRUNC(PO.EXPECTED_IN_DATE) <= TRUNC(?) " +
                 "        AND NVL(PO.STATUS, '대기') NOT IN ('완료', '입고완료')) po_data, " +
-                "    (SELECT AVG(ACD.ACTUAL_UNIT_COST) AS actual_unit_cost " +
-                "       FROM ACTUAL_COST_DAILY ACD " +
-                "      WHERE TRUNC(ACD.COST_DATE) = ? " +
-                "        AND NVL(ACD.USE_YN, 'Y') = 'Y') cost_data, " +
-                "    (SELECT AVG(SC.STANDARD_UNIT_COST) AS standard_unit_cost " +
-                "       FROM STANDARD_COST SC " +
-                "      WHERE ? BETWEEN NVL(SC.EFFECTIVE_FROM, ?) AND NVL(SC.EFFECTIVE_TO, ?) " +
-                "        AND NVL(SC.USE_YN, 'Y') = 'Y') std_cost_data";
+                "    weighted_cost";
 
         try (
             Connection conn = getConnection();
@@ -170,16 +198,18 @@ public class CeoMainDAO {
         ) {
             int idx = 1;
 
-            ps.setDate(idx++, baseDate);
-            ps.setDate(idx++, baseDate);
-            ps.setDate(idx++, baseDate);
-            ps.setDate(idx++, baseDate);
-            ps.setDate(idx++, baseDate);
-            ps.setDate(idx++, baseDate);
-            ps.setDate(idx++, baseDate);
-            ps.setDate(idx++, baseDate);
-            ps.setDate(idx++, baseDate);
-            ps.setDate(idx++, baseDate);
+            ps.setDate(idx++, baseDate); // prod_item
+            ps.setDate(idx++, baseDate); // actual_cost_item
+            ps.setDate(idx++, baseDate); // standard_cost_item
+            ps.setDate(idx++, baseDate); // standard_cost_item
+            ps.setDate(idx++, baseDate); // standard_cost_item
+
+            ps.setDate(idx++, baseDate); // plan_data
+            ps.setDate(idx++, baseDate); // prod_data
+            ps.setDate(idx++, baseDate); // inspect_data
+            ps.setDate(idx++, baseDate); // delivery_data
+            ps.setDate(idx++, baseDate); // downtime_data
+            ps.setDate(idx++, baseDate); // po_data
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -201,6 +231,8 @@ public class CeoMainDAO {
 
                     double actualUnitCost = rs.getDouble("actual_unit_cost");
                     double standardUnitCost = rs.getDouble("standard_unit_cost");
+                    double totalActualCost = rs.getDouble("total_actual_cost");
+                    double totalStandardCost = rs.getDouble("total_standard_cost");
 
                     double productionRate = percent(actualQty, planQty);
 
@@ -219,8 +251,8 @@ public class CeoMainDAO {
                     int shipRiskCount = delayCount;
 
                     double costVarianceRate = 0;
-                    if (standardUnitCost != 0) {
-                        costVarianceRate = ((actualUnitCost - standardUnitCost) / standardUnitCost) * 100.0;
+                    if (totalStandardCost != 0) {
+                        costVarianceRate = ((totalActualCost - totalStandardCost) / totalStandardCost) * 100.0;
                     }
 
                     result.put("productionRate", round1(productionRate));
@@ -285,7 +317,7 @@ public class CeoMainDAO {
                 "                  FROM EQUIPMENT_DOWNTIME ED " +
                 "                  LEFT JOIN EQUIPMENT E ON E.EQUIPMENT_ID = ED.EQUIPMENT_ID " +
                 "                  LEFT JOIN LINE L ON L.LINE_ID = ED.LINE_ID " +
-                "                 WHERE TRUNC(ED.START_TIME) = ? " +
+                "                 WHERE TRUNC(ED.START_TIME) = TRUNC(?) " +
                 "                   AND NVL(ED.USE_YN, 'Y') = 'Y' " +
                 "                UNION ALL " +
                 "                SELECT '자재' AS category, " +
@@ -319,7 +351,7 @@ public class CeoMainDAO {
                 "                  JOIN PRODUCTION_RESULT PR ON PR.RESULT_ID = FI.RESULT_ID " +
                 "                  JOIN WORK_ORDER WO ON WO.WORK_ORDER_ID = PR.WORK_ORDER_ID " +
                 "                  JOIN ITEM I ON I.ITEM_ID = WO.ITEM_ID " +
-                "                 WHERE TRUNC(FI.INSPECTION_DATE) = ? " +
+                "                 WHERE TRUNC(FI.INSPECTION_DATE) = TRUNC(?) " +
                 "                   AND NVL(DP.USE_YN, 'Y') = 'Y' " +
                 "                 GROUP BY I.ITEM_NAME, DC.DEFECT_NAME " +
                 "                UNION ALL " +
@@ -333,7 +365,7 @@ public class CeoMainDAO {
                 "                  LEFT JOIN SALES_ORDER SO ON SO.SALES_ORDER_ID = S.SALES_ORDER_ID " +
                 "                  LEFT JOIN CUSTOMER C ON C.CUSTOMER_ID = SO.CUSTOMER_ID " +
                 "                  LEFT JOIN ITEM I ON I.ITEM_ID = S.ITEM_ID " +
-                "                 WHERE TRUNC(NVL(S.DUE_DATE, S.SHIP_DATE)) = ? " +
+                "                 WHERE TRUNC(NVL(S.DUE_DATE, S.SHIP_DATE)) = TRUNC(?) " +
                 "                   AND NVL(S.USE_YN, 'Y') = 'Y' " +
                 "                   AND NVL(S.ON_TIME_YN, 'N') = 'N' " +
                 "               ) " +
@@ -384,7 +416,7 @@ public class CeoMainDAO {
             int prodIssueCount = queryForInt(conn,
                     "SELECT COUNT(*) " +
                     "  FROM WORK_ORDER " +
-                    " WHERE TRUNC(WORK_DATE) = ? " +
+                    " WHERE TRUNC(WORK_DATE) = TRUNC(?) " +
                     "   AND NVL(USE_YN, 'Y') = 'Y' " +
                     "   AND NVL(STATUS, '대기') <> '완료'",
                     baseDate);
@@ -397,7 +429,7 @@ public class CeoMainDAO {
             int qualityIssueCount = queryForInt(conn,
                     "SELECT COUNT(*) " +
                     "  FROM FINAL_INSPECTION " +
-                    " WHERE TRUNC(INSPECTION_DATE) = ? " +
+                    " WHERE TRUNC(INSPECTION_DATE) = TRUNC(?) " +
                     "   AND NVL(USE_YN, 'Y') = 'Y' " +
                     "   AND NVL(STATUS, '대기') <> '합격'",
                     baseDate);
@@ -411,14 +443,14 @@ public class CeoMainDAO {
             int equipIssueCount = queryForInt(conn,
                     "SELECT COUNT(*) " +
                     "  FROM EQUIPMENT_DOWNTIME " +
-                    " WHERE TRUNC(START_TIME) = ? " +
+                    " WHERE TRUNC(START_TIME) = TRUNC(?) " +
                     "   AND NVL(USE_YN, 'Y') = 'Y'",
                     baseDate);
 
             int downtimeMin = queryForInt(conn,
                     "SELECT NVL(SUM(DOWNTIME_MIN), 0) " +
                     "  FROM EQUIPMENT_DOWNTIME " +
-                    " WHERE TRUNC(START_TIME) = ? " +
+                    " WHERE TRUNC(START_TIME) = TRUNC(?) " +
                     "   AND NVL(USE_YN, 'Y') = 'Y'",
                     baseDate);
 
@@ -451,7 +483,7 @@ public class CeoMainDAO {
 
         return list;
     }
-    
+
     // =========================================================
     // 5. 원인 분석 요약
     // =========================================================
@@ -464,7 +496,7 @@ public class CeoMainDAO {
                 "        SELECT NVL(CAUSE_DETAIL, NVL(CAUSE_CODE, '미분류')) AS cause_name, " +
                 "               SUM(NVL(DOWNTIME_MIN, 0)) AS total_min " +
                 "          FROM EQUIPMENT_DOWNTIME " +
-                "         WHERE TRUNC(START_TIME) = ? " +
+                "         WHERE TRUNC(START_TIME) = TRUNC(?) " +
                 "           AND NVL(USE_YN, 'Y') = 'Y' " +
                 "         GROUP BY NVL(CAUSE_DETAIL, NVL(CAUSE_CODE, '미분류')) " +
                 "         ORDER BY total_min DESC, cause_name ASC " +
@@ -503,7 +535,7 @@ public class CeoMainDAO {
                 "          FROM DEFECT_PRODUCT DP " +
                 "          JOIN FINAL_INSPECTION FI ON FI.FINAL_INSPECTION_ID = DP.FINAL_INSPECTION_ID " +
                 "          JOIN DEFECT_CODE DC ON DC.DEFECT_CODE_ID = DP.DEFECT_CODE_ID " +
-                "         WHERE TRUNC(FI.INSPECTION_DATE) = ? " +
+                "         WHERE TRUNC(FI.INSPECTION_DATE) = TRUNC(?) " +
                 "           AND NVL(DP.USE_YN, 'Y') = 'Y' " +
                 "         GROUP BY DC.DEFECT_NAME " +
                 "         ORDER BY defect_cnt DESC, defect_name ASC " +
@@ -540,7 +572,7 @@ public class CeoMainDAO {
                 "  FROM ( " +
                 "        SELECT NVL(DELAY_REASON, '사유 미등록') AS delay_reason, COUNT(*) AS delay_cnt " +
                 "          FROM SHIPMENT " +
-                "         WHERE TRUNC(NVL(DUE_DATE, SHIP_DATE)) = ? " +
+                "         WHERE TRUNC(NVL(DUE_DATE, SHIP_DATE)) = TRUNC(?) " +
                 "           AND NVL(USE_YN, 'Y') = 'Y' " +
                 "           AND NVL(ON_TIME_YN, 'N') = 'N' " +
                 "         GROUP BY NVL(DELAY_REASON, '사유 미등록') " +
@@ -609,12 +641,15 @@ public class CeoMainDAO {
                 "      FROM DUAL " +
                 "   CONNECT BY LEVEL <= 7 " +
                 "), agg AS ( " +
-                "    SELECT TRUNC(INSPECTION_DATE) AS dt, " +
-                "           ROUND((SUM(CASE WHEN STATUS = '합격' THEN INSPECT_QTY ELSE 0 END) / NULLIF(SUM(INSPECT_QTY), 0)) * 100, 1) AS val " +
-                "      FROM FINAL_INSPECTION " +
-                "     WHERE TRUNC(INSPECTION_DATE) BETWEEN TRUNC(?) - 6 AND TRUNC(?) " +
-                "       AND NVL(USE_YN, 'Y') = 'Y' " +
-                "     GROUP BY TRUNC(INSPECTION_DATE) " +
+                "    SELECT TRUNC(PR.RESULT_DATE) AS dt, " +
+                "           ROUND( " +
+                "               ((SUM(PR.PRODUCED_QTY) - SUM(NVL(PR.LOSS_QTY, 0))) " +
+                "               / NULLIF(SUM(PR.PRODUCED_QTY), 0)) * 100, 1 " +
+                "           ) AS val " +
+                "      FROM PRODUCTION_RESULT PR " +
+                "     WHERE TRUNC(PR.RESULT_DATE) BETWEEN TRUNC(?) - 6 AND TRUNC(?) " +
+                "       AND NVL(PR.USE_YN, 'Y') = 'Y' " +
+                "     GROUP BY TRUNC(PR.RESULT_DATE) " +
                 ") " +
                 "SELECT TO_CHAR(d.dt, 'MM-DD') AS label, NVL(a.val, 0) AS value " +
                 "  FROM days d " +
@@ -665,7 +700,7 @@ public class CeoMainDAO {
 
         return selectTrendList(baseDate, sql);
     }
-    
+
     public List<Map<String, Object>> selectTopCostItemList(Date baseDate) throws Exception {
         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 
@@ -674,35 +709,54 @@ public class CeoMainDAO {
                 "    SELECT WO.ITEM_ID, " +
                 "           I.ITEM_CODE, " +
                 "           I.ITEM_NAME, " +
-                "           SUM(PR.PRODUCED_QTY) AS produced_qty " +
+                "           NVL(I.UNIT, 'kg') AS item_unit, " +
+                "           SUM(PR.PRODUCED_QTY) AS actual_qty " +
                 "      FROM PRODUCTION_RESULT PR " +
-                "      JOIN WORK_ORDER WO ON PR.WORK_ORDER_ID = WO.WORK_ORDER_ID " +
-                "      JOIN ITEM I ON WO.ITEM_ID = I.ITEM_ID " +
-                "     WHERE TRUNC(PR.RESULT_DATE) = ? " +
+                "      JOIN WORK_ORDER WO ON WO.WORK_ORDER_ID = PR.WORK_ORDER_ID " +
+                "      JOIN ITEM I ON I.ITEM_ID = WO.ITEM_ID " +
+                "     WHERE TRUNC(PR.RESULT_DATE) = TRUNC(?) " +
                 "       AND NVL(PR.USE_YN, 'Y') = 'Y' " +
-                "     GROUP BY WO.ITEM_ID, I.ITEM_CODE, I.ITEM_NAME " +
+                "     GROUP BY WO.ITEM_ID, I.ITEM_CODE, I.ITEM_NAME, I.UNIT " +
+                "), plan_item AS ( " +
+                "    SELECT PP.ITEM_ID, " +
+                "           SUM(PP.PLAN_QTY) AS plan_qty " +
+                "      FROM PRODUCTION_PLAN PP " +
+                "     WHERE TRUNC(PP.PLAN_DATE) = TRUNC(?) " +
+                "       AND NVL(PP.USE_YN, 'Y') = 'Y' " +
+                "     GROUP BY PP.ITEM_ID " +
                 "), today_cost AS ( " +
-                "    SELECT ITEM_ID, " +
-                "           AVG(ACTUAL_UNIT_COST) AS actual_unit_cost, " +
-                "           SUM(TOTAL_COST) AS total_cost " +
-                "      FROM ACTUAL_COST_DAILY " +
-                "     WHERE TRUNC(COST_DATE) = ? " +
-                "       AND NVL(USE_YN, 'Y') = 'Y' " +
-                "     GROUP BY ITEM_ID " +
+                "    SELECT ACD.ITEM_ID, " +
+                "           AVG(ACD.ACTUAL_UNIT_COST) AS actual_unit_cost, " +
+                "           SUM(ACD.TOTAL_COST) AS total_cost " +
+                "      FROM ACTUAL_COST_DAILY ACD " +
+                "     WHERE TRUNC(ACD.COST_DATE) = TRUNC(?) " +
+                "       AND NVL(ACD.USE_YN, 'Y') = 'Y' " +
+                "     GROUP BY ACD.ITEM_ID " +
+                "), std_cost AS ( " +
+                "    SELECT SC.ITEM_ID, " +
+                "           AVG(SC.STANDARD_UNIT_COST) AS standard_unit_cost " +
+                "      FROM STANDARD_COST SC " +
+                "     WHERE TRUNC(?) BETWEEN NVL(TRUNC(SC.EFFECTIVE_FROM), TRUNC(?)) " +
+                "                         AND NVL(TRUNC(SC.EFFECTIVE_TO), TRUNC(?)) " +
+                "       AND NVL(SC.USE_YN, 'Y') = 'Y' " +
+                "     GROUP BY SC.ITEM_ID " +
                 "), prev_cost AS ( " +
-                "    SELECT ITEM_ID, " +
-                "           AVG(ACTUAL_UNIT_COST) AS prev_actual_unit_cost " +
-                "      FROM ACTUAL_COST_DAILY " +
-                "     WHERE TRUNC(COST_DATE) = ? - 1 " +
-                "       AND NVL(USE_YN, 'Y') = 'Y' " +
-                "     GROUP BY ITEM_ID " +
+                "    SELECT ACD.ITEM_ID, " +
+                "           AVG(ACD.ACTUAL_UNIT_COST) AS prev_actual_unit_cost " +
+                "      FROM ACTUAL_COST_DAILY ACD " +
+                "     WHERE TRUNC(ACD.COST_DATE) = TRUNC(?) - 1 " +
+                "       AND NVL(ACD.USE_YN, 'Y') = 'Y' " +
+                "     GROUP BY ACD.ITEM_ID " +
                 ") " +
                 "SELECT * " +
                 "  FROM ( " +
                 "        SELECT P.ITEM_CODE, " +
                 "               P.ITEM_NAME, " +
-                "               P.produced_qty, " +
+                "               P.item_unit, " +
+                "               NVL(PL.plan_qty, 0) AS plan_qty, " +
+                "               NVL(P.actual_qty, 0) AS actual_qty, " +
                 "               NVL(TC.actual_unit_cost, 0) AS actual_unit_cost, " +
+                "               NVL(SC.standard_unit_cost, 0) AS standard_unit_cost, " +
                 "               NVL(TC.total_cost, 0) AS total_cost, " +
                 "               PC.prev_actual_unit_cost, " +
                 "               CASE " +
@@ -712,9 +766,11 @@ public class CeoMainDAO {
                 "                   ELSE ROUND(((TC.actual_unit_cost - PC.prev_actual_unit_cost) / PC.prev_actual_unit_cost) * 100, 2) " +
                 "               END AS day_change_rate " +
                 "          FROM prod_item P " +
+                "          LEFT JOIN plan_item PL ON PL.ITEM_ID = P.ITEM_ID " +
                 "          LEFT JOIN today_cost TC ON TC.ITEM_ID = P.ITEM_ID " +
+                "          LEFT JOIN std_cost SC ON SC.ITEM_ID = P.ITEM_ID " +
                 "          LEFT JOIN prev_cost PC ON PC.ITEM_ID = P.ITEM_ID " +
-                "         ORDER BY P.produced_qty DESC, P.ITEM_NAME ASC " +
+                "         ORDER BY P.actual_qty DESC, P.ITEM_NAME ASC " +
                 "       ) " +
                 " WHERE ROWNUM <= 3";
 
@@ -722,9 +778,14 @@ public class CeoMainDAO {
             Connection conn = getConnection();
             PreparedStatement ps = conn.prepareStatement(sql)
         ) {
-            ps.setDate(1, baseDate);
-            ps.setDate(2, baseDate);
-            ps.setDate(3, baseDate);
+            int idx = 1;
+            ps.setDate(idx++, baseDate); // prod_item
+            ps.setDate(idx++, baseDate); // plan_item
+            ps.setDate(idx++, baseDate); // today_cost
+            ps.setDate(idx++, baseDate); // std_cost
+            ps.setDate(idx++, baseDate); // std_cost
+            ps.setDate(idx++, baseDate); // std_cost
+            ps.setDate(idx++, baseDate); // prev_cost
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -732,8 +793,14 @@ public class CeoMainDAO {
 
                     row.put("itemCode", rs.getString("ITEM_CODE"));
                     row.put("itemName", rs.getString("ITEM_NAME"));
-                    row.put("producedQty", rs.getDouble("produced_qty"));
+                    row.put("itemUnit", rs.getString("ITEM_UNIT"));
+
+                    row.put("planQty", rs.getDouble("plan_qty"));
+                    row.put("actualQty", rs.getDouble("actual_qty"));
+                    row.put("producedQty", rs.getDouble("actual_qty")); // 기존 JSP 호환
+
                     row.put("actualUnitCost", rs.getDouble("actual_unit_cost"));
+                    row.put("standardUnitCost", rs.getDouble("standard_unit_cost"));
                     row.put("totalCost", rs.getDouble("total_cost"));
 
                     Object prevCostObj = rs.getObject("prev_actual_unit_cost");

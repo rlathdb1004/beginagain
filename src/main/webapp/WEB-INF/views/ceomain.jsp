@@ -17,6 +17,11 @@
 		</div>
 	</section>
 
+	<c:set var="deliveryTargetRate" value="100.0" />
+	<c:set var="oeeTargetRate" value="85.0" />
+	<c:set var="defectTargetText" value="목표 1.0% 이하" />
+	<c:set var="costVarianceTargetText" value="목표 ±0.0%" />
+
 	<!-- KPI -->
 	<section>
 		<h3 class="taSectionTitle">핵심 KPI</h3>
@@ -37,7 +42,7 @@
 
 		<div class="ceoKpiGrid">
 
-			<article class="ceoKpiCard">
+			<article class="ceoKpiCard ceoKpiCardProduction">
 				<div class="ceoKpiTop">
 					<div class="ceoKpiLabel">생산달성률</div>
 					<div class="ceoKpiValueRow">
@@ -55,21 +60,32 @@
 						</span>
 					</div>
 				</div>
-				<div class="ceoKpiBottom">
-					<div class="ceoKpiMetaRow">
-						<span class="ceoKpiMetaLabel">계획</span> <span
-							class="ceoKpiMetaValue"> <fmt:formatNumber
-								value="${empty kpi.planQty ? 0 : kpi.planQty}" pattern="#,##0" />
-							EA
-						</span>
-					</div>
-					<div class="ceoKpiMetaRow">
-						<span class="ceoKpiMetaLabel">실적</span> <span
-							class="ceoKpiMetaValue"> <fmt:formatNumber
-								value="${empty kpi.actualQty ? 0 : kpi.actualQty}"
-								pattern="#,##0" /> EA
-						</span>
-					</div>
+
+				<div class="ceoKpiBottom ceoKpiSimpleList">
+					<c:forEach var="idx" begin="0" end="2">
+						<c:choose>
+							<c:when
+								test="${not empty topCostItemList and idx lt fn:length(topCostItemList)}">
+								<c:set var="item" value="${topCostItemList[idx]}" />
+								<div class="ceoKpiMetaRow ceoKpiSimpleRow">
+									<span class="ceoKpiMetaLabel ceoKpiSimpleName">${item.itemName}</span>
+									<span class="ceoKpiMetaValue ceoKpiSimpleInfo"> 계획 <fmt:formatNumber
+											value="${empty item.planQty ? 0 : item.planQty}"
+											pattern="#,##0.###" /> ${empty item.itemUnit ? 'kg' : item.itemUnit}
+										/ 실적 <fmt:formatNumber
+											value="${empty item.actualQty ? (empty item.producedQty ? 0 : item.producedQty) : item.actualQty}"
+											pattern="#,##0.###" /> ${empty item.itemUnit ? 'kg' : item.itemUnit}
+									</span>
+								</div>
+							</c:when>
+							<c:otherwise>
+								<div class="ceoKpiMetaRow ceoKpiSimpleRow">
+									<span class="ceoKpiMetaLabel ceoKpiSimpleName">&nbsp;</span> <span
+										class="ceoKpiMetaValue ceoKpiSimpleInfo">&nbsp;</span>
+								</div>
+							</c:otherwise>
+						</c:choose>
+					</c:forEach>
 				</div>
 			</article>
 
@@ -85,27 +101,22 @@
 							</div>
 							<div class="ceoKpiUnit">%</div>
 						</div>
-						<span class="ceoChip ceoChipGreen"> 정상 <fmt:formatNumber
-								value="${empty kpi.onTimeCount ? 0 : kpi.onTimeCount}"
-								pattern="#,##0" />건
+						<span class="ceoChip ceoChipBlue ceoChipTarget"> 목표 <fmt:formatNumber
+								value="${deliveryTargetRate}" pattern="#,##0.0" />%
 						</span>
 					</div>
 				</div>
+
 				<div class="ceoKpiBottom">
 					<div class="ceoKpiMetaRow">
 						<span class="ceoKpiMetaLabel">전체</span> <span
-							class="ceoKpiMetaValue"> <fmt:formatNumber
-								value="${empty kpi.deliveryTargetCount ? 0 : kpi.deliveryTargetCount}"
-								pattern="#,##0" />건
-						</span>
+							class="ceoKpiMetaValue">${empty kpi.deliveryTargetCount ? 0 : kpi.deliveryTargetCount}건</span>
 					</div>
 					<div class="ceoKpiMetaRow">
 						<span class="ceoKpiMetaLabel">지연</span> <span
-							class="ceoKpiMetaValue"> <fmt:formatNumber
-								value="${empty kpi.delayCount ? 0 : kpi.delayCount}"
-								pattern="#,##0" />건
-						</span>
+							class="ceoKpiMetaValue">${empty kpi.delayCount ? 0 : kpi.delayCount}건</span>
 					</div>
+					<div class="ceoKpiMetaRow">&nbsp;</div>
 				</div>
 			</article>
 
@@ -120,22 +131,29 @@
 							</div>
 							<div class="ceoKpiUnit">%</div>
 						</div>
-						<span class="ceoChip ceoChipBlue"> 가동 <fmt:formatNumber
+						<span class="ceoChip ceoChipBlue ceoChipTarget"> 목표 <fmt:formatNumber
+								value="${oeeTargetRate}" pattern="#,##0.0" />%
+						</span>
+					</div>
+				</div>
+
+				<div class="ceoKpiBottom">
+					<div class="ceoKpiMetaRow">
+						<span class="ceoKpiMetaLabel">라인가동률</span> <span
+							class="ceoKpiMetaValue"> <fmt:formatNumber
 								value="${empty kpi.availabilityRate ? 0 : kpi.availabilityRate}"
 								pattern="#,##0.0" />%
 						</span>
 					</div>
-				</div>
-				<div class="ceoKpiBottom">
 					<div class="ceoKpiMetaRow">
-						<span class="ceoKpiMetaLabel">성능</span> <span
+						<span class="ceoKpiMetaLabel">생산달성률</span> <span
 							class="ceoKpiMetaValue"> <fmt:formatNumber
 								value="${empty kpi.performanceRate ? 0 : kpi.performanceRate}"
 								pattern="#,##0.0" />%
 						</span>
 					</div>
 					<div class="ceoKpiMetaRow">
-						<span class="ceoKpiMetaLabel">품질</span> <span
+						<span class="ceoKpiMetaLabel">품질양품률</span> <span
 							class="ceoKpiMetaValue"> <fmt:formatNumber
 								value="${empty kpi.qualityRate ? 0 : kpi.qualityRate}"
 								pattern="#,##0.0" />%
@@ -156,25 +174,31 @@
 							</div>
 							<div class="ceoKpiUnit">%</div>
 						</div>
-						<span class="ceoChip ceoChipRed"> 불량 <fmt:formatNumber
-								value="${empty kpi.defectQty ? 0 : kpi.defectQty}"
-								pattern="#,##0" /> EA
-						</span>
+						<span class="ceoChip ceoChipBlue ceoChipTargetWide">
+							${defectTargetText} </span>
 					</div>
 				</div>
+
 				<div class="ceoKpiBottom">
 					<div class="ceoKpiMetaRow">
 						<span class="ceoKpiMetaLabel">검사수량</span> <span
 							class="ceoKpiMetaValue"> <fmt:formatNumber
 								value="${empty kpi.inspectQty ? 0 : kpi.inspectQty}"
-								pattern="#,##0" /> EA
+								pattern="#,##0.###" /> kg
 						</span>
 					</div>
 					<div class="ceoKpiMetaRow">
 						<span class="ceoKpiMetaLabel">양품</span> <span
 							class="ceoKpiMetaValue"> <fmt:formatNumber
-								value="${empty kpi.goodQty ? 0 : kpi.goodQty}" pattern="#,##0" />
-							EA
+								value="${empty kpi.goodQty ? 0 : kpi.goodQty}"
+								pattern="#,##0.###" /> kg
+						</span>
+					</div>
+					<div class="ceoKpiMetaRow">
+						<span class="ceoKpiMetaLabel">불량</span> <span
+							class="ceoKpiMetaValue ceoTextDanger"> <fmt:formatNumber
+								value="${empty kpi.defectQty ? 0 : kpi.defectQty}"
+								pattern="#,##0.###" /> kg
 						</span>
 					</div>
 				</div>
@@ -192,69 +216,60 @@
 							</div>
 							<div class="ceoKpiUnit">%</div>
 						</div>
-						<span class="ceoChip ceoChipAmber">원가 기준</span>
+						<span class="ceoChip ceoChipBlue ceoChipTargetWide">
+							${costVarianceTargetText} </span>
 					</div>
 				</div>
+
 				<div class="ceoKpiBottom">
 					<div class="ceoKpiMetaRow">
 						<span class="ceoKpiMetaLabel">표준단가</span> <span
 							class="ceoKpiMetaValue"> <fmt:formatNumber
 								value="${empty kpi.standardUnitCost ? 0 : kpi.standardUnitCost}"
-								pattern="#,##0" /> 원
+								pattern="#,##0" /> 원/kg
 						</span>
 					</div>
 					<div class="ceoKpiMetaRow">
 						<span class="ceoKpiMetaLabel">실적단가</span> <span
 							class="ceoKpiMetaValue"> <fmt:formatNumber
 								value="${empty kpi.actualUnitCost ? 0 : kpi.actualUnitCost}"
-								pattern="#,##0" /> 원
+								pattern="#,##0" /> 원/kg
 						</span>
 					</div>
+					<div class="ceoKpiMetaRow">&nbsp;</div>
 				</div>
 			</article>
 
-			<article class="ceoKpiCard">
+			<article class="ceoKpiCard ceoKpiCardCostSimple">
 				<div class="ceoKpiTop">
 					<div class="ceoKpiLabel">일일생산원가</div>
 				</div>
 
-				<c:set var="cost001" value="0" />
-				<c:set var="cost002" value="0" />
-				<c:set var="cost003" value="0" />
-
-				<c:forEach var="item" items="${topCostItemList}">
-					<c:if test="${item.itemCode eq 'FG-CAM-001'}">
-						<c:set var="cost001" value="${item.actualUnitCost}" />
-					</c:if>
-					<c:if test="${item.itemCode eq 'FG-CAM-002'}">
-						<c:set var="cost002" value="${item.actualUnitCost}" />
-					</c:if>
-					<c:if test="${item.itemCode eq 'FG-CAM-003'}">
-						<c:set var="cost003" value="${item.actualUnitCost}" />
-					</c:if>
-				</c:forEach>
-
-				<div class="ceoKpiBottom">
-					<div class="ceoKpiMetaRow">
-						<span class="ceoKpiMetaLabel">LiOH(무수수산화리튬)</span> <span
-							class="ceoKpiMetaValue"> <fmt:formatNumber
-								value="${empty cost001 ? 0 : cost001}" pattern="#,##0" /> 원
-						</span>
-					</div>
-
-					<div class="ceoKpiMetaRow">
-						<span class="ceoKpiMetaLabel">NCM 양극재 6계열</span> <span
-							class="ceoKpiMetaValue"> <fmt:formatNumber
-								value="${empty cost002 ? 0 : cost002}" pattern="#,##0" /> 원
-						</span>
-					</div>
-
-					<div class="ceoKpiMetaRow">
-						<span class="ceoKpiMetaLabel">NCM 양극재 8계열</span> <span
-							class="ceoKpiMetaValue"> <fmt:formatNumber
-								value="${empty cost003 ? 0 : cost003}" pattern="#,##0" /> 원
-						</span>
-					</div>
+				<div class="ceoKpiBottom ceoKpiSimpleList">
+					<c:forEach var="idx" begin="0" end="2">
+						<c:choose>
+							<c:when
+								test="${not empty topCostItemList and idx lt fn:length(topCostItemList)}">
+								<c:set var="item" value="${topCostItemList[idx]}" />
+								<div class="ceoKpiMetaRow ceoKpiSimpleRow">
+									<span class="ceoKpiMetaLabel ceoKpiSimpleName">${item.itemName}</span>
+									<span class="ceoKpiMetaValue ceoKpiSimpleInfo"> <fmt:formatNumber
+											value="${empty item.actualUnitCost ? 0 : item.actualUnitCost}"
+											pattern="#,##0" /> 원/${empty item.itemUnit ? 'kg' : item.itemUnit}
+										[<fmt:formatNumber
+											value="${empty item.actualQty ? (empty item.producedQty ? 0 : item.producedQty) : item.actualQty}"
+											pattern="#,##0.###" /> ${empty item.itemUnit ? 'kg' : item.itemUnit}]
+									</span>
+								</div>
+							</c:when>
+							<c:otherwise>
+								<div class="ceoKpiMetaRow ceoKpiSimpleRow">
+									<span class="ceoKpiMetaLabel ceoKpiSimpleName">&nbsp;</span> <span
+										class="ceoKpiMetaValue ceoKpiSimpleInfo">&nbsp;</span>
+								</div>
+							</c:otherwise>
+						</c:choose>
+					</c:forEach>
 				</div>
 			</article>
 
@@ -474,7 +489,7 @@
 				<h3 class="ceoPanelTitle">생산 / 품질 / 출하 / 생산원가 추이</h3>
 				<div class="ceoPanelSub">최근 7일 기준 흐름 확인</div>
 			</div>
-			<span class="ceoChip ceoChipBlue">트렌드 차트</span>
+			<span class="ceoChip ceoChipBlue">최근 7일 추이도</span>
 		</div>
 
 		<div class="ceoTrendGrid">
@@ -497,7 +512,7 @@
 									<div class="ceoTrendValue">
 										<fmt:formatNumber value="${empty item.value ? 0 : item.value}"
 											pattern="#,##0" />
-										EA
+										kg
 									</div>
 									<div class="ceoTrendLabel">${item.label}</div>
 								</div>
@@ -559,7 +574,7 @@
 									<div class="ceoTrendValue">
 										<fmt:formatNumber value="${empty item.value ? 0 : item.value}"
 											pattern="#,##0" />
-										EA
+										kg
 									</div>
 									<div class="ceoTrendLabel">${item.label}</div>
 								</div>
@@ -590,7 +605,7 @@
 									<div class="ceoTrendValue">
 										<fmt:formatNumber value="${empty item.value ? 0 : item.value}"
 											pattern="#,##0" />
-										원
+										원/kg
 									</div>
 									<div class="ceoTrendLabel">${item.label}</div>
 								</div>
@@ -606,4 +621,13 @@
 		</div>
 	</section>
 
+	<div class="ceoPageUpdate">
+		정보갱신일시 :
+		<c:choose>
+			<c:when test="${not empty baseDate}">
+				<fmt:formatDate value="${baseDate}" pattern="yyyy-MM-dd HH:mm" />
+			</c:when>
+			<c:otherwise>-</c:otherwise>
+		</c:choose>
+	</div>
 </div>
