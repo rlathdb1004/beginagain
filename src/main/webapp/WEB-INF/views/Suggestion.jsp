@@ -1,23 +1,92 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.List"%>
 <%@ page import="java.text.SimpleDateFormat"%>
+<%@ page import="java.lang.reflect.Method"%>
 <%@ page import="SUGGESTION.DTO.SuggestionDTO"%>
+<%@ page import="ANSWER.DTO.AnswerDTO"%>
+
+<%!private Object suInvokeGetter(Object target, String methodName) {
+		if (target == null)
+			return null;
+		try {
+			Method method = target.getClass().getMethod(methodName);
+			return method.invoke(target);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	private String suStringOrDash(Object value) {
+		if (value == null)
+			return "-";
+		String text = String.valueOf(value).trim();
+		return text.isEmpty() ? "-" : text;
+	}
+
+	private String suFormatDateTimeOrDash(Object value) {
+		if (value == null)
+			return "-";
+		if (value instanceof java.util.Date) {
+			return new SimpleDateFormat("yyyy-MM-dd HH:mm").format((java.util.Date) value);
+		}
+		String text = String.valueOf(value).trim();
+		return text.isEmpty() ? "-" : text;
+	}%>
 
 <%
 List<SuggestionDTO> suSuggestionList = (List<SuggestionDTO>) request.getAttribute("suggestionList");
 SuggestionDTO suSelectedSuggestion = (SuggestionDTO) request.getAttribute("selectedSuggestion");
+List<AnswerDTO> suAnswerList = (List<AnswerDTO>) request.getAttribute("answerList");
+AnswerDTO suSelectedAnswer = (AnswerDTO) request.getAttribute("selectedAnswer");
 
 String suKeyword = request.getAttribute("keyword") == null ? "" : String.valueOf(request.getAttribute("keyword"));
 String suStatus = request.getAttribute("status") == null ? "" : String.valueOf(request.getAttribute("status"));
 String suDeptCode = request.getAttribute("deptCode") == null ? "" : String.valueOf(request.getAttribute("deptCode"));
 String suMode = request.getAttribute("mode") == null ? "list" : String.valueOf(request.getAttribute("mode"));
 String suModal = request.getAttribute("modal") == null ? "" : String.valueOf(request.getAttribute("modal"));
+String suAnswerMode = request.getAttribute("answerMode") == null
+		? ""
+		: String.valueOf(request.getAttribute("answerMode"));
+String suEditAnswerIdParam = request.getParameter("editAnswerId") == null ? "" : request.getParameter("editAnswerId");
+long suEditAnswerId = 0L;
+try {
+	suEditAnswerId = Long.parseLong(suEditAnswerIdParam);
+} catch (Exception e) {
+	suEditAnswerId = 0L;
+}
+
+long suLoginEmpId = 0L;
+Object suLoginUserObj = session.getAttribute("loginUser");
+Object suLoginEmpIdObj = session.getAttribute("loginEmpId");
+Object suEmpIdObj = session.getAttribute("empId");
+
+if (suLoginUserObj != null) {
+	Object suLoginUserEmpId = suInvokeGetter(suLoginUserObj, "getEmpId");
+	if (suLoginUserEmpId instanceof Number) {
+		suLoginEmpId = ((Number) suLoginUserEmpId).longValue();
+	} else if (suLoginUserEmpId != null) {
+		try {
+	suLoginEmpId = Long.parseLong(String.valueOf(suLoginUserEmpId));
+		} catch (Exception e) {
+	suLoginEmpId = 0L;
+		}
+	}
+}
+
+if (suLoginEmpId <= 0L && suLoginEmpIdObj instanceof Number) {
+	suLoginEmpId = ((Number) suLoginEmpIdObj).longValue();
+}
+
+if (suLoginEmpId <= 0L && suEmpIdObj instanceof Number) {
+	suLoginEmpId = ((Number) suEmpIdObj).longValue();
+}
 
 int suSize = request.getAttribute("size") == null ? 10 : (Integer) request.getAttribute("size");
 int suCurrentPage = request.getAttribute("page") == null ? 1 : (Integer) request.getAttribute("page");
 int suTotalCount = request.getAttribute("totalCount") == null ? 0 : (Integer) request.getAttribute("totalCount");
 int suStartPage = request.getAttribute("startPage") == null ? 1 : (Integer) request.getAttribute("startPage");
 int suEndPage = request.getAttribute("endPage") == null ? 1 : (Integer) request.getAttribute("endPage");
+int suTotalPage = request.getAttribute("totalPage") == null ? 1 : (Integer) request.getAttribute("totalPage");
 
 String suContextPath = request.getContextPath();
 SimpleDateFormat suDateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -82,6 +151,12 @@ if (suSelectedSuggestion != null) {
 	background: #fff4ea;
 	color: #d96b00;
 	border: 1px solid #ffd7b2
+}
+
+.suBtnReplyAction {
+	background: #f5f9ff;
+	color: #0047AB;
+	border: 1px solid #d7e7ff
 }
 
 .suBtnRow {
@@ -273,13 +348,25 @@ textarea.suField {
 	height: 34px;
 	padding: 0 12px;
 	border: 1px solid #ccd7e3;
-	border-radius: 999px;
+	border-radius: 10px;
 	box-sizing: border-box;
 	background: #fff;
 	color: #344054;
 	text-decoration: none;
 	font-size: 13px;
 	font-weight: 500
+}
+
+.suViewBtn.suReplyBtn {
+	background: #f5f9ff;
+	border-color: #d7e7ff;
+	color: #0047AB
+}
+
+.suViewBtn.suReplyBtn:hover {
+	background: #e8f0ff;
+	border-color: #bfd6ff;
+	color: #003b8f
 }
 
 .suPagingWrap {
@@ -290,40 +377,87 @@ textarea.suField {
 	flex-wrap: wrap;
 	margin-top: 18px;
 	padding-top: 0;
+	font-family: inherit;
 }
 
 .suPagingBtn {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	min-width: 34px;
-	height: 34px;
+	min-width: 36px;
+	height: 36px;
 	padding: 0 10px;
 	border: 1px solid transparent;
-	border-radius: 10px;
+	border-radius: 12px;
 	box-sizing: border-box;
 	background: transparent;
 	color: #667085;
 	text-decoration: none;
-	font-size: 14px;
-	font-weight: 600;
+	font-size: 15px;
+	font-weight: 400;
 	line-height: 1;
 	cursor: pointer;
+	font-family: inherit;
+	transition: background-color 0.15s ease, color 0.15s ease, border-color
+		0.15s ease;
 }
 
-.suPagingBtn:hover {
+.suPagingBtn:hover:not(:disabled) {
 	color: #0047AB;
+	background: #f5f9ff;
 }
 
 .suPagingBtnActive {
-	background: #e9f1ff;
+	background: #e8f0ff;
 	color: #0047AB;
-	border-color: #d5e4ff;
+	border-color: #d4e3ff;
+	font-weight: 700;
 }
 
 .suPagingBtn:disabled {
 	color: #c0c7d1;
 	cursor: default;
+	pointer-events: none;
+	background: transparent;
+	border-color: transparent;
+}
+
+.suAnswerListWrap {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+
+.suAnswerItem {
+	padding: 18px;
+	border: 1px solid #e7edf4;
+	border-radius: 16px;
+	background: #fbfcfe;
+	box-sizing: border-box;
+}
+
+.suAnswerItemHeader {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 12px;
+}
+
+.suAnswerItemTitle {
+	font-size: 16px;
+	font-weight: 700;
+	color: #0A1E3C;
+}
+
+.suAnswerEmpty {
+	padding: 24px 18px;
+	border: 1px dashed #d6e0ea;
+	border-radius: 16px;
+	background: #fbfcfe;
+	font-size: 14px;
+	color: #98a2b3;
+	text-align: center;
 }
 
 .suStatusBadge {
@@ -543,6 +677,14 @@ textarea.suField {
 	font-weight: 600;
 	box-sizing: border-box;
 }
+/* 댓글 수정버튼 */
+.suCommentMiniBtn {
+	min-width: 72px;
+	height: 32px;
+	padding: 0 12px;
+	font-size: 13px;
+	border-radius: 16px;
+}
 
 @media ( max-width :900px) {
 	.suSearchRow, .suFormRow {
@@ -611,13 +753,163 @@ if ("detail".equals(suMode)) {
 		%>
 	</div>
 
-	<jsp:include page="/WEB-INF/views/Answer.jsp">
-		<jsp:param name="anViewMode" value="detail" />
-	</jsp:include>
+	<div class="suCard">
+		<h3 class="suModalSectionTitle" style="margin-bottom: 16px;">답글</h3>
+		<%
+		if (suAnswerList != null && !suAnswerList.isEmpty()) {
+		%>
+		<div class="suAnswerListWrap">
+			<%
+			for (AnswerDTO suAnswerDto : suAnswerList) {
+			%>
+			<%
+			String suAnswerWriterName = suStringOrDash(suInvokeGetter(suAnswerDto, "getWriterName"));
+			String suAnswerCreatedAt = suFormatDateTimeOrDash(suInvokeGetter(suAnswerDto, "getCreatedAt"));
+			%>
+			<%
+			Object suAnswerWriterEmpIdObj = suInvokeGetter(suAnswerDto, "getWriterEmpId");
+			long suAnswerWriterEmpId = 0L;
+			if (suAnswerWriterEmpIdObj instanceof Number) {
+				suAnswerWriterEmpId = ((Number) suAnswerWriterEmpIdObj).longValue();
+			} else if (suAnswerWriterEmpIdObj != null) {
+				try {
+					suAnswerWriterEmpId = Long.parseLong(String.valueOf(suAnswerWriterEmpIdObj));
+				} catch (Exception e) {
+					suAnswerWriterEmpId = 0L;
+				}
+			}
+			Object suAnswerIdObj = suInvokeGetter(suAnswerDto, "getAnswerId");
+			long suAnswerId = 0L;
+			if (suAnswerIdObj instanceof Number) {
+				suAnswerId = ((Number) suAnswerIdObj).longValue();
+			} else if (suAnswerIdObj != null) {
+				try {
+					suAnswerId = Long.parseLong(String.valueOf(suAnswerIdObj));
+				} catch (Exception e) {
+					suAnswerId = 0L;
+				}
+			}
+			boolean suCanEditOwnAnswer = suLoginEmpId > 0L && suLoginEmpId == suAnswerWriterEmpId;
+			boolean suIsEditTarget = suEditAnswerId == suAnswerId;
+			String suAnswerRemark = suInvokeGetter(suAnswerDto, "getRemark") == null
+					? ""
+					: String.valueOf(suInvokeGetter(suAnswerDto, "getRemark"));
+			%>
+			<div class="suAnswerItem" id="suAnswerItem-<%=suAnswerId%>">
+				<div class="suAnswerItemHeader">
+					<div class="suAnswerItemTitle">댓글</div>
+					<span
+						class="suStatusBadge <%="내림".equals(suAnswerDto.getStatus()) ? "suStatusReject" : "suStatusDone"%>"><%=suAnswerDto.getStatus() == null ? "등록" : suAnswerDto.getStatus()%></span>
+				</div>
+				<div class="suMeta" style="margin: 0 0 16px;">
+					<div class="suMetaItem">
+						<span class="suMetaLabel">작성자</span><span class="suMetaValue"><%=suAnswerWriterName%></span>
+					</div>
+					<div class="suMetaItem">
+						<span class="suMetaLabel">등록시간</span><span class="suMetaValue"><%=suAnswerCreatedAt%></span>
+					</div>
+				</div>
+				<div class="suContent"
+					style="min-height: auto; font-size: 15px; line-height: 1.9;"><%=suAnswerDto.getContent() == null ? "" : suAnswerDto.getContent()%></div>
+				<%
+				if (suCanEditOwnAnswer) {
+				%>
+				<div class="suAnswerActionRow">
+					<%
+					if (!suIsEditTarget) {
+					%>
+					<a
+						href="<%=suContextPath + "/suggestion/list?mode=detail&id=" + suSelectedSuggestion.getSuggestionId() + "&editAnswerId="
+		+ suAnswerId + "#suAnswerItem-" + suAnswerId%>"
+						class="suBtn suBtnReplyAction suCommentMiniBtn">댓글수정</a>
+					<%
+					}
+					%>
+				</div>
+				<%
+				}
+				%>
+				<%
+				if (suCanEditOwnAnswer && suIsEditTarget) {
+				%>
+				<form method="post"
+					action="<%=suContextPath + "/suggestion/answerUpdate"%>"
+					class="suAnswerEditForm">
+					<input type="hidden" name="answerId" value="<%=suAnswerId%>" /> <input
+						type="hidden" name="suggestionId"
+						value="<%=suSelectedSuggestion.getSuggestionId()%>" /> <input
+						type="hidden" name="status"
+						value="<%=suAnswerDto.getStatus() == null ? "등록" : suAnswerDto.getStatus()%>" />
+					<input type="hidden" name="remark" value="<%=suAnswerRemark%>" />
+					<div class="suFormRow" style="margin-top: 14px;">
+						<div class="suLabelBox">수정내용</div>
+						<div>
+							<textarea name="content" class="suField" required><%=suAnswerDto.getContent() == null ? "" : suAnswerDto.getContent()%></textarea>
+						</div>
+					</div>
+					<div class="suBtnRow"
+						style="margin-top: 12px; justify-content: flex-end;">
+						<a
+							href="<%=suContextPath + "/suggestion/list?mode=detail&id=" + suSelectedSuggestion.getSuggestionId() + "#suAnswerItem-"
+		+ suAnswerId%>"
+							class="suBtn suBtnGray">취소</a>
+						<button type="submit" class="suBtn suBtnReplyAction">수정저장</button>
+					</div>
+				</form>
+				<%
+				}
+				%>
+			</div>
+			<%
+			}
+			%>
+		</div>
+		<%
+		} else {
+		%>
+		<div class="suAnswerEmpty">아직 등록된 답글이 없습니다.</div>
+		<%
+		}
+		%>
+	</div>
+
+	<%
+	if (suSelectedSuggestion != null) {
+	%>
+	<div class="suCard" id="suAnswerWriteBox">
+		<form method="post"
+			action="<%=suContextPath + "/suggestion/answerInsert"%>">
+			<input type="hidden" name="suggestionId"
+				value="<%=suSelectedSuggestion.getSuggestionId()%>" /> <input
+				type="hidden" name="status" value="등록" />
+			<div class="suModalSection" style="margin-bottom: 0;">
+				<h4 class="suModalSectionTitle">댓글 작성</h4>
+				<div class="suFormRow">
+					<div class="suLabelBox">내용</div>
+					<div>
+						<textarea name="content" class="suField" required></textarea>
+					</div>
+				</div>
+				<div class="suBtnRow">
+					<a
+						href="<%=suContextPath + "/suggestion/list?mode=detail&id=" + suSelectedSuggestion.getSuggestionId()%>"
+						class="suBtn suBtnGray">취소</a>
+					<button type="submit"
+						class="suBtn suBtnReplyAction suCommentMiniBtn">댓글등록</button>
+				</div>
+			</div>
+		</form>
+	</div>
+	<%
+	}
+	%>
 
 	<div class="suDetailBottomBtnRow">
 		<a href="<%=suContextPath + "/suggestion/list"%>"
-			class="suBtn suBtnGray">목록</a> <a
+			class="suBtn suBtnGray">목록</a>
+		<!-- 		<a href="#suAnswerWriteBox" -->
+		<!-- 			class="suBtn suBtnReplyAction">댓글등록</a> -->
+		<a
 			href="<%=suContextPath + "/suggestion/list?mode=detail&id=" + suSelectedSuggestion.getSuggestionId()
 		+ "&modal=suProcess"%>"
 			class="suBtn suBtnPrimary">확인</a>
@@ -702,9 +994,81 @@ if ("detail".equals(suMode)) {
 						</div>
 					</div>
 
-					<jsp:include page="/WEB-INF/views/Answer.jsp">
-						<jsp:param name="anViewMode" value="process" />
-					</jsp:include>
+					<div class="suModalSection">
+						<h4 class="suModalSectionTitle">댓글 관리</h4>
+						<%
+						if (suAnswerList != null && !suAnswerList.isEmpty()) {
+						%>
+						<%
+						for (AnswerDTO suAnswerDto : suAnswerList) {
+						%>
+						<%
+						String suModalAnswerWriterName = suStringOrDash(suInvokeGetter(suAnswerDto, "getWriterName"));
+						String suModalAnswerCreatedAt = suFormatDateTimeOrDash(suInvokeGetter(suAnswerDto, "getCreatedAt"));
+						%>
+						<div class="suAnswerItem" style="margin-top: 12px;">
+							<div class="suMeta" style="margin: 0 0 14px;">
+								<div class="suMetaItem">
+									<span class="suMetaLabel">작성자</span><span class="suMetaValue"><%=suModalAnswerWriterName%></span>
+								</div>
+								<div class="suMetaItem">
+									<span class="suMetaLabel">등록시간</span><span class="suMetaValue"><%=suModalAnswerCreatedAt%></span>
+								</div>
+							</div>
+							<div class="suFormRow">
+								<div class="suLabelBox">상태</div>
+								<div>
+									<input type="text" class="suField"
+										value="<%=suAnswerDto.getStatus() == null ? "" : suAnswerDto.getStatus()%>"
+										readonly />
+								</div>
+							</div>
+							<div class="suFormRow">
+								<div class="suLabelBox">내용</div>
+								<div>
+									<textarea class="suField" readonly><%=suAnswerDto.getContent() == null ? "" : suAnswerDto.getContent()%></textarea>
+								</div>
+							</div>
+							<div class="suFormRow">
+								<div class="suLabelBox">비고</div>
+								<div>
+									<input type="text" class="suField"
+										value="<%=suAnswerDto.getRemark() == null ? "" : suAnswerDto.getRemark()%>"
+										readonly />
+								</div>
+							</div>
+							<div class="suBtnRow">
+								<form method="post"
+									action="<%=suContextPath + "/suggestion/answerHide"%>"
+									style="margin: 0;">
+									<input type="hidden" name="answerId"
+										value="<%=suAnswerDto.getAnswerId()%>" /> <input
+										type="hidden" name="suggestionId"
+										value="<%=suSelectedSuggestion.getSuggestionId()%>" />
+									<button type="submit" class="suBtn suBtnWarn">댓글내리기</button>
+								</form>
+								<form method="post"
+									action="<%=suContextPath + "/suggestion/answerDelete"%>"
+									style="margin: 0;" onsubmit="return confirm('댓글을 삭제하시겠습니까?');">
+									<input type="hidden" name="answerId"
+										value="<%=suAnswerDto.getAnswerId()%>" /> <input
+										type="hidden" name="suggestionId"
+										value="<%=suSelectedSuggestion.getSuggestionId()%>" />
+									<button type="submit" class="suBtn suBtnDanger">댓글삭제</button>
+								</form>
+							</div>
+						</div>
+						<%
+						}
+						%>
+						<%
+						} else {
+						%>
+						<div class="suAnswerEmpty">등록된 댓글이 없습니다.</div>
+						<%
+						}
+						%>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -783,6 +1147,7 @@ if ("detail".equals(suMode)) {
 						<th style="width: 110px;">작성자</th>
 						<th style="width: 90px;">조회수</th>
 						<th style="width: 120px;">작성일</th>
+						<th style="width: 110px;">댓글등록</th>
 						<th style="width: 100px;">상세</th>
 					</tr>
 				</thead>
@@ -791,7 +1156,7 @@ if ("detail".equals(suMode)) {
 					if (suSuggestionList == null || suSuggestionList.isEmpty()) {
 					%>
 					<tr>
-						<td colspan="8">조회된 건의사항이 없습니다.</td>
+						<td colspan="9">조회된 건의사항이 없습니다.</td>
 					</tr>
 					<%
 					} else {
@@ -818,6 +1183,9 @@ if ("detail".equals(suMode)) {
 						<td><%=suDto.getViewCount()%></td>
 						<td><%=suDto.getCreatedAt() == null ? "-" : suDateFormat.format(suDto.getCreatedAt())%></td>
 						<td><a
+							href="<%=suContextPath + "/suggestion/list?mode=detail&id=" + suDto.getSuggestionId() + "#suAnswerWriteBox"%>"
+							class="suViewBtn suReplyBtn">댓글등록</a></td>
+						<td><a
 							href="<%=suContextPath + "/suggestion/list?mode=detail&id=" + suDto.getSuggestionId()%>"
 							class="suViewBtn">상세</a></td>
 					</tr>
@@ -829,10 +1197,14 @@ if ("detail".equals(suMode)) {
 			</table>
 		</div>
 		<div class="suPagingWrap">
+			<button type="button" class="suPagingBtn" onclick="movePage(1)"
+				<%=suCurrentPage <= 1 ? "disabled=\"disabled\"" : ""%>>
+				&lt;&lt;</button>
+
 			<button type="button" class="suPagingBtn"
 				onclick="movePage(<%=suCurrentPage - 1%>)"
 				<%=suCurrentPage <= 1 ? "disabled=\"disabled\"" : ""%>>
-				&lt;&lt;</button>
+				&lt;</button>
 
 			<%
 			for (int suPageNo = suStartPage; suPageNo <= suEndPage; suPageNo++) {
@@ -848,7 +1220,12 @@ if ("detail".equals(suMode)) {
 
 			<button type="button" class="suPagingBtn"
 				onclick="movePage(<%=suCurrentPage + 1%>)"
-				<%=suCurrentPage >= ((Integer) request.getAttribute("totalPage")) ? "disabled=\"disabled\"" : ""%>>
+				<%=suCurrentPage >= suTotalPage ? "disabled=\"disabled\"" : ""%>>
+				&gt;</button>
+
+			<button type="button" class="suPagingBtn"
+				onclick="movePage(<%=suTotalPage%>)"
+				<%=suCurrentPage >= suTotalPage ? "disabled=\"disabled\"" : ""%>>
 				&gt;&gt;</button>
 		</div>
 	</div>
@@ -896,8 +1273,20 @@ if ("detail".equals(suMode)) {
 </div>
 <script>
 function movePage(suPage) {
+    var suTargetPage = suPage;
+    var suMinPage = 1;
+    var suMaxPage = <%=suTotalPage%>;
+
+    if (suTargetPage < suMinPage) {
+        suTargetPage = suMinPage;
+    }
+
+    if (suTargetPage > suMaxPage) {
+        suTargetPage = suMaxPage;
+    }
+
     sessionStorage.setItem("suggestionMoveToTable", "Y");
-    document.getElementById("suPage").value = suPage;
+    document.getElementById("suPage").value = suTargetPage;
     document.getElementById("suSearchForm").submit();
 }
 

@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
@@ -166,13 +166,13 @@
        게시판 카드
        ========================================= */
 .noBoardCard {
-    width: 100%;
-    padding: 0 18px 22px;
-    border: 1px solid #dbe3ec;
-    border-radius: 18px;
-    background: #ffffff;
-    box-sizing: border-box;
-    overflow: hidden;
+	width: 100%;
+	padding: 0 18px 22px;
+	border: 1px solid #dbe3ec;
+	border-radius: 18px;
+	background: #ffffff;
+	box-sizing: border-box;
+	overflow: hidden;
 }
 
 .noBoardCardTop {
@@ -313,50 +313,57 @@
    ========================================= */
 /* =========================================
    페이징
-   - << / 페이지번호 / >> 형태
-   - <<, >> 는 이전/다음 페이지 이동
+   - 공통 pagination.jsp 느낌으로 통일
    ========================================= */
 .noPagingWrap {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 18px;
-    padding-top: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	flex-wrap: wrap;
+	margin-top: 20px;
+	padding-top: 0;
 }
 
 .noPageBtn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 34px;
-    height: 34px;
-    padding: 0 10px;
-    border: 1px solid transparent;
-    border-radius: 10px;
-    box-sizing: border-box;
-    background: transparent;
-    color: #667085;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 1;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 36px;
+	height: 36px;
+	padding: 0 10px;
+	border: 1px solid transparent;
+	border-radius: 12px;
+	box-sizing: border-box;
+	background: transparent;
+	color: #667085;
+	text-decoration: none;
+	font-size: 15px;
+	font-weight: 500;
+	line-height: 1;
+	cursor: pointer;
+	transition: background-color 0.15s ease, color 0.15s ease, border-color
+		0.15s ease;
 }
 
-.noPageBtn:hover {
-    color: #0047AB;
+.noPageBtn:hover:not(:disabled) {
+	color: #0047AB;
+	background: #f5f9ff;
 }
 
 .noPageBtn.noPageActive {
-    background: #e9f1ff;
-    color: #0047AB;
-    border-color: #d5e4ff;
+	background: #e8f0ff;
+	color: #0047AB;
+	border-color: #d4e3ff;
+	font-weight: 700;
 }
 
-.noPageBtn.noPageDisabled {
-    color: #c0c7d1;
-    pointer-events: none;
+.noPageBtn:disabled, .noPageBtn.noPageDisabled {
+	color: #c0c7d1;
+	cursor: default;
+	pointer-events: none;
+	background: transparent;
+	border-color: transparent;
 }
 
 /* =========================================
@@ -451,15 +458,15 @@
 }
 
 .noFormRowTop .noFormLabel {
-    min-height: 40px;
-    height: 40px;
-    align-self: start;
+	min-height: 40px;
+	height: 40px;
+	align-self: start;
 }
 
 .noContentLabel {
-    min-height: 40px;
-    height: 40px;
-    align-self: start;
+	min-height: 40px;
+	height: 40px;
+	align-self: start;
 }
 
 .noFormControl {
@@ -489,8 +496,8 @@
 }
 
 .noPageBtn:disabled {
-    color: #c0c7d1;
-    cursor: default;
+	color: #c0c7d1;
+	cursor: default;
 }
 
 @media ( max-width : 1200px) {
@@ -516,15 +523,12 @@
 		<button type="button" class="noBtn noBtnPrimary"
 			onclick="noOpenRegisterModal()">등록</button>
 	</div>
-	
+
 	<!-- 검색 -->
-	<form
-		action="${pageContext.request.contextPath}/notice"
-    method="get"
-    class="noFilterCard"
-    id="noSearchForm">
-    <input type="hidden" name="action" value="list">
-    <input type="hidden" name="page" id="noPage" value="${noCurrentPage}">
+	<form action="${pageContext.request.contextPath}/notice" method="get"
+		class="noFilterCard" id="noSearchForm">
+		<input type="hidden" name="action" value="list"> <input
+			type="hidden" name="page" id="noPage" value="${noCurrentPage}">
 
 		<div class="noFilterGrid">
 			<div class="noFilterItem">
@@ -579,7 +583,7 @@
 	</form>
 
 	<!-- 게시판 카드 -->
-	<div class="noBoardCard" id="noTableBox" >
+	<div class="noBoardCard" id="noTableBox">
 		<div class="noBoardCardTop">
 			<div class="noTotalCountText">
 				총 <span>${noTotalCount}</span>건
@@ -626,8 +630,7 @@
 
 									<td class="noTitleTd"><a class="noTitleLink"
 										href="${pageContext.request.contextPath}/notice?action=detail&noticeId=${noNotice.noticeId}&page=${noCurrentPage}&searchType=${noSearchType}&keyword=${noKeyword}&statusFilter=${noStatusFilter}#noNoticeSection"
-										title="${noNotice.title}">
-											${noNotice.title} </a></td>
+										title="${noNotice.title}"> ${noNotice.title} </a></td>
 
 									<td>-</td>
 									<td>${noNotice.writerName}</td>
@@ -645,29 +648,39 @@
 			</table>
 		</div>
 
-<div class="noPagingWrap">
-    <button type="button"
-            class="noPageBtn"
-            onclick="noMovePage(${noCurrentPage - 1})"
-            <c:if test="${noCurrentPage <= 1}">disabled="disabled"</c:if>>
-        &lt;&lt;
-    </button>
+		<div class="noPagingWrap">
 
-    <c:forEach begin="${noStartPage}" end="${noEndPage}" var="noPageNo">
-        <button type="button"
-                class="noPageBtn ${noPageNo == noCurrentPage ? 'noPageActive' : ''}"
-                onclick="noMovePage(${noPageNo})">
-            ${noPageNo}
-        </button>
-    </c:forEach>
+			<!-- 이전 블록 -->
+			<button type="button" class="noPageBtn" onclick="noMovePage(1)"
+				<c:if test="${noCurrentPage <= 1}">disabled="disabled"</c:if>>
+				&lt;&lt;</button>
 
-    <button type="button"
-            class="noPageBtn"
-            onclick="noMovePage(${noCurrentPage + 1})"
-            <c:if test="${noCurrentPage >= noTotalPage}">disabled="disabled"</c:if>>
-        &gt;&gt;
-    </button>
-</div>
+			<!-- 이전 페이지 -->
+			<button type="button" class="noPageBtn"
+				onclick="noMovePage(${noCurrentPage - 1})"
+				<c:if test="${noCurrentPage <= 1}">disabled="disabled"</c:if>>
+				&lt;</button>
+
+			<!-- 페이지 번호 -->
+			<c:forEach begin="${noStartPage}" end="${noEndPage}" var="noPageNo">
+				<button type="button"
+					class="noPageBtn ${noPageNo == noCurrentPage ? 'noPageActive' : ''}"
+					onclick="noMovePage(${noPageNo})">${noPageNo}</button>
+			</c:forEach>
+
+			<!-- 다음 페이지 -->
+			<button type="button" class="noPageBtn"
+				onclick="noMovePage(${noCurrentPage + 1})"
+				<c:if test="${noCurrentPage >= noTotalPage}">disabled="disabled"</c:if>>
+				&gt;</button>
+
+			<!-- 다음 블록 -->
+			<button type="button" class="noPageBtn"
+				onclick="noMovePage(${noTotalPage})"
+				<c:if test="${noCurrentPage >= noTotalPage}">disabled="disabled"</c:if>>
+				&gt;&gt;</button>
+
+		</div>
 	</div>
 </div>
 
@@ -894,11 +907,23 @@
 			});
 		}
 	});
-    function noMovePage(noPageValue) {
-        sessionStorage.setItem("noticeMoveToTable", "Y");
-        document.getElementById("noPage").value = noPageValue;
-        document.getElementById("noSearchForm").submit();
-    }
+	function noMovePage(noPageValue) {
+	    var noTargetPage = noPageValue;
+	    var noMinPage = 1;
+	    var noMaxPage = ${noTotalPage};
+
+	    if (noTargetPage < noMinPage) {
+	        noTargetPage = noMinPage;
+	    }
+
+	    if (noTargetPage > noMaxPage) {
+	        noTargetPage = noMaxPage;
+	    }
+
+	    sessionStorage.setItem("noticeMoveToTable", "Y");
+	    document.getElementById("noPage").value = noTargetPage;
+	    document.getElementById("noSearchForm").submit();
+	}
 
     document.addEventListener("DOMContentLoaded", function() {
         var noDetailModal = document.getElementById("noDetailModal");
