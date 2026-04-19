@@ -686,6 +686,22 @@ textarea.suField {
 	border-radius: 16px;
 }
 
+/* 댓글취소버튼 */
+.suCommentCancelBtn,
+.suCommentCancelBtn:visited {
+	background: #ffffff;
+	border: 1px solid #d7e7ff;
+	color: #0047AB;
+	text-decoration: none;
+}
+
+.suCommentCancelBtn:hover {
+	background: #f8fbff;
+	border-color: #bfd6ff;
+	color: #003b8f;
+	text-decoration: none;
+}
+
 @media ( max-width :900px) {
 	.suSearchRow, .suFormRow {
 		grid-template-columns: 1fr
@@ -852,7 +868,7 @@ if ("detail".equals(suMode)) {
 						<a
 							href="<%=suContextPath + "/suggestion/list?mode=detail&id=" + suSelectedSuggestion.getSuggestionId() + "#suAnswerItem-"
 		+ suAnswerId%>"
-							class="suBtn suBtnGray">취소</a>
+							class="ssuBtn suCommentMiniBtn suCommentCancelBtn">취소</a>
 						<button type="submit" class="suBtn suBtnReplyAction">수정저장</button>
 					</div>
 				</form>
@@ -893,7 +909,7 @@ if ("detail".equals(suMode)) {
 				<div class="suBtnRow">
 					<a
 						href="<%=suContextPath + "/suggestion/list?mode=detail&id=" + suSelectedSuggestion.getSuggestionId()%>"
-						class="suBtn suBtnGray">취소</a>
+						class="suBtn suCommentMiniBtn suCommentCancelBtn">취소</a>
 					<button type="submit"
 						class="suBtn suBtnReplyAction suCommentMiniBtn">댓글등록</button>
 				</div>
@@ -1262,7 +1278,7 @@ if ("detail".equals(suMode)) {
 						</div>
 						<div class="suBtnRow">
 							<a href="<%=suContextPath + "/suggestion/list"%>"
-								class="suBtn suBtnGray">취소</a>
+								class="suBtn suCommentMiniBtn suCommentCancelBtn">취소</a>
 							<button type="submit" class="suBtn suBtnPrimary">등록</button>
 						</div>
 					</form>
