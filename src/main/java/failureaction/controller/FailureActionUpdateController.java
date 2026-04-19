@@ -27,37 +27,34 @@ public class FailureActionUpdateController extends HttpServlet {
         int failureActionId = Integer.parseInt(request.getParameter("failureActionId"));
         int maintenanceId = Integer.parseInt(request.getParameter("maintenanceId"));
 
-        String failureDateStr = request.getParameter("failureDate");
-        String failurePart = request.getParameter("failurePart");
-        String failureContent = request.getParameter("failureContent");
-        String causeText = request.getParameter("causeText");
-        String actionText = request.getParameter("actionText");
-        String actionDateStr = request.getParameter("actionDate");
-        String status = request.getParameter("status");
+        try {
+            String failureDateStr = request.getParameter("failureDate");
+            String failurePart = request.getParameter("failurePart");
+            String failureContent = request.getParameter("failureContent");
+            String causeText = request.getParameter("causeText");
+            String actionText = request.getParameter("actionText");
+            String actionDateStr = request.getParameter("actionDate");
+            String status = request.getParameter("status");
 
-        Date failureDate = null;
-        if (failureDateStr != null && !"".equals(failureDateStr.trim())) {
-            failureDate = Date.valueOf(failureDateStr);
+            Date failureDate = (failureDateStr != null && !"".equals(failureDateStr.trim())) ? Date.valueOf(failureDateStr) : null;
+            Date actionDate = (actionDateStr != null && !"".equals(actionDateStr.trim())) ? Date.valueOf(actionDateStr) : null;
+
+            FailureActionDTO dto = new FailureActionDTO();
+            dto.setFailureActionId(failureActionId);
+            dto.setMaintenanceId(maintenanceId);
+            dto.setFailureDate(failureDate);
+            dto.setFailurePart(failurePart);
+            dto.setFailureContent(failureContent);
+            dto.setCauseText(causeText);
+            dto.setActionText(actionText);
+            dto.setActionDate(actionDate);
+            dto.setStatus(status);
+
+            failureActionService.updateFailureAction(dto);
+        } catch (Exception e) {
+            request.getSession().setAttribute("errorMsg", e.getMessage());
         }
 
-        Date actionDate = null;
-        if (actionDateStr != null && !"".equals(actionDateStr.trim())) {
-            actionDate = Date.valueOf(actionDateStr);
-        }
-
-        FailureActionDTO dto = new FailureActionDTO();
-        dto.setFailureActionId(failureActionId);
-        dto.setMaintenanceId(maintenanceId);
-        dto.setFailureDate(failureDate);
-        dto.setFailurePart(failurePart);
-        dto.setFailureContent(failureContent);
-        dto.setCauseText(causeText);
-        dto.setActionText(actionText);
-        dto.setActionDate(actionDate);
-        dto.setStatus(status);
-
-        failureActionService.updateFailureAction(dto);
-
-        response.sendRedirect(request.getContextPath() + "/maintenance/detail?maintenanceId=" + maintenanceId);
+        response.sendRedirect(request.getContextPath() + "/failureaction/detail?failureActionId=" + failureActionId);
     }
 }

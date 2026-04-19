@@ -5,12 +5,18 @@ import java.sql.Date;
 public class ProdPerfRegInqDTO {
     private int seqNO;
     private int workOrderId;
+    private int planId;
     private String workOrderNo;
     private Date workDate;
     private Date resultDate;
     private String itemCode;
     private String itemName;
     private String unit;
+    private int planQty;
+    private int workQty;
+    private int currentProducedSum;
+    private int currentLossSum;
+    private int remainingQty;
     private int producedQty;
     private int lossQty;
     private String lineCode;
@@ -22,6 +28,8 @@ public class ProdPerfRegInqDTO {
     public void setSeqNO(int seqNO) { this.seqNO = seqNO; }
     public int getWorkOrderId() { return workOrderId; }
     public void setWorkOrderId(int workOrderId) { this.workOrderId = workOrderId; }
+    public int getPlanId() { return planId; }
+    public void setPlanId(int planId) { this.planId = planId; }
     public String getWorkOrderNo() { return workOrderNo; }
     public void setWorkOrderNo(String workOrderNo) { this.workOrderNo = workOrderNo; }
     public Date getWorkDate() { return workDate; }
@@ -34,6 +42,16 @@ public class ProdPerfRegInqDTO {
     public void setItemName(String itemName) { this.itemName = itemName; }
     public String getUnit() { return unit; }
     public void setUnit(String unit) { this.unit = unit; }
+    public int getPlanQty() { return planQty; }
+    public void setPlanQty(int planQty) { this.planQty = planQty; }
+    public int getWorkQty() { return workQty; }
+    public void setWorkQty(int workQty) { this.workQty = workQty; }
+    public int getCurrentProducedSum() { return currentProducedSum; }
+    public void setCurrentProducedSum(int currentProducedSum) { this.currentProducedSum = currentProducedSum; }
+    public int getCurrentLossSum() { return currentLossSum; }
+    public void setCurrentLossSum(int currentLossSum) { this.currentLossSum = currentLossSum; }
+    public int getRemainingQty() { return remainingQty; }
+    public void setRemainingQty(int remainingQty) { this.remainingQty = remainingQty; }
     public int getProducedQty() { return producedQty; }
     public void setProducedQty(int producedQty) { this.producedQty = producedQty; }
     public int getLossQty() { return lossQty; }

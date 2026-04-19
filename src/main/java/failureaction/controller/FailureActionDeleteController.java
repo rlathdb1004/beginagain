@@ -19,16 +19,16 @@ public class FailureActionDeleteController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         request.setCharacterEncoding("UTF-8");
-
-        String[] failureActionIds = request.getParameterValues("failureActionId");
-        int maintenanceId = Integer.parseInt(request.getParameter("maintenanceId"));
-
-        if (failureActionIds != null && failureActionIds.length > 0) {
-            failureActionService.deleteFailureAction(failureActionIds);
+        String maintenanceId = request.getParameter("maintenanceId");
+        try {
+            String[] failureActionIds = request.getParameterValues("failureActionId");
+            if (failureActionIds != null && failureActionIds.length > 0) {
+                failureActionService.deleteFailureAction(failureActionIds);
+            }
+        } catch (Exception e) {
+            request.getSession().setAttribute("errorMsg", e.getMessage());
         }
-
         response.sendRedirect(request.getContextPath() + "/maintenance/detail?maintenanceId=" + maintenanceId);
     }
 }

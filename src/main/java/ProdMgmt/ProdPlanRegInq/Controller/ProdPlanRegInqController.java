@@ -22,7 +22,6 @@ public class ProdPlanRegInqController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         request.setCharacterEncoding("utf-8");
         response.setContentType("text/html;charset=utf-8");
 
@@ -31,14 +30,12 @@ public class ProdPlanRegInqController extends HttpServlet {
             detail(request, response);
             return;
         }
-
         forwardList(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         request.setCharacterEncoding("utf-8");
         response.setContentType("text/html;charset=utf-8");
 
@@ -55,7 +52,6 @@ public class ProdPlanRegInqController extends HttpServlet {
             delete(request, response);
             return;
         }
-
         doGet(request, response);
     }
 
@@ -86,7 +82,7 @@ public class ProdPlanRegInqController extends HttpServlet {
 
         int startRow = (page - 1) * pageSize + 1;
         int endRow = page * pageSize;
-        List<ProdPlanRegInqDTO> list = new ArrayList<>();
+        List<ProdPlanRegInqDTO> list = new ArrayList<ProdPlanRegInqDTO>();
         list = service.getListByPage(startDate, endDate, searchType, keyword, startRow, endRow);
 
         int startPage = ((page - 1) / pageBlock) * pageBlock + 1;
@@ -131,38 +127,52 @@ public class ProdPlanRegInqController extends HttpServlet {
     private void register(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         ProdPlanRegInqDTO dto = new ProdPlanRegInqDTO();
-        dto.setPlanCode(request.getParameter("planCode"));
+        dto.setItemId(parseInt(request.getParameter("itemId")));
         String planDate = request.getParameter("planDate");
         if (planDate != null && !planDate.trim().equals("")) dto.setPlanDate(Date.valueOf(planDate));
         dto.setPlanAmount(parseInt(request.getParameter("planAmount")));
         dto.setPlanLine(request.getParameter("planLine"));
         dto.setStatus(request.getParameter("status"));
         dto.setMemo(request.getParameter("memo"));
-        new ProdPlanRegInqService().insert(dto);
-        response.sendRedirect(request.getContextPath() + "/prodplan");
-    }
 
+        try {
+            new ProdPlanRegInqService().insert(dto);
+            response.sendRedirect(request.getContextPath() + "/prodplan");
+        } catch (Exception e) {
+            alertBack(response, e.getMessage());
+        }
+    }
 
     private void update(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         ProdPlanRegInqDTO dto = new ProdPlanRegInqDTO();
         dto.setSeqNO(parseInt(request.getParameter("seqNO")));
-        dto.setPlanCode(request.getParameter("planCode"));
+        dto.setItemId(parseInt(request.getParameter("itemId")));
         String planDate = request.getParameter("planDate");
         if (planDate != null && !planDate.trim().equals("")) dto.setPlanDate(Date.valueOf(planDate));
         dto.setPlanAmount(parseInt(request.getParameter("planAmount")));
         dto.setPlanLine(request.getParameter("planLine"));
         dto.setStatus(request.getParameter("status"));
         dto.setMemo(request.getParameter("memo"));
-        new ProdPlanRegInqService().update(dto);
-        response.sendRedirect(request.getContextPath() + "/prodplan?seqNO=" + dto.getSeqNO());
+
+        try {
+            new ProdPlanRegInqService().update(dto);
+            response.sendRedirect(request.getContextPath() + "/prodplan?seqNO=" + dto.getSeqNO());
+        } catch (Exception e) {
+            alertBack(response, e.getMessage());
+        }
     }
 
     private void delete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         ProdPlanRegInqService service = new ProdPlanRegInqService();
         String[] seqNos = request.getParameterValues("seqNO");
-        service.deleteByIds(seqNos);
+        try {
+            service.deleteByIds(seqNos);
+        } catch (Exception e) {
+            alertBack(response, e.getMessage());
+            return;
+        }
 
         String page = nvl(request.getParameter("page"));
         String searched = nvl(request.getParameter("searched"));
@@ -179,6 +189,16 @@ public class ProdPlanRegInqController extends HttpServlet {
                 + "&searchType=" + URLEncoder.encode(searchType, "UTF-8")
                 + "&keyword=" + URLEncoder.encode(keyword, "UTF-8");
         response.sendRedirect(redirectUrl);
+    }
+
+    private void alertBack(HttpServletResponse response, String message) throws IOException {
+        response.setContentType("text/html; charset=UTF-8");
+        response.getWriter().write("<script>alert('" + escapeJs(message) + "');history.back();</script>");
+    }
+
+    private String escapeJs(String str) {
+        if (str == null) return "오류가 발생했습니다.";
+        return str.replace("\\", "\\\\").replace("'", "\\'").replace("\r", " ").replace("\n", " ");
     }
 
     private int parseInt(String str) {

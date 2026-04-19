@@ -10,6 +10,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import WorkMgmt.WORegInq.DTO.WORegInqDTO;
 import WorkMgmt.WORegInq.Service.WORegInqService;
@@ -27,8 +28,6 @@ public class WORegInqController extends HttpServlet {
 
         WORegInqService service = new WORegInqService();
 
-        String searched = nvl(request.getParameter("searched"));
-
         String startDate = nvl(request.getParameter("startDate"));
         String endDate = nvl(request.getParameter("endDate"));
         String searchType = nvl(request.getParameter("searchType"));
@@ -40,45 +39,27 @@ public class WORegInqController extends HttpServlet {
 
         String pageParam = request.getParameter("page");
         if (pageParam != null && !pageParam.trim().equals("")) {
-            try {
-                page = Integer.parseInt(pageParam);
-            } catch (Exception e) {
-                page = 1;
-            }
+            try { page = Integer.parseInt(pageParam); } catch (Exception e) { page = 1; }
         }
 
-        int totalCount = 0;
-        int totalPage = 1;
-        int startPage = 1;
-        int endPage = 1;
-        List<WORegInqDTO> list = new ArrayList<>();
-
-        // 처음 진입해도 전체 목록 조회
-        totalCount = service.getTotalCount(startDate, endDate, searchType, keyword);
-
-        totalPage = (int) Math.ceil((double) totalCount / pageSize);
-        if (totalPage == 0) {
-            totalPage = 1;
-        }
-
-        if (page < 1) {
-            page = 1;
-        }
-        if (page > totalPage) {
-            page = totalPage;
-        }
+        int totalCount = service.getTotalCount(startDate, endDate, searchType, keyword);
+        int totalPage = (int) Math.ceil((double) totalCount / pageSize);
+        if (totalPage == 0) totalPage = 1;
+        if (page < 1) page = 1;
+        if (page > totalPage) page = totalPage;
 
         int startRow = (page - 1) * pageSize + 1;
         int endRow = page * pageSize;
-
+        List<WORegInqDTO> list = new ArrayList<WORegInqDTO>();
         list = service.getListByPage(startDate, endDate, searchType, keyword, startRow, endRow);
 
-        startPage = ((page - 1) / pageBlock) * pageBlock + 1;
-        endPage = startPage + pageBlock - 1;
+        int startPage = ((page - 1) / pageBlock) * pageBlock + 1;
+        int endPage = startPage + pageBlock - 1;
+        if (endPage > totalPage) endPage = totalPage;
 
-        if (endPage > totalPage) {
-            endPage = totalPage;
-        }
+        HttpSession session = request.getSession();
+        request.setAttribute("errorMsg", session.getAttribute("errorMsg"));
+        session.removeAttribute("errorMsg");
 
         request.setAttribute("list", list);
         request.setAttribute("planOptions", service.getPlanOptions());
@@ -113,12 +94,15 @@ public class WORegInqController extends HttpServlet {
         response.setContentType("text/html;charset=utf-8");
 
         WORegInqService service = new WORegInqService();
-
         String cmd = request.getParameter("cmd");
 
         if ("delete".equals(cmd)) {
             String[] seqNos = request.getParameterValues("seqNO");
-            service.deleteByIds(seqNos);
+            try {
+                service.deleteByIds(seqNos);
+            } catch (IllegalArgumentException e) {
+                request.getSession().setAttribute("errorMsg", e.getMessage());
+            }
 
             String page = nvl(request.getParameter("page"));
             String searched = nvl(request.getParameter("searched"));
@@ -127,15 +111,13 @@ public class WORegInqController extends HttpServlet {
             String searchType = nvl(request.getParameter("searchType"));
             String keyword = nvl(request.getParameter("keyword"));
 
-            String redirectUrl =
-                    request.getContextPath() + "/woreginq"
+            String redirectUrl = request.getContextPath() + "/woreginq"
                     + "?searched=" + URLEncoder.encode(searched, "UTF-8")
                     + "&page=" + URLEncoder.encode(page, "UTF-8")
                     + "&startDate=" + URLEncoder.encode(startDate, "UTF-8")
                     + "&endDate=" + URLEncoder.encode(endDate, "UTF-8")
                     + "&searchType=" + URLEncoder.encode(searchType, "UTF-8")
                     + "&keyword=" + URLEncoder.encode(keyword, "UTF-8");
-
             response.sendRedirect(redirectUrl);
             return;
         }

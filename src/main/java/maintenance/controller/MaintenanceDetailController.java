@@ -8,6 +8,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import failureaction.dto.FailureActionDTO;
 import failureaction.service.FailureActionService;
@@ -16,38 +17,46 @@ import maintenance.service.MaintenanceService;
 
 @WebServlet("/maintenance/detail")
 public class MaintenanceDetailController extends HttpServlet {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private MaintenanceService maintenanceService = new MaintenanceService();
-	private FailureActionService failureActionService = new FailureActionService();
+    private MaintenanceService maintenanceService = new MaintenanceService();
+    private FailureActionService failureActionService = new FailureActionService();
 
-	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
-		String maintenanceIdStr = request.getParameter("maintenanceId");
+        String maintenanceIdStr = request.getParameter("maintenanceId");
 
-		if (maintenanceIdStr == null || "".equals(maintenanceIdStr)) {
-			response.sendRedirect(request.getContextPath() + "/maintenance/list");
-			return;
-		}
+        if (maintenanceIdStr == null || "".equals(maintenanceIdStr)) {
+            response.sendRedirect(request.getContextPath() + "/maintenance/list");
+            return;
+        }
 
-		int maintenanceId = Integer.parseInt(maintenanceIdStr);
-		MaintenanceDTO maintenance = maintenanceService.getMaintenanceById(maintenanceId);
+        int maintenanceId = Integer.parseInt(maintenanceIdStr);
+        MaintenanceDTO maintenance = maintenanceService.getMaintenanceById(maintenanceId);
 
-		if (maintenance == null) {
-			response.sendRedirect(request.getContextPath() + "/maintenance/list");
-			return;
-		}
+        if (maintenance == null) {
+            response.sendRedirect(request.getContextPath() + "/maintenance/list");
+            return;
+        }
 
-		List<FailureActionDTO> failureActionList = failureActionService
-				.getFailureActionListByMaintenanceId(maintenanceId);
+        List<FailureActionDTO> failureActionList = failureActionService.getFailureActionListByMaintenanceId(maintenanceId);
 
-		request.setAttribute("maintenance", maintenance);
-		request.setAttribute("failureActionList", failureActionList);
-		request.setAttribute("pageTitle", "설비운영");
-		request.setAttribute("pageSubTitle", "정비이력 상세 / 수정");
-		request.setAttribute("contentPage", "/WEB-INF/views/maintenance/maintenanceDetail.jsp");
-		request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
-	}
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            Object errorMsg = session.getAttribute("errorMsg");
+            if (errorMsg != null) {
+                request.setAttribute("errorMsg", errorMsg);
+                session.removeAttribute("errorMsg");
+            }
+        }
+
+        request.setAttribute("maintenance", maintenance);
+        request.setAttribute("failureActionList", failureActionList);
+        request.setAttribute("pageTitle", "설비운영");
+        request.setAttribute("pageSubTitle", "정비이력 상세 / 수정");
+        request.setAttribute("contentPage", "/WEB-INF/views/maintenance/maintenanceDetail.jsp");
+        request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
+    }
 }

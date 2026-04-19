@@ -50,6 +50,12 @@ public class RoutingDetailController extends HttpServlet {
         List<ProcessDTO> processList = processService.getList();
         List<EquipmentDTO> equipmentList = equipmentService.getEquipmentList();
 
+
+        Object errorMessage = request.getSession().getAttribute("errorMessage");
+        if (errorMessage != null) {
+            request.setAttribute("errorMessage", errorMessage);
+            request.getSession().removeAttribute("errorMessage");
+        }
         request.setAttribute("routing", routing);
         request.setAttribute("itemList", itemList);
         request.setAttribute("processList", processList);

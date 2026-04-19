@@ -32,7 +32,11 @@ public class RoutingRegisterController extends HttpServlet {
         dto.setProcessSeq(Integer.parseInt(request.getParameter("processSeq")));
         dto.setRemark(request.getParameter("remark"));
 
-        routingService.insertRouting(dto);
+        try {
+            routingService.insertRouting(dto);
+        } catch (RuntimeException e) {
+            request.getSession().setAttribute("errorMessage", e.getMessage());
+        }
 
         response.sendRedirect(request.getContextPath() + "/routing/list?itemId=" + itemId);
     }

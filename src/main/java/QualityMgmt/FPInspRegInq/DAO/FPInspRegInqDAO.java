@@ -12,309 +12,246 @@ import javax.sql.DataSource;
 
 import QualityMgmt.FPInspRegInq.DTO.FPInspRegInqDTO;
 
-/*
- * 완제품 검사 등록 / 조회 DAO
- * 
- * FINAL_INSPECTION
- *   -> PRODUCTION_RESULT
- *   -> WORK_ORDER
- *   -> PRODUCTION_PLAN
- *   -> ITEM
- * 
- * 주의:
- * FINAL_INSPECTION 테이블의 실제 컬럼명은 RESULT가 아니라 STATUS 이다.
- * 그래서 SQL에서는 STATUS를 조회하고,
- * DTO / JSP에서는 기존 result 필드를 그대로 쓰기 위해
- * AS RESULT 별칭을 사용한다.
- */
 public class FPInspRegInqDAO {
 
-    // =========================
-    // 1. 완제품 검사 목록 조회
-    // =========================
+    private Connection getConnection() throws Exception {
+        Context ctx = new InitialContext();
+        DataSource dataFactory = (DataSource) ctx.lookup("java:/comp/env/jdbc/oracle");
+        return dataFactory.getConnection();
+    }
+
     public List<FPInspRegInqDTO> selectFPInspRegInqList(FPInspRegInqDTO searchDTO) {
+        List<FPInspRegInqDTO> list = new ArrayList<>();
+        Connection conn = null; PreparedStatement ps = null; ResultSet rs = null;
+        try {
+            conn = getConnection();
+            StringBuilder query = new StringBuilder();
+            query.append(" SELECT fi.FINAL_INSPECTION_ID, fi.RESULT_ID, fi.EMP_ID, pr.WORK_ORDER_ID, pp.ITEM_ID, i.ITEM_CODE, i.ITEM_NAME, pr.LOT_NO, ");
+            query.append("        NVL(pr.PRODUCED_QTY,0) AS PRODUCED_QTY, fi.INSPECT_QTY, fi.STATUS AS RESULT, fi.INSPECTION_DATE, fi.REMARK, fi.CREATED_AT, fi.UPDATED_AT ");
+            query.append("   FROM FINAL_INSPECTION fi ");
+            query.append("   JOIN PRODUCTION_RESULT pr ON fi.RESULT_ID = pr.RESULT_ID ");
+            query.append("   JOIN WORK_ORDER wo ON pr.WORK_ORDER_ID = wo.WORK_ORDER_ID ");
+            query.append("   JOIN PRODUCTION_PLAN pp ON wo.PLAN_ID = pp.PLAN_ID ");
+            query.append("   JOIN ITEM i ON pp.ITEM_ID = i.ITEM_ID ");
+            query.append("  WHERE fi.USE_YN = 'Y' ");
+            List<Object> params = new ArrayList<>();
+            if (searchDTO.getResultType() != null && !"".equals(searchDTO.getResultType().trim()) && !"전체".equals(searchDTO.getResultType())) {
+                query.append(" AND fi.STATUS = ? "); params.add(searchDTO.getResultType());
+            }
+            if (searchDTO.getStartDate() != null) { query.append(" AND TRUNC(fi.INSPECTION_DATE) >= ? "); params.add(searchDTO.getStartDate()); }
+            if (searchDTO.getEndDate() != null) { query.append(" AND TRUNC(fi.INSPECTION_DATE) <= ? "); params.add(searchDTO.getEndDate()); }
+            String searchType = searchDTO.getSearchType();
+            String keyword = searchDTO.getKeyword();
+            if (keyword != null && !"".equals(keyword.trim())) {
+                String like = "%" + keyword.trim() + "%";
+                if ("itemCode".equals(searchType)) { query.append(" AND i.ITEM_CODE LIKE ? "); params.add(like); }
+                else if ("itemName".equals(searchType)) { query.append(" AND i.ITEM_NAME LIKE ? "); params.add(like); }
+                else { query.append(" AND (i.ITEM_CODE LIKE ? OR i.ITEM_NAME LIKE ?) "); params.add(like); params.add(like); }
+            }
+            query.append(" ORDER BY fi.FINAL_INSPECTION_ID DESC ");
+            ps = conn.prepareStatement(query.toString());
+            for (int i = 0; i < params.size(); i++) ps.setObject(i + 1, params.get(i));
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                FPInspRegInqDTO dto = new FPInspRegInqDTO();
+                mapBase(rs, dto);
+                list.add(dto);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        finally { close(rs, ps, conn); }
+        return list;
+    }
 
-        List<FPInspRegInqDTO> list = new ArrayList<FPInspRegInqDTO>();
+    public FPInspRegInqDTO selectFPInspRegInqOne(int finalInspectionId) {
+        FPInspRegInqDTO dto = null;
+        Connection conn = null; PreparedStatement ps = null; ResultSet rs = null;
+        try {
+            conn = getConnection();
+            String sql = "SELECT fi.FINAL_INSPECTION_ID, fi.RESULT_ID, fi.EMP_ID, pr.WORK_ORDER_ID, pp.ITEM_ID, i.ITEM_CODE, i.ITEM_NAME, pr.LOT_NO, NVL(pr.PRODUCED_QTY,0) AS PRODUCED_QTY, fi.INSPECT_QTY, fi.STATUS AS RESULT, fi.INSPECTION_DATE, fi.REMARK, fi.CREATED_AT, fi.UPDATED_AT FROM FINAL_INSPECTION fi JOIN PRODUCTION_RESULT pr ON fi.RESULT_ID = pr.RESULT_ID JOIN WORK_ORDER wo ON pr.WORK_ORDER_ID = wo.WORK_ORDER_ID JOIN PRODUCTION_PLAN pp ON wo.PLAN_ID = pp.PLAN_ID JOIN ITEM i ON pp.ITEM_ID = i.ITEM_ID WHERE fi.FINAL_INSPECTION_ID = ? AND fi.USE_YN = 'Y'";
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, finalInspectionId);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                dto = new FPInspRegInqDTO();
+                mapBase(rs, dto);
+                dto.setCurrentInspectSum(sumInspectQtyByResultId(dto.getResultId()));
+                dto.setRemainingQty(Math.max(0, dto.getProducedQty() - (int) Math.round(dto.getCurrentInspectSum() - dto.getInspectQty())));
+                dto.setDefectCount(countDefectProductByFinalInspectionId(finalInspectionId));
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        finally { close(rs, ps, conn); }
+        return dto;
+    }
 
+    public List<FPInspRegInqDTO> selectAvailableProductionResultList() {
+        List<FPInspRegInqDTO> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
 
         try {
-            // --------------------------------------
-            // 1) JNDI로 커넥션 가져오기
-            // --------------------------------------
-            Context ctx = new InitialContext();
-            DataSource dataFactory = (DataSource) ctx.lookup("java:/comp/env/jdbc/oracle");
-            conn = dataFactory.getConnection();
+            conn = getConnection();
 
-            System.out.println("현재 접속 DB USER : " + conn.getMetaData().getUserName());
+            String sql = ""
+                    + "SELECT pr.RESULT_ID, "
+                    + "       pr.WORK_ORDER_ID, "
+                    + "       pp.ITEM_ID, "
+                    + "       i.ITEM_CODE, "
+                    + "       i.ITEM_NAME, "
+                    + "       pr.LOT_NO, "
+                    + "       NVL(pr.PRODUCED_QTY, 0) AS PRODUCED_QTY, "
+                    + "       NVL(fi_sum.SUM_INSPECT_QTY, 0) AS CURRENT_INSPECT_SUM, "
+                    + "       (NVL(pr.PRODUCED_QTY, 0) - NVL(fi_sum.SUM_INSPECT_QTY, 0)) AS REMAINING_QTY "
+                    + "FROM PRODUCTION_RESULT pr "
+                    + "JOIN WORK_ORDER wo ON pr.WORK_ORDER_ID = wo.WORK_ORDER_ID "
+                    + "JOIN PRODUCTION_PLAN pp ON wo.PLAN_ID = pp.PLAN_ID "
+                    + "JOIN ITEM i ON pp.ITEM_ID = i.ITEM_ID "
+                    + "LEFT JOIN ( "
+                    + "    SELECT RESULT_ID, NVL(SUM(INSPECT_QTY), 0) AS SUM_INSPECT_QTY "
+                    + "    FROM FINAL_INSPECTION "
+                    + "    WHERE NVL(USE_YN, 'Y') = 'Y' "
+                    + "    GROUP BY RESULT_ID "
+                    + ") fi_sum ON pr.RESULT_ID = fi_sum.RESULT_ID "
+                    + "WHERE NVL(pr.USE_YN, 'Y') = 'Y' "
+                    + "  AND (NVL(pr.PRODUCED_QTY, 0) - NVL(fi_sum.SUM_INSPECT_QTY, 0)) > 0 "
+                    + "ORDER BY pr.RESULT_ID DESC";
 
-            // --------------------------------------
-            // 2) 기본 SQL 작성
-            // --------------------------------------
-            String query = "";
-            query += " SELECT ";
-            query += "     fi.FINAL_INSPECTION_ID, ";
-            query += "     fi.RESULT_ID, ";
-            query += "     pr.WORK_ORDER_ID, ";
-            query += "     pp.ITEM_ID, ";
-            query += "     i.ITEM_CODE, ";
-            query += "     i.ITEM_NAME, ";
-            query += "     pr.LOT_NO, ";
-            query += "     fi.INSPECT_QTY, ";
-            query += "     fi.STATUS AS RESULT, ";
-            query += "     fi.INSPECTION_DATE, ";
-            query += "     fi.REMARK, ";
-            query += "     fi.CREATED_AT, ";
-            query += "     fi.UPDATED_AT ";
-            query += " FROM FINAL_INSPECTION fi ";
-            query += " INNER JOIN PRODUCTION_RESULT pr ";
-            query += "    ON fi.RESULT_ID = pr.RESULT_ID ";
-            query += " INNER JOIN WORK_ORDER wo ";
-            query += "    ON pr.WORK_ORDER_ID = wo.WORK_ORDER_ID ";
-            query += " INNER JOIN PRODUCTION_PLAN pp ";
-            query += "    ON wo.PLAN_ID = pp.PLAN_ID ";
-            query += " INNER JOIN ITEM i ";
-            query += "    ON pp.ITEM_ID = i.ITEM_ID ";
-            query += " WHERE 1 = 1 ";
-
-            // 사용여부 조건
-            query += " AND fi.USE_YN = 'Y' ";
-
-            List<Object> paramList = new ArrayList<Object>();
-
-            // --------------------------------------
-            // 3) 판정구분 조건
-            // --------------------------------------
-            if (searchDTO.getResultType() != null
-                    && !"".equals(searchDTO.getResultType().trim())
-                    && !"전체".equals(searchDTO.getResultType())) {
-
-                query += " AND fi.STATUS = ? ";
-                paramList.add(searchDTO.getResultType());
-            }
-
-            // --------------------------------------
-            // 4) 날짜 조건
-            // --------------------------------------
-            if (searchDTO.getStartDate() != null) {
-                query += " AND TRUNC(fi.INSPECTION_DATE) >= ? ";
-                paramList.add(searchDTO.getStartDate());
-            }
-
-            if (searchDTO.getEndDate() != null) {
-                query += " AND TRUNC(fi.INSPECTION_DATE) <= ? ";
-                paramList.add(searchDTO.getEndDate());
-            }
-
-            // --------------------------------------
-            // 5) 검색 조건
-            // --------------------------------------
-            String searchType = searchDTO.getSearchType();
-            String keyword = searchDTO.getKeyword();
-
-            if (keyword != null && !"".equals(keyword.trim())) {
-                String keywordLike = "%" + keyword.trim() + "%";
-
-                if ("itemCode".equals(searchType)) {
-                    query += " AND i.ITEM_CODE LIKE ? ";
-                    paramList.add(keywordLike);
-                } else if ("itemName".equals(searchType)) {
-                    query += " AND i.ITEM_NAME LIKE ? ";
-                    paramList.add(keywordLike);
-                } else {
-                    query += " AND (i.ITEM_CODE LIKE ? OR i.ITEM_NAME LIKE ?) ";
-                    paramList.add(keywordLike);
-                    paramList.add(keywordLike);
-                }
-            }
-
-            query += " ORDER BY fi.FINAL_INSPECTION_ID DESC ";
-
-            System.out.println("완제품 검사 목록 조회 SQL : " + query);
-
-            // --------------------------------------
-            // 6) PreparedStatement 생성
-            // --------------------------------------
-            ps = conn.prepareStatement(query);
-
-            // --------------------------------------
-            // 7) 바인딩 값 세팅
-            // --------------------------------------
-            for (int i = 0; i < paramList.size(); i++) {
-                ps.setObject(i + 1, paramList.get(i));
-            }
-
-            // --------------------------------------
-            // 8) SQL 실행
-            // --------------------------------------
+            ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
 
-            // --------------------------------------
-            // 9) 결과를 DTO에 담기
-            // --------------------------------------
             while (rs.next()) {
                 FPInspRegInqDTO dto = new FPInspRegInqDTO();
-
-                dto.setFinalInspectionId(rs.getInt("FINAL_INSPECTION_ID"));
                 dto.setResultId(rs.getInt("RESULT_ID"));
                 dto.setWorkOrderId(rs.getInt("WORK_ORDER_ID"));
                 dto.setItemId(rs.getInt("ITEM_ID"));
                 dto.setItemCode(rs.getString("ITEM_CODE"));
                 dto.setItemName(rs.getString("ITEM_NAME"));
                 dto.setLotNo(rs.getString("LOT_NO"));
-                dto.setInspectQty(rs.getDouble("INSPECT_QTY"));
-                dto.setResult(rs.getString("RESULT"));
-                dto.setInspectionDate(rs.getDate("INSPECTION_DATE"));
-                dto.setRemark(rs.getString("REMARK"));
-                dto.setCreatedAt(rs.getDate("CREATED_AT"));
-                dto.setUpdatedAt(rs.getDate("UPDATED_AT"));
-
+                dto.setProducedQty(rs.getInt("PRODUCED_QTY"));
+                dto.setCurrentInspectSum(rs.getInt("CURRENT_INSPECT_SUM"));
+                dto.setRemainingQty(rs.getInt("REMAINING_QTY"));
                 list.add(dto);
             }
-
-            System.out.println("완제품 검사 목록 조회 결과 건수 : " + list.size());
-
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            try { if (rs != null) rs.close(); } catch (Exception e) {}
-            try { if (ps != null) ps.close(); } catch (Exception e) {}
-            try { if (conn != null) conn.close(); } catch (Exception e) {}
+            close(rs, ps, conn);
         }
 
         return list;
     }
 
-    // =========================
-    // 2. 완제품 검사 상세 조회
-    // =========================
-    public FPInspRegInqDTO selectFPInspRegInqOne(int finalInspectionId) {
-
-        FPInspRegInqDTO dto = null;
-
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-
-        try {
-            // --------------------------------------
-            // 1) JNDI로 커넥션 가져오기
-            // --------------------------------------
-            Context ctx = new InitialContext();
-            DataSource dataFactory = (DataSource) ctx.lookup("java:/comp/env/jdbc/oracle");
-            conn = dataFactory.getConnection();
-
-            System.out.println("현재 접속 DB USER : " + conn.getMetaData().getUserName());
-
-            // --------------------------------------
-            // 2) 상세 조회 SQL 작성
-            // --------------------------------------
-            String query = "";
-            query += " SELECT ";
-            query += "     fi.FINAL_INSPECTION_ID, ";
-            query += "     fi.RESULT_ID, ";
-            query += "     pr.WORK_ORDER_ID, ";
-            query += "     pp.ITEM_ID, ";
-            query += "     i.ITEM_CODE, ";
-            query += "     i.ITEM_NAME, ";
-            query += "     pr.LOT_NO, ";
-            query += "     fi.INSPECT_QTY, ";
-            query += "     fi.STATUS AS RESULT, ";
-            query += "     fi.INSPECTION_DATE, ";
-            query += "     fi.REMARK, ";
-            query += "     fi.CREATED_AT, ";
-            query += "     fi.UPDATED_AT ";
-            query += " FROM FINAL_INSPECTION fi ";
-            query += " INNER JOIN PRODUCTION_RESULT pr ";
-            query += "    ON fi.RESULT_ID = pr.RESULT_ID ";
-            query += " INNER JOIN WORK_ORDER wo ";
-            query += "    ON pr.WORK_ORDER_ID = wo.WORK_ORDER_ID ";
-            query += " INNER JOIN PRODUCTION_PLAN pp ";
-            query += "    ON wo.PLAN_ID = pp.PLAN_ID ";
-            query += " INNER JOIN ITEM i ";
-            query += "    ON pp.ITEM_ID = i.ITEM_ID ";
-            query += " WHERE fi.FINAL_INSPECTION_ID = ? ";
-            query += "   AND fi.USE_YN = 'Y' ";
-
-            // --------------------------------------
-            // 3) PreparedStatement 생성
-            // --------------------------------------
-            ps = conn.prepareStatement(query);
-            ps.setInt(1, finalInspectionId);
-
-            // --------------------------------------
-            // 4) SQL 실행
-            // --------------------------------------
-            rs = ps.executeQuery();
-
-            // --------------------------------------
-            // 5) 결과를 DTO에 담기
-            // --------------------------------------
-            if (rs.next()) {
-                dto = new FPInspRegInqDTO();
-
-                dto.setFinalInspectionId(rs.getInt("FINAL_INSPECTION_ID"));
-                dto.setResultId(rs.getInt("RESULT_ID"));
-                dto.setWorkOrderId(rs.getInt("WORK_ORDER_ID"));
-                dto.setItemId(rs.getInt("ITEM_ID"));
-                dto.setItemCode(rs.getString("ITEM_CODE"));
-                dto.setItemName(rs.getString("ITEM_NAME"));
-                dto.setLotNo(rs.getString("LOT_NO"));
-                dto.setInspectQty(rs.getDouble("INSPECT_QTY"));
-                dto.setResult(rs.getString("RESULT"));
-                dto.setInspectionDate(rs.getDate("INSPECTION_DATE"));
-                dto.setRemark(rs.getString("REMARK"));
-                dto.setCreatedAt(rs.getDate("CREATED_AT"));
-                dto.setUpdatedAt(rs.getDate("UPDATED_AT"));
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try { if (rs != null) rs.close(); } catch (Exception e) {}
-            try { if (ps != null) ps.close(); } catch (Exception e) {}
-            try { if (conn != null) conn.close(); } catch (Exception e) {}
-        }
-
-        return dto;
+    public boolean existsActiveProductionResult(int resultId) {
+        return countBySql("SELECT COUNT(*) FROM PRODUCTION_RESULT WHERE RESULT_ID = ? AND NVL(USE_YN,'Y')='Y'", resultId) > 0;
     }
 
+    public int sumInspectQtyByResultId(int resultId) {
+        return countBySql("SELECT NVL(SUM(INSPECT_QTY),0) FROM FINAL_INSPECTION WHERE RESULT_ID = ? AND NVL(USE_YN,'Y')='Y'", resultId);
+    }
 
-public int insertFPInspRegInq(FPInspRegInqDTO dto) {
-    Connection conn = null; PreparedStatement ps = null;
-    try {
-        Context ctx = new InitialContext(); DataSource dataFactory = (DataSource) ctx.lookup("java:/comp/env/jdbc/oracle"); conn = dataFactory.getConnection();
-        String sql = "INSERT INTO FINAL_INSPECTION (FINAL_INSPECTION_ID, RESULT_ID, INSPECT_QTY, STATUS, INSPECTION_DATE, REMARK, USE_YN, CREATED_AT, UPDATED_AT) VALUES ((SELECT NVL(MAX(FINAL_INSPECTION_ID),0)+1 FROM FINAL_INSPECTION), ?, ?, ?, ?, ?, 'Y', SYSDATE, SYSDATE)";
-        ps = conn.prepareStatement(sql); ps.setInt(1, dto.getResultId()); ps.setDouble(2, dto.getInspectQty()); ps.setString(3, dto.getResult()); ps.setDate(4, dto.getInspectionDate()); ps.setString(5, dto.getRemark()); return ps.executeUpdate();
-    } catch (Exception e) { e.printStackTrace(); } finally { try { if (ps != null) ps.close(); } catch (Exception e) {} try { if (conn != null) conn.close(); } catch (Exception e) {} }
-    return 0;
-}
+    public int getCurrentInspectQty(int finalInspectionId) {
+        return countBySql("SELECT NVL(INSPECT_QTY,0) FROM FINAL_INSPECTION WHERE FINAL_INSPECTION_ID = ?", finalInspectionId);
+    }
 
-public int deleteFPInspRegInq(int[] ids) {
-    Connection conn = null; PreparedStatement ps = null; int result = 0;
-    try {
-        if (ids == null || ids.length == 0) return 0;
-        Context ctx = new InitialContext(); DataSource dataFactory = (DataSource) ctx.lookup("java:/comp/env/jdbc/oracle"); conn = dataFactory.getConnection();
-        StringBuilder sql = new StringBuilder("UPDATE FINAL_INSPECTION SET USE_YN='N', UPDATED_AT=SYSDATE WHERE FINAL_INSPECTION_ID IN (");
-        for (int i = 0; i < ids.length; i++) { if (i > 0) sql.append(","); sql.append("?"); }
-        sql.append(")");
-        ps = conn.prepareStatement(sql.toString()); for (int i = 0; i < ids.length; i++) ps.setInt(i + 1, ids[i]); result = ps.executeUpdate();
-    } catch (Exception e) { e.printStackTrace(); } finally { try { if (ps != null) ps.close(); } catch (Exception e) {} try { if (conn != null) conn.close(); } catch (Exception e) {} }
-    return result;
-}
+    public int getProducedQtyByResultId(int resultId) {
+        return countBySql("SELECT NVL(PRODUCED_QTY,0) FROM PRODUCTION_RESULT WHERE RESULT_ID = ? AND NVL(USE_YN,'Y')='Y'", resultId);
+    }
 
-public int updateFPInspRegInq(FPInspRegInqDTO dto) {
-    Connection conn = null; PreparedStatement ps = null;
-    try {
-        Context ctx = new InitialContext(); DataSource dataFactory = (DataSource) ctx.lookup("java:/comp/env/jdbc/oracle"); conn = dataFactory.getConnection();
-        String sql = "UPDATE FINAL_INSPECTION SET INSPECT_QTY = ?, STATUS = ?, INSPECTION_DATE = ?, REMARK = ?, UPDATED_AT = SYSDATE WHERE FINAL_INSPECTION_ID = ?";
-        ps = conn.prepareStatement(sql);
-        ps.setDouble(1, dto.getInspectQty()); ps.setString(2, dto.getResult()); ps.setDate(3, dto.getInspectionDate()); ps.setString(4, dto.getRemark()); ps.setInt(5, dto.getFinalInspectionId());
-        return ps.executeUpdate();
-    } catch (Exception e) { e.printStackTrace(); } finally { try { if (ps != null) ps.close(); } catch (Exception e) {} try { if (conn != null) conn.close(); } catch (Exception e) {} }
-    return 0;
-}
+    public int countDefectProductByFinalInspectionId(int finalInspectionId) {
+        return countBySql("SELECT COUNT(*) FROM DEFECT_PRODUCT WHERE FINAL_INSPECTION_ID = ? AND NVL(USE_YN,'Y')='Y'", finalInspectionId);
+    }
 
+    public int getResultIdByFinalInspectionId(int finalInspectionId) {
+        return countBySql("SELECT RESULT_ID FROM FINAL_INSPECTION WHERE FINAL_INSPECTION_ID = ? AND NVL(USE_YN,'Y')='Y'", finalInspectionId);
+    }
+
+    public int insertFPInspRegInq(FPInspRegInqDTO dto) {
+        Connection conn = null; PreparedStatement ps = null;
+        try {
+            conn = getConnection();
+            String sql = "INSERT INTO FINAL_INSPECTION (FINAL_INSPECTION_ID, RESULT_ID, EMP_ID, INSPECT_QTY, STATUS, INSPECTION_DATE, REMARK, USE_YN, CREATED_AT, UPDATED_AT) VALUES ((SELECT NVL(MAX(FINAL_INSPECTION_ID),0)+1 FROM FINAL_INSPECTION), ?, ?, ?, ?, ?, ?, 'Y', SYSDATE, SYSDATE)";
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, dto.getResultId());
+            ps.setInt(2, dto.getEmpId());
+            ps.setDouble(3, dto.getInspectQty());
+            ps.setString(4, dto.getResult());
+            ps.setDate(5, dto.getInspectionDate());
+            ps.setString(6, dto.getRemark());
+            return ps.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
+        finally { close(null, ps, conn); }
+        return 0;
+    }
+
+    public int deleteFPInspRegInq(int[] ids) {
+        Connection conn = null; PreparedStatement ps = null; int result = 0;
+        try {
+            if (ids == null || ids.length == 0) return 0;
+            conn = getConnection();
+            StringBuilder sql = new StringBuilder("UPDATE FINAL_INSPECTION SET USE_YN='N', UPDATED_AT=SYSDATE WHERE FINAL_INSPECTION_ID IN (");
+            for (int i = 0; i < ids.length; i++) { if (i > 0) sql.append(','); sql.append('?'); }
+            sql.append(')');
+            ps = conn.prepareStatement(sql.toString());
+            for (int i = 0; i < ids.length; i++) ps.setInt(i + 1, ids[i]);
+            result = ps.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
+        finally { close(null, ps, conn); }
+        return result;
+    }
+
+    public int updateFPInspRegInq(FPInspRegInqDTO dto) {
+        Connection conn = null; PreparedStatement ps = null;
+        try {
+            conn = getConnection();
+            String sql = "UPDATE FINAL_INSPECTION SET INSPECT_QTY = ?, STATUS = ?, INSPECTION_DATE = ?, REMARK = ?, UPDATED_AT = SYSDATE WHERE FINAL_INSPECTION_ID = ?";
+            ps = conn.prepareStatement(sql);
+            ps.setDouble(1, dto.getInspectQty());
+            ps.setString(2, dto.getResult());
+            ps.setDate(3, dto.getInspectionDate());
+            ps.setString(4, dto.getRemark());
+            ps.setInt(5, dto.getFinalInspectionId());
+            return ps.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
+        finally { close(null, ps, conn); }
+        return 0;
+    }
+
+    private void mapBase(ResultSet rs, FPInspRegInqDTO dto) throws Exception {
+        dto.setFinalInspectionId(rs.getInt("FINAL_INSPECTION_ID"));
+        dto.setResultId(rs.getInt("RESULT_ID"));
+        dto.setEmpId(rs.getInt("EMP_ID"));
+        dto.setWorkOrderId(rs.getInt("WORK_ORDER_ID"));
+        dto.setItemId(rs.getInt("ITEM_ID"));
+        dto.setItemCode(rs.getString("ITEM_CODE"));
+        dto.setItemName(rs.getString("ITEM_NAME"));
+        dto.setLotNo(rs.getString("LOT_NO"));
+        dto.setProducedQty(rs.getInt("PRODUCED_QTY"));
+        dto.setInspectQty(rs.getDouble("INSPECT_QTY"));
+        dto.setResult(rs.getString("RESULT"));
+        dto.setInspectionDate(rs.getDate("INSPECTION_DATE"));
+        dto.setRemark(rs.getString("REMARK"));
+        dto.setCreatedAt(rs.getDate("CREATED_AT"));
+        dto.setUpdatedAt(rs.getDate("UPDATED_AT"));
+        dto.setCurrentInspectSum(sumInspectQtyByResultId(dto.getResultId()));
+        dto.setRemainingQty(Math.max(0, dto.getProducedQty() - dto.getCurrentInspectSum()));
+    }
+
+    private int countBySql(String sql, int id) {
+        Connection conn = null; PreparedStatement ps = null; ResultSet rs = null;
+        try {
+            conn = getConnection();
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, id);
+            rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        finally { close(rs, ps, conn); }
+        return 0;
+    }
+
+    private void close(ResultSet rs, PreparedStatement ps, Connection conn) {
+        try { if (rs != null) rs.close(); } catch (Exception e) {}
+        try { if (ps != null) ps.close(); } catch (Exception e) {}
+        try { if (conn != null) conn.close(); } catch (Exception e) {}
+    }
 }

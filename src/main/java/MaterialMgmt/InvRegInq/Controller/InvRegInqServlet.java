@@ -3,17 +3,21 @@ package MaterialMgmt.InvRegInq.Controller;
 import java.io.IOException;
 import java.sql.Date;
 import java.util.List;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import MaterialMgmt.InvRegInq.DTO.InvRegInqDTO;
 import MaterialMgmt.InvRegInq.Service.InvRegInqService;
 
 @WebServlet("/invRegInq")
 public class InvRegInqServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private final InvRegInqService service = new InvRegInqService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -54,35 +58,34 @@ public class InvRegInqServlet extends HttpServlet {
         forwardList(request, response, searchDTO);
     }
 
-    private void register(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        InvRegInqDTO dto = new InvRegInqDTO();
-        dto.setItemCode(request.getParameter("itemCode"));
-        dto.setQtyOnHand(parseDouble(request.getParameter("qtyOnHand")));
-        dto.setSafetyStock(parseDouble(request.getParameter("safetyStock")));
-        dto.setRemark(request.getParameter("remark"));
-        new InvRegInqService().register(dto);
+    private void register(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        request.getSession().setAttribute("errorMsg", "재고는 직접 등록하지 않고 입출고 결과로 관리합니다.");
         response.sendRedirect(request.getContextPath() + "/invRegInq");
     }
 
-
-    private void update(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void update(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        HttpSession session = request.getSession();
         InvRegInqDTO dto = new InvRegInqDTO();
         dto.setInventoryId(parseInt(request.getParameter("inventoryId"), 0));
-        dto.setQtyOnHand(parseDouble(request.getParameter("qtyOnHand")));
         dto.setSafetyStock(parseDouble(request.getParameter("safetyStock")));
         dto.setRemark(request.getParameter("remark"));
-        new InvRegInqService().update(dto);
+        try {
+            service.update(dto);
+        } catch (RuntimeException e) {
+            session.setAttribute("errorMsg", e.getMessage());
+        }
         response.sendRedirect(request.getContextPath() + "/invRegInq?inventoryId=" + dto.getInventoryId());
     }
 
-    private void delete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        new InvRegInqService().delete(parseIntArray(request.getParameterValues("inventoryIds")));
+    private void delete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        request.getSession().setAttribute("errorMsg", "재고는 삭제하지 않습니다.");
         response.sendRedirect(request.getContextPath() + "/invRegInq");
     }
 
     private void detail(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int inventoryId = Integer.parseInt(request.getParameter("inventoryId"));
-        InvRegInqDTO dto = new InvRegInqService().getInvRegInqDetail(inventoryId);
+        InvRegInqDTO dto = service.getInvRegInqDetail(inventoryId);
+        request.setAttribute("errorMsg", popErrorMessage(request.getSession(false)));
         request.setAttribute("invRegInqDTO", dto);
         request.setAttribute("pageId", "page-materials-inventory-detail");
         request.setAttribute("pageTitle", "재고 상세");
@@ -96,7 +99,7 @@ public class InvRegInqServlet extends HttpServlet {
         request.setCharacterEncoding("utf-8");
         response.setContentType("text/html; charset=utf-8;");
 
-        List<InvRegInqDTO> fullList = new InvRegInqService().getInvRegInqList(searchDTO);
+        List<InvRegInqDTO> fullList = service.getInvRegInqList(searchDTO);
         int paCurrentPage = parseInt(request.getParameter("page"), 1);
         int paPageSize = 10;
         int paBlockSize = 5;
@@ -112,6 +115,7 @@ public class InvRegInqServlet extends HttpServlet {
         int paEndPage = Math.min(paStartPage + paBlockSize - 1, paTotalPage);
 
         request.setAttribute("invRegInqList", pageList);
+        request.setAttribute("errorMsg", popErrorMessage(request.getSession(false)));
         request.setAttribute("invRegInqSearchDTO", searchDTO);
         request.setAttribute("paCurrentPage", paCurrentPage);
         request.setAttribute("paPageSize", paPageSize);
@@ -121,20 +125,18 @@ public class InvRegInqServlet extends HttpServlet {
         request.setAttribute("paStartPage", paStartPage);
         request.setAttribute("paEndPage", paEndPage);
         request.setAttribute("pageId", "page-materials-inventory");
-        request.setAttribute("pageTitle", "재고 등록 / 조회");
-        request.setAttribute("pageSubTitle", "재고 현황 등록, 조회");
+        request.setAttribute("pageTitle", "재고 조회");
+        request.setAttribute("pageSubTitle", "재고 현황 조회 및 안전재고 관리");
         request.setAttribute("contentPage", "/WEB-INF/views/InvRegInq.jsp");
         request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
     }
 
-    private int[] parseIntArray(String[] values) {
-        if (values == null) return new int[0];
-        int[] tmp = new int[values.length];
-        int idx = 0;
-        for (String v : values) if (v != null && !"".equals(v)) tmp[idx++] = Integer.parseInt(v);
-        int[] r = new int[idx];
-        System.arraycopy(tmp, 0, r, 0, idx);
-        return r;
+    private String popErrorMessage(HttpSession session) {
+        if (session == null) return null;
+        Object value = session.getAttribute("errorMsg");
+        if (value == null) return null;
+        session.removeAttribute("errorMsg");
+        return String.valueOf(value);
     }
 
     private double parseDouble(String value) {

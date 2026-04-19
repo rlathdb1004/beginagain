@@ -3,32 +3,31 @@ package QualityMgmt.DefectRegInq.Controller;
 import java.io.IOException;
 import java.sql.Date;
 import java.util.List;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import QualityMgmt.DefectRegInq.DTO.DefectRegInqDTO;
 import QualityMgmt.DefectRegInq.Service.DefectRegInqService;
 
 @WebServlet("/defectRegInq")
 public class DefectRegInqServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private final DefectRegInqService service = new DefectRegInqService();
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String id = request.getParameter("defectProductId");
-        if (id != null && !"".equals(id)) {
-            detail(request, response);
-            return;
-        }
+        if (id != null && !"".equals(id)) { detail(request, response); return; }
         forwardList(request, response, new DefectRegInqDTO());
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("utf-8");
         String cmd = request.getParameter("cmd");
         if (cmd == null || "".equals(cmd)) cmd = "list";
@@ -55,35 +54,47 @@ public class DefectRegInqServlet extends HttpServlet {
         forwardList(request, response, searchDTO);
     }
 
-    private void register(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        DefectRegInqDTO dto = new DefectRegInqDTO();
-        dto.setFinalInspectionId(Integer.parseInt(request.getParameter("finalInspectionId")));
-        dto.setDefectCodeId(Integer.parseInt(request.getParameter("defectCodeId")));
-        dto.setRemark(request.getParameter("remark"));
-        new DefectRegInqService().register(dto);
+    private void register(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        HttpSession session = request.getSession();
+        try {
+            DefectRegInqDTO dto = new DefectRegInqDTO();
+            dto.setFinalInspectionId(parseInt(request.getParameter("finalInspectionId"), 0));
+            dto.setDefectCodeId(parseInt(request.getParameter("defectCodeId"), 0));
+            dto.setRemark(request.getParameter("remark"));
+            service.register(dto);
+        } catch (RuntimeException e) {
+            session.setAttribute("errorMsg", e.getMessage());
+        }
         response.sendRedirect(request.getContextPath() + "/defectRegInq");
     }
 
-
-    private void update(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void update(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        HttpSession session = request.getSession();
         DefectRegInqDTO dto = new DefectRegInqDTO();
         dto.setDefectProductId(parseInt(request.getParameter("defectProductId"), 0));
-        dto.setFinalInspectionId(parseInt(request.getParameter("finalInspectionId"), 0));
-        dto.setDefectCodeId(parseInt(request.getParameter("defectCodeId"), 0));
         dto.setRemark(request.getParameter("remark"));
-        new DefectRegInqService().update(dto);
+        try {
+            service.update(dto);
+        } catch (RuntimeException e) {
+            session.setAttribute("errorMsg", e.getMessage());
+        }
         response.sendRedirect(request.getContextPath() + "/defectRegInq?defectProductId=" + dto.getDefectProductId());
     }
 
-    private void delete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        new DefectRegInqService().delete(parseIntArray(request.getParameterValues("defectProductIds")));
+    private void delete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        HttpSession session = request.getSession();
+        try {
+            service.delete(parseIntArray(request.getParameterValues("defectProductIds")));
+        } catch (RuntimeException e) {
+            session.setAttribute("errorMsg", e.getMessage());
+        }
         response.sendRedirect(request.getContextPath() + "/defectRegInq");
     }
 
     private void detail(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int id = Integer.parseInt(request.getParameter("defectProductId"));
-        DefectRegInqDTO dto = new DefectRegInqService().getDefectRegInqDetail(id);
+        DefectRegInqDTO dto = service.getDefectRegInqDetail(id);
+        request.setAttribute("errorMsg", popErrorMessage(request.getSession(false)));
         request.setAttribute("defectRegInqDTO", dto);
         request.setAttribute("pageId", "page-quality-defect-detail");
         request.setAttribute("pageTitle", "불량 상세");
@@ -92,12 +103,12 @@ public class DefectRegInqServlet extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
     }
 
-    private void forwardList(HttpServletRequest request, HttpServletResponse response, DefectRegInqDTO searchDTO)
-            throws ServletException, IOException {
+    private void forwardList(HttpServletRequest request, HttpServletResponse response, DefectRegInqDTO searchDTO) throws ServletException, IOException {
         request.setCharacterEncoding("utf-8");
         response.setContentType("text/html; charset=utf-8;");
-
-        List<DefectRegInqDTO> fullList = new DefectRegInqService().getDefectRegInqList(searchDTO);
+        List<DefectRegInqDTO> fullList = service.getDefectRegInqList(searchDTO);
+        List<DefectRegInqDTO> inspectionList = service.getAvailableFinalInspectionList();
+        List<DefectRegInqDTO> defectCodeList = service.getAvailableDefectCodeList();
         int paCurrentPage = parseInt(request.getParameter("page"), 1);
         int paPageSize = 10;
         int paBlockSize = 5;
@@ -113,6 +124,9 @@ public class DefectRegInqServlet extends HttpServlet {
         int paEndPage = Math.min(paStartPage + paBlockSize - 1, paTotalPage);
 
         request.setAttribute("defectRegInqList", pageList);
+        request.setAttribute("inspectionList", inspectionList);
+        request.setAttribute("defectCodeList", defectCodeList);
+        request.setAttribute("errorMsg", popErrorMessage(request.getSession(false)));
         request.setAttribute("defectRegInqSearchDTO", searchDTO);
         request.setAttribute("paCurrentPage", paCurrentPage);
         request.setAttribute("paPageSize", paPageSize);
@@ -128,21 +142,18 @@ public class DefectRegInqServlet extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
     }
 
-    private int parseInt(String value, int defaultValue) {
-        try { return Integer.parseInt(value); } catch (Exception e) { return defaultValue; }
+    private String popErrorMessage(HttpSession session) {
+        if (session == null) return null;
+        Object value = session.getAttribute("errorMsg");
+        if (value == null) return null;
+        session.removeAttribute("errorMsg");
+        return String.valueOf(value);
     }
-
+    private int parseInt(String value, int defaultValue) { try { return Integer.parseInt(value); } catch (Exception e) { return defaultValue; } }
     private int[] parseIntArray(String[] values) {
         if (values == null) return new int[0];
-        int[] tmp = new int[values.length];
-        int idx = 0;
+        int[] tmp = new int[values.length]; int idx = 0;
         for (String v : values) if (v != null && !"".equals(v)) tmp[idx++] = Integer.parseInt(v);
-        int[] r = new int[idx];
-        System.arraycopy(tmp, 0, r, 0, idx);
-        return r;
-    }
-
-    private double parseDouble(String value) {
-        return (value == null || "".equals(value)) ? 0 : Double.parseDouble(value);
+        int[] r = new int[idx]; System.arraycopy(tmp, 0, r, 0, idx); return r;
     }
 }

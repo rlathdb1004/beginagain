@@ -1,6 +1,8 @@
 package routing.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -31,10 +33,23 @@ public class RoutingListController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        List<ItemDTO> itemList = itemService.getItemList();
+        List<ItemDTO> allItemList = itemService.getItemList();
+        List<ItemDTO> itemList = new ArrayList<ItemDTO>();
+        for (ItemDTO item : allItemList) {
+            if ("완제품".equals(item.getItemType())) {
+                itemList.add(item);
+            }
+        }
+        itemList.sort(Comparator.comparing(ItemDTO::getItemCode, Comparator.nullsLast(String::compareTo)));
+
         List<ProcessDTO> processList = processService.getList();
         List<EquipmentDTO> equipmentList = equipmentService.getEquipmentList();
 
+        Object errorMessage = request.getSession().getAttribute("errorMessage");
+        if (errorMessage != null) {
+            request.setAttribute("errorMessage", errorMessage);
+            request.getSession().removeAttribute("errorMessage");
+        }
         request.setAttribute("itemList", itemList);
         request.setAttribute("processList", processList);
         request.setAttribute("equipmentList", equipmentList);

@@ -24,7 +24,10 @@
                         <tr><th class="taFormLabel">품목번호</th><td class="taFormValue"><span class="taReadonlyText">${item.itemId}</span></td></tr>
                         <tr><th class="taFormLabel">품목코드</th><td class="taFormValue"><span class="taReadonlyText">${item.itemCode}</span></td></tr>
                         <tr><th class="taFormLabel">품목명</th><td class="taFormValue"><input class="taFormInput taEditableField" type="text" name="itemName" value="${item.itemName}"></td></tr>
-                        <tr><th class="taFormLabel">품목유형</th><td class="taFormValue"><input class="taFormInput taEditableField" type="text" name="itemType" value="${item.itemType}"></td></tr>
+                        <tr><th class="taFormLabel">품목 유형</th><td class="taFormValue"><select class="taFormInput taEditableField" name="itemType">
+                            <option value="원자재" <c:if test="${item.itemType eq '원자재'}">selected</c:if>>원자재</option>
+                            <option value="완제품" <c:if test="${item.itemType eq '완제품'}">selected</c:if>>완제품</option>
+                        </select></td></tr>
                         <tr><th class="taFormLabel">단위</th><td class="taFormValue"><input class="taFormInput taEditableField" type="text" name="unit" value="${item.unit}"></td></tr>
                         <tr><th class="taFormLabel">규격</th><td class="taFormValue"><input class="taFormInput taEditableField" type="text" name="spec" value="${item.spec}"></td></tr>
                         <tr><th class="taFormLabel">공급처</th><td class="taFormValue"><input class="taFormInput taEditableField" type="text" name="supplierName" value="${item.supplierName}"></td></tr>

@@ -24,7 +24,7 @@ public class ProdPlanRegInqDAO {
     public int getTotalCount(String startDate, String endDate, String searchType, String keyword) {
         int count = 0;
         StringBuilder sql = new StringBuilder();
-        List<Object> params = new ArrayList<>();
+        List<Object> params = new ArrayList<Object>();
 
         sql.append("SELECT COUNT(*) ");
         sql.append("FROM PRODUCTION_PLAN p ");
@@ -46,39 +46,27 @@ public class ProdPlanRegInqDAO {
 
     public List<ProdPlanRegInqDTO> getListByPage(String startDate, String endDate, String searchType, String keyword,
             int startRow, int endRow) {
-        List<ProdPlanRegInqDTO> list = new ArrayList<>();
+        List<ProdPlanRegInqDTO> list = new ArrayList<ProdPlanRegInqDTO>();
         StringBuilder sql = new StringBuilder();
-        List<Object> params = new ArrayList<>();
+        List<Object> params = new ArrayList<Object>();
 
-        sql.append("SELECT * ");
-        sql.append("FROM ( ");
+        sql.append("SELECT * FROM ( ");
         sql.append("    SELECT ROW_NUMBER() OVER (ORDER BY p.PLAN_DATE DESC, p.PLAN_ID DESC) AS RN, ");
-        sql.append("           p.PLAN_ID AS PLAN_ID, ");
+        sql.append("           p.PLAN_ID, ");
         sql.append("           'PP-' || TO_CHAR(p.PLAN_DATE, 'YYYYMMDD') || '-' || LPAD(p.PLAN_ID, 3, '0') AS PLAN_NO, ");
-        sql.append("           p.PLAN_DATE AS PLAN_DATE, ");
-        sql.append("           i.ITEM_CODE AS ITEM_CODE, ");
-        sql.append("           i.ITEM_NAME AS ITEM_NAME, ");
-        sql.append("           p.PLAN_QTY AS PLAN_QTY, ");
-        sql.append("           i.UNIT AS UNIT, ");
-        sql.append("           p.LINE_CODE AS LINE_CODE, ");
-        sql.append("           p.STATUS AS STATUS, ");
-        sql.append("           p.REMARK AS REMARK ");
+        sql.append("           p.PLAN_DATE, p.ITEM_ID, i.ITEM_CODE, i.ITEM_NAME, p.PLAN_QTY, i.UNIT, p.LINE_CODE, p.STATUS, p.REMARK ");
         sql.append("    FROM PRODUCTION_PLAN p ");
         sql.append("    JOIN ITEM i ON p.ITEM_ID = i.ITEM_ID ");
         sql.append("    WHERE NVL(p.USE_YN, 'Y') = 'Y' ");
         appendSearchCondition(sql, params, startDate, endDate, searchType, keyword);
-        sql.append(") ");
-        sql.append("WHERE RN BETWEEN ? AND ? ");
-        sql.append("ORDER BY RN ");
+        sql.append(") WHERE RN BETWEEN ? AND ? ORDER BY RN ");
         params.add(startRow);
         params.add(endRow);
 
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql.toString())) {
             bindParams(ps, params);
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapDto(rs));
-                }
+                while (rs.next()) list.add(mapDto(rs));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -89,7 +77,8 @@ public class ProdPlanRegInqDAO {
     public ProdPlanRegInqDTO getDetailById(int planId) {
         ProdPlanRegInqDTO dto = null;
         String sql = "SELECT p.PLAN_ID, 'PP-' || TO_CHAR(p.PLAN_DATE, 'YYYYMMDD') || '-' || LPAD(p.PLAN_ID, 3, '0') AS PLAN_NO, "
-                + "p.PLAN_DATE, i.ITEM_CODE, i.ITEM_NAME, p.PLAN_QTY, i.UNIT, p.LINE_CODE, p.STATUS, p.REMARK "
+                + "p.PLAN_DATE, p.ITEM_ID, i.ITEM_CODE, i.ITEM_NAME, p.PLAN_QTY, i.UNIT, p.LINE_CODE, p.STATUS, p.REMARK, "
+                + "NVL((SELECT SUM(w.WORK_QTY) FROM WORK_ORDER w WHERE w.PLAN_ID = p.PLAN_ID AND NVL(w.USE_YN, 'Y') = 'Y'), 0) AS WORK_ORDER_SUM "
                 + "FROM PRODUCTION_PLAN p JOIN ITEM i ON p.ITEM_ID = i.ITEM_ID "
                 + "WHERE NVL(p.USE_YN, 'Y') = 'Y' AND p.PLAN_ID = ?";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -104,11 +93,12 @@ public class ProdPlanRegInqDAO {
     }
 
     public List<ProdPlanRegInqDTO> getFinishedItemOptions() {
-        List<ProdPlanRegInqDTO> list = new ArrayList<>();
-        String sql = "SELECT ITEM_CODE, ITEM_NAME, UNIT FROM ITEM WHERE NVL(USE_YN, 'Y') = 'Y' AND ITEM_TYPE = '완제품' ORDER BY ITEM_CODE";
+        List<ProdPlanRegInqDTO> list = new ArrayList<ProdPlanRegInqDTO>();
+        String sql = "SELECT ITEM_ID, ITEM_CODE, ITEM_NAME, UNIT FROM ITEM WHERE NVL(USE_YN, 'Y') = 'Y' AND ITEM_TYPE = '완제품' ORDER BY ITEM_CODE";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 ProdPlanRegInqDTO dto = new ProdPlanRegInqDTO();
+                dto.setItemId(rs.getInt("ITEM_ID"));
                 dto.setPlanCode(rs.getString("ITEM_CODE"));
                 dto.setPlanName(rs.getString("ITEM_NAME"));
                 dto.setPlanUnit(rs.getString("UNIT"));
@@ -120,12 +110,51 @@ public class ProdPlanRegInqDAO {
         return list;
     }
 
+    public boolean existsActiveFinishedItem(int itemId) {
+        String sql = "SELECT COUNT(*) FROM ITEM WHERE ITEM_ID = ? AND ITEM_TYPE = '완제품' AND NVL(USE_YN, 'Y') = 'Y'";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, itemId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1) > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public int countActiveWorkOrdersByPlanId(int planId) {
+        String sql = "SELECT COUNT(*) FROM WORK_ORDER WHERE PLAN_ID = ? AND NVL(USE_YN, 'Y') = 'Y'";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, planId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int getWorkOrderQtySumByPlanId(int planId) {
+        String sql = "SELECT NVL(SUM(WORK_QTY), 0) FROM WORK_ORDER WHERE PLAN_ID = ? AND NVL(USE_YN, 'Y') = 'Y'";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, planId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return (int) Math.round(rs.getDouble(1));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public int insert(ProdPlanRegInqDTO dto) {
         int result = 0;
         String sql = "INSERT INTO PRODUCTION_PLAN (PLAN_ID, ITEM_ID, PLAN_DATE, PLAN_QTY, LINE_CODE, STATUS, USE_YN, REMARK, CREATED_AT, UPDATED_AT) "
-                + "VALUES (SEQ_PRODUCTION_PLAN.NEXTVAL, (SELECT ITEM_ID FROM ITEM WHERE ITEM_CODE = ? AND NVL(USE_YN, 'Y') = 'Y'), ?, ?, ?, ?, 'Y', ?, SYSDATE, SYSDATE)";
+                + "VALUES (SEQ_PRODUCTION_PLAN.NEXTVAL, ?, ?, ?, ?, ?, 'Y', ?, SYSDATE, SYSDATE)";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, dto.getPlanCode());
+            ps.setInt(1, dto.getItemId());
             ps.setDate(2, dto.getPlanDate());
             ps.setInt(3, dto.getPlanAmount());
             ps.setString(4, dto.getPlanLine());
@@ -138,12 +167,11 @@ public class ProdPlanRegInqDAO {
         return result;
     }
 
-
     public int update(ProdPlanRegInqDTO dto) {
         int result = 0;
-        String sql = "UPDATE PRODUCTION_PLAN SET ITEM_ID = (SELECT ITEM_ID FROM ITEM WHERE ITEM_CODE = ? AND NVL(USE_YN, 'Y') = 'Y'), PLAN_DATE = ?, PLAN_QTY = ?, LINE_CODE = ?, STATUS = ?, REMARK = ?, UPDATED_AT = SYSDATE WHERE PLAN_ID = ?";
+        String sql = "UPDATE PRODUCTION_PLAN SET ITEM_ID = ?, PLAN_DATE = ?, PLAN_QTY = ?, LINE_CODE = ?, STATUS = ?, REMARK = ?, UPDATED_AT = SYSDATE WHERE PLAN_ID = ?";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, dto.getPlanCode());
+            ps.setInt(1, dto.getItemId());
             ps.setDate(2, dto.getPlanDate());
             ps.setInt(3, dto.getPlanAmount());
             ps.setString(4, dto.getPlanLine());
@@ -190,7 +218,7 @@ public class ProdPlanRegInqDAO {
         }
         if (keyword != null && !keyword.trim().equals("")) {
             String kw = "%" + keyword.trim() + "%";
-            if (searchType == null || searchType.trim().equals("")) {
+            if (searchType == null || searchType.trim().equals("") || "all".equals(searchType)) {
                 sql.append(" AND ( 'PP-' || TO_CHAR(p.PLAN_DATE, 'YYYYMMDD') || '-' || LPAD(p.PLAN_ID, 3, '0') LIKE ? OR i.ITEM_CODE LIKE ? OR i.ITEM_NAME LIKE ? OR p.LINE_CODE LIKE ? ) ");
                 params.add(kw); params.add(kw); params.add(kw); params.add(kw);
             } else if ("planNo".equals(searchType)) {
@@ -223,6 +251,7 @@ public class ProdPlanRegInqDAO {
         dto.setSeqNO(rs.getInt("PLAN_ID"));
         dto.setPlanNo(rs.getString("PLAN_NO"));
         dto.setPlanDate(rs.getDate("PLAN_DATE"));
+        try { dto.setItemId(rs.getInt("ITEM_ID")); } catch (Exception ignore) {}
         dto.setPlanCode(rs.getString("ITEM_CODE"));
         dto.setPlanName(rs.getString("ITEM_NAME"));
         dto.setPlanAmount(rs.getInt("PLAN_QTY"));
@@ -230,6 +259,11 @@ public class ProdPlanRegInqDAO {
         dto.setPlanLine(rs.getString("LINE_CODE"));
         dto.setStatus(rs.getString("STATUS"));
         dto.setMemo(rs.getString("REMARK"));
+        try {
+            int workOrderSum = (int) Math.round(rs.getDouble("WORK_ORDER_SUM"));
+            dto.setWorkOrderSum(workOrderSum);
+            dto.setRemainingQty(dto.getPlanAmount() - workOrderSum);
+        } catch (Exception ignore) {}
         return dto;
     }
 }

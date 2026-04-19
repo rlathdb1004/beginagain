@@ -12,22 +12,24 @@ import maintenance.service.MaintenanceService;
 
 @WebServlet("/maintenance/delete")
 public class MaintenanceDeleteController extends HttpServlet {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private MaintenanceService maintenanceService = new MaintenanceService();
+    private MaintenanceService maintenanceService = new MaintenanceService();
 
-	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
-		request.setCharacterEncoding("UTF-8");
+        request.setCharacterEncoding("UTF-8");
+        try {
+            String[] maintenanceIds = request.getParameterValues("maintenanceId");
+            if (maintenanceIds != null && maintenanceIds.length > 0) {
+                maintenanceService.deleteMaintenance(maintenanceIds);
+            }
+        } catch (Exception e) {
+            request.getSession().setAttribute("errorMsg", e.getMessage());
+        }
 
-		String[] maintenanceIds = request.getParameterValues("maintenanceId");
-
-		if (maintenanceIds != null && maintenanceIds.length > 0) {
-			maintenanceService.deleteMaintenance(maintenanceIds);
-		}
-
-		response.sendRedirect(request.getContextPath() + "/maintenance/list");
-	}
+        response.sendRedirect(request.getContextPath() + "/maintenance/list");
+    }
 }

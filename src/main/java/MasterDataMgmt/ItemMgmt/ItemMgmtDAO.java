@@ -30,7 +30,7 @@ public class ItemMgmtDAO {
 			conn = ds.getConnection();
 
 			StringBuilder sql = new StringBuilder();
-			sql.append("SELECT * FROM ITEM WHERE 1=1 ");
+			sql.append("SELECT * FROM ITEM WHERE 1=1 AND NVL(USE_YN, 'Y') = 'Y' ");
 
 			List<Object> params = new ArrayList<>();
 
@@ -153,8 +153,8 @@ public class ItemMgmtDAO {
 			DataSource dataFactory = (DataSource) ctx.lookup("java:comp/env/jdbc/oracle");
 			conn = dataFactory.getConnection();
 
-			String sql = "INSERT INTO ITEM (ITEM_ID, ITEM_CODE, ITEM_NAME, ITEM_TYPE, UNIT, SPEC, SUPPLIER_NAME, SAFETY_STOCK, USE_YN, CREATED_AT, UPDATED_AT) "
-					+ "VALUES (SEQ_ITEM.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?, SYSDATE, SYSDATE)";
+			String sql = "INSERT INTO ITEM (ITEM_ID, ITEM_CODE, ITEM_NAME, ITEM_TYPE, UNIT, SPEC, SUPPLIER_NAME, SAFETY_STOCK, USE_YN, REMARK, CREATED_AT, UPDATED_AT) "
+					+ "VALUES (SEQ_ITEM.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?, ?, SYSDATE, SYSDATE)";
 
 			ps = conn.prepareStatement(sql);
 
@@ -166,6 +166,7 @@ public class ItemMgmtDAO {
 			ps.setString(6, dto.getSupplier_name());
 			ps.setInt(7, dto.getSafety_stock());
 			ps.setString(8, dto.getUse_yn());
+			ps.setString(9, dto.getRemark());
 
 			ps.executeUpdate();
 
@@ -196,7 +197,7 @@ public class ItemMgmtDAO {
 
 	        conn = dataFactory.getConnection();
 		
-	        String sql = "DELETE FROM ITEM WHERE ITEM_ID = ?";
+	        String sql = "UPDATE ITEM SET USE_YN = 'N', UPDATED_AT = SYSDATE WHERE ITEM_ID = ?";
         
             ps = conn.prepareStatement(sql);
             ps.setInt(1, id);
@@ -244,7 +245,8 @@ public class ItemMgmtDAO {
 			ps.setString(6, dto.getSupplier_name());
 			ps.setInt(7, dto.getSafety_stock());
 			ps.setString(8, dto.getUse_yn());
-			ps.setInt(9, dto.getItem_id());
+			ps.setString(9, dto.getRemark());
+			ps.setInt(10, dto.getItem_id());
 
 			return ps.executeUpdate();
 
@@ -258,4 +260,102 @@ public class ItemMgmtDAO {
         return 0;
 	}
 	
+
+	public ItemMgmtDTO selectOne(int itemId) {
+		ItemMgmtDTO dto = null;
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			Context ctx = new InitialContext();
+			DataSource ds = (DataSource) ctx.lookup("java:comp/env/jdbc/oracle");
+			conn = ds.getConnection();
+			String sql = "SELECT * FROM ITEM WHERE ITEM_ID = ?";
+			ps = conn.prepareStatement(sql);
+			ps.setInt(1, itemId);
+			rs = ps.executeQuery();
+			if (rs.next()) {
+				dto = new ItemMgmtDTO();
+				dto.setItem_id(rs.getInt("ITEM_ID"));
+				dto.setItem_code(rs.getString("ITEM_CODE"));
+				dto.setItem_name(rs.getString("ITEM_NAME"));
+				dto.setItem_type(rs.getString("ITEM_TYPE"));
+				dto.setUnit(rs.getString("UNIT"));
+				dto.setSpec(rs.getString("SPEC"));
+				dto.setSupplier_name(rs.getString("SUPPLIER_NAME"));
+				dto.setSafety_stock(rs.getInt("SAFETY_STOCK"));
+				dto.setUse_yn(rs.getString("USE_YN"));
+				dto.setRemark(rs.getString("REMARK"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try { if (rs != null) rs.close(); } catch (Exception e) {}
+			try { if (ps != null) ps.close(); } catch (Exception e) {}
+			try { if (conn != null) conn.close(); } catch (Exception e) {}
+		}
+		return dto;
+	}
+
+	public boolean existsItemCode(String itemCode, Integer excludeItemId) {
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			Context ctx = new InitialContext();
+			DataSource ds = (DataSource) ctx.lookup("java:comp/env/jdbc/oracle");
+			conn = ds.getConnection();
+			String sql = "SELECT COUNT(*) FROM ITEM WHERE UPPER(ITEM_CODE) = UPPER(?)" + (excludeItemId != null ? " AND ITEM_ID <> ?" : "");
+			ps = conn.prepareStatement(sql);
+			ps.setString(1, itemCode);
+			if (excludeItemId != null) ps.setInt(2, excludeItemId);
+			rs = ps.executeQuery();
+			if (rs.next()) return rs.getInt(1) > 0;
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try { if (rs != null) rs.close(); } catch (Exception e) {}
+			try { if (ps != null) ps.close(); } catch (Exception e) {}
+			try { if (conn != null) conn.close(); } catch (Exception e) {}
+		}
+		return false;
+	}
+
+	public int countItemReferences(int itemId) {
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		int total = 0;
+		String[] queries = new String[] {
+			"SELECT COUNT(*) FROM PRODUCTION_PLAN WHERE ITEM_ID = ? AND NVL(USE_YN, 'Y') = 'Y'",
+			"SELECT COUNT(*) FROM WORK_ORDER WHERE ITEM_ID = ? AND NVL(USE_YN, 'Y') = 'Y'",
+			"SELECT COUNT(*) FROM INVENTORY WHERE ITEM_ID = ? AND NVL(USE_YN, 'Y') = 'Y'",
+			"SELECT COUNT(*) FROM MATERIAL_INOUT WHERE ITEM_ID = ? AND NVL(USE_YN, 'Y') = 'Y'",
+			"SELECT COUNT(*) FROM MATERIAL_INSPECTION WHERE ITEM_ID = ? AND NVL(USE_YN, 'Y') = 'Y'",
+			"SELECT COUNT(*) FROM ROUTING WHERE ITEM_ID = ? AND NVL(USE_YN, 'Y') = 'Y'",
+			"SELECT COUNT(*) FROM BOM WHERE ITEM_ID = ? AND NVL(USE_YN, 'Y') = 'Y'",
+			"SELECT COUNT(*) FROM BOM_DETAIL WHERE ITEM_ID = ? AND NVL(USE_YN, 'Y') = 'Y'"
+		};
+		try {
+			Context ctx = new InitialContext();
+			DataSource ds = (DataSource) ctx.lookup("java:comp/env/jdbc/oracle");
+			conn = ds.getConnection();
+			for (String sql : queries) {
+				ps = conn.prepareStatement(sql);
+				ps.setInt(1, itemId);
+				rs = ps.executeQuery();
+				if (rs.next()) total += rs.getInt(1);
+				try { if (rs != null) rs.close(); } catch (Exception e) {}
+				try { if (ps != null) ps.close(); } catch (Exception e) {}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try { if (rs != null) rs.close(); } catch (Exception e) {}
+			try { if (ps != null) ps.close(); } catch (Exception e) {}
+			try { if (conn != null) conn.close(); } catch (Exception e) {}
+		}
+		return total;
+	}
+
 }
