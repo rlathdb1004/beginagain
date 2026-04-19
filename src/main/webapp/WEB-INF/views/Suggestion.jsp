@@ -702,19 +702,28 @@ textarea.suField {
 	text-decoration: none;
 }
 
-@media ( max-width :900px) {
-	.suSearchRow, .suFormRow {
-		grid-template-columns: 1fr
+@media ( max-width : 900px) {
+	.suSearchRow {
+		grid-template-columns: 44px 1fr;
 	}
-	.suPostHeader {
-		flex-direction: column;
-		align-items: stretch
+
+	.suSearchRow .suSearchItem:nth-child(1),
+	.suSearchRow .suSearchItem:nth-child(2),
+	.suSearchRow .suSearchItem:nth-child(3) {
+		grid-column: 1 / -1;
 	}
-	.suPostTitle {
-		font-size: 24px
+
+	.suSearchRow .suSearchItem:nth-child(4) {
+		grid-column: 1 / 2;
 	}
-	.suContent {
-		font-size: 15px
+
+	.suSearchRow .suSearchItem:nth-child(5) {
+		grid-column: 2 / 3;
+	}
+
+	.suResetBtn {
+		width: 100%;
+		min-width: 0;
 	}
 }
 </style>

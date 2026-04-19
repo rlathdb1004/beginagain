@@ -508,8 +508,28 @@
 
 @media ( max-width : 900px) {
 	.noFilterGrid {
-		grid-template-columns: 1fr;
+		grid-template-columns: 44px 1fr;
 	}
+
+	.noFilterGrid .noFilterItem:nth-child(1),
+	.noFilterGrid .noFilterItem:nth-child(2),
+	.noFilterGrid .noFilterItem:nth-child(3) {
+		grid-column: 1 / -1;
+	}
+
+	.noFilterGrid .noFilterItem:nth-child(4) {
+		grid-column: 1 / 2;
+	}
+
+	.noFilterGrid .noFilterItem:nth-child(5) {
+		grid-column: 2 / 3;
+	}
+
+	.noResetBtn {
+		width: 100%;
+		min-width: 0;
+	}
+
 	.noFormRow {
 		grid-template-columns: 1fr;
 	}
