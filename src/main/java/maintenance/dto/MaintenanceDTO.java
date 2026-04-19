@@ -22,6 +22,7 @@ public class MaintenanceDTO {
 
     private Date createdAt;
     private Date updatedAt;
+    private int failureActionCount;
 
     public int getMaintenanceId() {
         return maintenanceId;
@@ -141,5 +142,13 @@ public class MaintenanceDTO {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public int getFailureActionCount() {
+        return failureActionCount;
+    }
+
+    public void setFailureActionCount(int failureActionCount) {
+        this.failureActionCount = failureActionCount;
     }
 }

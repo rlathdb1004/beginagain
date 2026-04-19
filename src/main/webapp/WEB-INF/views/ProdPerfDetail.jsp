@@ -10,8 +10,12 @@
         </div>
     </c:when>
     <c:otherwise>
+        <c:if test="${not empty errorMsg}">
+            <script>alert("${errorMsg}");</script>
+        </c:if>
         <form id="prodPerfUpdateForm" action="${pageContext.request.contextPath}/prodperf/update" method="post">
             <input type="hidden" name="seqNO" value="${productionResult.seqNO}">
+            <input type="hidden" name="workOrderId" value="${productionResult.workOrderId}">
             <div class="taPageActions">
                 <button type="button" id="prodPerfUpdateFormEditBtn" class="taBtn taBtnPrimary">수정</button>
                 <button type="submit" id="prodPerfUpdateFormSaveBtn" class="taBtn taBtnPrimary" style="display:none;">수정완료</button>
@@ -21,20 +25,19 @@
             <div class="taFormShell">
                 <table class="taFormTable">
                     <tr><th class="taFormLabel">NO</th><td class="taFormValue"><span class="taReadonlyText">${productionResult.seqNO}</span></td></tr>
-                    <tr><th class="taFormLabel">작업지시</th><td class="taFormValue">
-                        <select class="taFormInput taEditableField" name="workOrderId" id="prodPerfWorkOrderSelect">
-                            <c:forEach var="wo" items="${workOrderOptions}">
-                                <option value="${wo.workOrderId}" data-item-code="${wo.itemCode}" data-item-name="${wo.itemName}" data-line-code="${wo.lineCode}" data-unit="${wo.unit}" ${wo.workOrderId eq productionResult.workOrderId ? 'selected' : ''}>${wo.workOrderNo} / ${wo.itemName} / ${wo.lineCode}</option>
-                            </c:forEach>
-                        </select>
-                    </td></tr>
+                    <tr><th class="taFormLabel">작업지시번호</th><td class="taFormValue"><span class="taReadonlyText">${productionResult.workOrderNo}</span></td></tr>
+                    <tr><th class="taFormLabel">생산계획번호</th><td class="taFormValue"><span class="taReadonlyText">${productionResult.planId}</span></td></tr>
+                    <tr><th class="taFormLabel">작업지시량</th><td class="taFormValue"><span class="taReadonlyText">${productionResult.workQty}</span></td></tr>
+                    <tr><th class="taFormLabel">현재 누적 생산량</th><td class="taFormValue"><span class="taReadonlyText">${productionResult.currentProducedSum}</span></td></tr>
+                    <tr><th class="taFormLabel">현재 누적 손실량</th><td class="taFormValue"><span class="taReadonlyText">${productionResult.currentLossSum}</span></td></tr>
+                    <tr><th class="taFormLabel">남은 가능 수량</th><td class="taFormValue"><span class="taReadonlyText">${productionResult.remainingQty}</span></td></tr>
                     <tr><th class="taFormLabel">생산실적일자</th><td class="taFormValue"><input class="taFormInput taEditableField" type="date" name="resultDate" value="${productionResult.resultDate}"></td></tr>
-                    <tr><th class="taFormLabel">품목코드</th><td class="taFormValue"><span class="taReadonlyText" id="prodPerfItemCode">${productionResult.itemCode}</span></td></tr>
-                    <tr><th class="taFormLabel">품목명</th><td class="taFormValue"><span class="taReadonlyText" id="prodPerfItemName">${productionResult.itemName}</span></td></tr>
+                    <tr><th class="taFormLabel">품목코드</th><td class="taFormValue"><span class="taReadonlyText">${productionResult.itemCode}</span></td></tr>
+                    <tr><th class="taFormLabel">품목명</th><td class="taFormValue"><span class="taReadonlyText">${productionResult.itemName}</span></td></tr>
                     <tr><th class="taFormLabel">생산량</th><td class="taFormValue"><input class="taFormInput taEditableField" type="number" name="producedQty" min="0" value="${productionResult.producedQty}"></td></tr>
                     <tr><th class="taFormLabel">손실량</th><td class="taFormValue"><input class="taFormInput taEditableField" type="number" name="lossQty" min="0" value="${productionResult.lossQty}"></td></tr>
-                    <tr><th class="taFormLabel">단위</th><td class="taFormValue"><span class="taReadonlyText" id="prodPerfUnit">${productionResult.unit}</span></td></tr>
-                    <tr><th class="taFormLabel">라인</th><td class="taFormValue"><span class="taReadonlyText" id="prodPerfLineCode">${productionResult.lineCode}</span></td></tr>
+                    <tr><th class="taFormLabel">단위</th><td class="taFormValue"><span class="taReadonlyText">${productionResult.unit}</span></td></tr>
+                    <tr><th class="taFormLabel">라인</th><td class="taFormValue"><span class="taReadonlyText">${productionResult.lineCode}</span></td></tr>
                     <tr><th class="taFormLabel">LOT</th><td class="taFormValue"><input class="taFormInput taEditableField" type="text" name="lotNo" value="${productionResult.lotNo}"></td></tr>
                     <tr><th class="taFormLabel">상태</th><td class="taFormValue"><select class="taFormInput taEditableField" name="status"><option value="대기" ${productionResult.status eq '대기' ? 'selected' : ''}>대기</option><option value="진행중" ${productionResult.status eq '진행중' ? 'selected' : ''}>진행중</option><option value="완료" ${productionResult.status eq '완료' ? 'selected' : ''}>완료</option></select></td></tr>
                     <tr><th class="taFormLabel">비고</th><td class="taFormValue"><textarea class="taFormTextarea taEditableField" name="remark">${productionResult.remark}</textarea></td></tr>
@@ -49,20 +52,6 @@
     const saveBtn = document.getElementById("prodPerfUpdateFormSaveBtn");
     const cancelBtn = document.getElementById("prodPerfUpdateFormCancelBtn");
     const fields = form.querySelectorAll('.taEditableField');
-    const workOrderSelect = document.getElementById('prodPerfWorkOrderSelect');
-    const itemCode = document.getElementById('prodPerfItemCode');
-    const itemName = document.getElementById('prodPerfItemName');
-    const lineCode = document.getElementById('prodPerfLineCode');
-    const unit = document.getElementById('prodPerfUnit');
-
-    function syncWorkOrderMeta() {
-        const opt = workOrderSelect && workOrderSelect.options[workOrderSelect.selectedIndex];
-        if (!opt) return;
-        itemCode.textContent = opt.dataset.itemCode || '';
-        itemName.textContent = opt.dataset.itemName || '';
-        lineCode.textContent = opt.dataset.lineCode || '';
-        unit.textContent = opt.dataset.unit || '';
-    }
 
     function setViewMode() {
         fields.forEach(function(field) {
@@ -85,11 +74,9 @@
     }
 
     fields.forEach(function(field) { field.dataset.originalValue = field.value; });
-    workOrderSelect && workOrderSelect.addEventListener('change', syncWorkOrderMeta);
     editBtn.addEventListener('click', setEditMode);
     cancelBtn.addEventListener('click', function() {
         fields.forEach(function(field) { field.value = field.dataset.originalValue || ''; });
-        syncWorkOrderMeta();
         setViewMode();
     });
     form.addEventListener('submit', function(e) {
@@ -97,7 +84,6 @@
         fields.forEach(function(field) { if (field.tagName === 'SELECT') field.disabled = false; });
         if (!confirm('수정하시겠습니까?')) e.preventDefault();
     });
-    syncWorkOrderMeta();
     setViewMode();
 })();
 </script>

@@ -7,6 +7,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import ProdMgmt.ProdPerfRegInq.DTO.ProdPerfRegInqDTO;
 import ProdMgmt.ProdPerfRegInq.Service.ProdPerfRegInqService;
@@ -19,6 +20,7 @@ public class ProdPerfDetailController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         int resultId = parseInt(request.getParameter("seqNO"));
         if (resultId <= 0) {
             response.sendRedirect(request.getContextPath() + "/prodperf");
@@ -31,8 +33,11 @@ public class ProdPerfDetailController extends HttpServlet {
             return;
         }
 
+        HttpSession session = request.getSession();
+        request.setAttribute("errorMsg", session.getAttribute("errorMsg"));
+        session.removeAttribute("errorMsg");
+
         request.setAttribute("productionResult", productionResult);
-        request.setAttribute("workOrderOptions", service.getWorkOrderOptions());
         request.setAttribute("pageTitle", "생산관리");
         request.setAttribute("pageSubTitle", "생산실적 상세 / 수정");
         request.setAttribute("contentPage", "/WEB-INF/views/ProdPerfDetail.jsp");

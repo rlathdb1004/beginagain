@@ -75,7 +75,7 @@
 						<th class="taTableHeadCell taColFit">품목번호</th>
 						<th class="taTableHeadCell taColFit">품목코드</th>
 						<th class="taTableHeadCell taColGrow">품목명</th>
-						<th class="taTableHeadCell taColFit">품목유형</th>
+						<th class="taTableHeadCell taColFit">품목 유형</th>
 <!-- 						<th class="taTableHeadCell taColFit">단위</th> -->
 						<th class="taTableHeadCell taColGrow">규격</th>
 <!-- 						<th class="taTableHeadCell taColGrow">공급처</th> -->
@@ -136,7 +136,12 @@
 					<label>품목명</label><input type="text" name="itemName" required>
 				</div>
 				<div class="form-row">
-					<label>품목유형</label><input type="text" name="itemType">
+					<label>품목 유형</label>
+					<select name="itemType" class="taSelect" required>
+						<option value="">품목 유형 선택</option>
+						<option value="원자재">원자재</option>
+						<option value="완제품">완제품</option>
+					</select>
 				</div>
 				<div class="form-row">
 					<label>단위</label><input type="text" name="unit">

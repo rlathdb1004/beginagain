@@ -8,6 +8,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import ProdMgmt.ProdPerfRegInq.DTO.ProdPerfRegInqDTO;
 import ProdMgmt.ProdPerfRegInq.Service.ProdPerfRegInqService;
@@ -31,7 +32,12 @@ public class ProdPerfRegisterController extends HttpServlet {
         dto.setStatus(nvl(request.getParameter("status")));
         dto.setRemark(nvl(request.getParameter("remark")));
 
-        service.insertProductionResult(dto);
+        try {
+            service.insertProductionResult(dto);
+        } catch (IllegalArgumentException e) {
+            HttpSession session = request.getSession();
+            session.setAttribute("errorMsg", e.getMessage());
+        }
         response.sendRedirect(request.getContextPath() + "/prodperf");
     }
 

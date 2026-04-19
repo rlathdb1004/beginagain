@@ -9,13 +9,16 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import MaterialMgmt.IORegInq.DTO.IORegInqDTO;
 import MaterialMgmt.IORegInq.Service.IORegInqService;
+import item.dto.ItemDTO;
 
 @WebServlet("/ioRegInq")
 public class IORegInqServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private final IORegInqService service = new IORegInqService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -57,44 +60,56 @@ public class IORegInqServlet extends HttpServlet {
         forwardList(request, response, searchDTO);
     }
 
-    private void register(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        IORegInqDTO dto = new IORegInqDTO();
-        dto.setItemCode(request.getParameter("itemCode"));
-        dto.setInoutType(request.getParameter("inoutType"));
-        dto.setQty(parseDouble(request.getParameter("qty")));
-        dto.setUnit(request.getParameter("unit"));
-        dto.setStatus(request.getParameter("status"));
-        dto.setRemark(request.getParameter("remark"));
-        String inoutDate = request.getParameter("inoutDate");
-        dto.setInoutDate((inoutDate == null || "".equals(inoutDate)) ? new Date(System.currentTimeMillis()) : Date.valueOf(inoutDate));
-        new IORegInqService().register(dto);
+    private void register(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        HttpSession session = request.getSession();
+        try {
+            IORegInqDTO dto = new IORegInqDTO();
+            dto.setItemId(parseInt(request.getParameter("itemId"), 0));
+            dto.setInoutType(request.getParameter("inoutType"));
+            dto.setQty(parseDouble(request.getParameter("qty")));
+            dto.setStatus(request.getParameter("status"));
+            dto.setRemark(request.getParameter("remark"));
+            String inoutDate = request.getParameter("inoutDate");
+            dto.setInoutDate((inoutDate == null || "".equals(inoutDate)) ? new Date(System.currentTimeMillis()) : Date.valueOf(inoutDate));
+            service.register(dto);
+        } catch (RuntimeException e) {
+            session.setAttribute("errorMsg", e.getMessage());
+        }
         response.sendRedirect(request.getContextPath() + "/ioRegInq");
     }
 
-
-    private void update(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void update(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        HttpSession session = request.getSession();
         IORegInqDTO dto = new IORegInqDTO();
         dto.setInoutId(parseInt(request.getParameter("inoutId"), 0));
         dto.setInoutType(request.getParameter("inoutType"));
         dto.setQty(parseDouble(request.getParameter("qty")));
-        dto.setUnit(request.getParameter("unit"));
-        String inoutDate = request.getParameter("inoutDate");
-        dto.setInoutDate((inoutDate == null || "".equals(inoutDate)) ? null : Date.valueOf(inoutDate));
         dto.setStatus(request.getParameter("status"));
         dto.setRemark(request.getParameter("remark"));
-        new IORegInqService().update(dto);
+        String inoutDate = request.getParameter("inoutDate");
+        dto.setInoutDate((inoutDate == null || "".equals(inoutDate)) ? null : Date.valueOf(inoutDate));
+        try {
+            service.update(dto);
+        } catch (RuntimeException e) {
+            session.setAttribute("errorMsg", e.getMessage());
+        }
         response.sendRedirect(request.getContextPath() + "/ioRegInq?inoutId=" + dto.getInoutId());
     }
 
-    private void delete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        new IORegInqService().delete(parseIntArray(request.getParameterValues("inoutIds")));
+    private void delete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        HttpSession session = request.getSession();
+        try {
+            service.delete(parseIntArray(request.getParameterValues("inoutIds")));
+        } catch (RuntimeException e) {
+            session.setAttribute("errorMsg", e.getMessage());
+        }
         response.sendRedirect(request.getContextPath() + "/ioRegInq");
     }
 
     private void detail(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int inoutId = Integer.parseInt(request.getParameter("inoutId"));
-        IORegInqDTO dto = new IORegInqService().getIORegInqDetail(inoutId);
+        IORegInqDTO dto = service.getIORegInqDetail(inoutId);
+        request.setAttribute("errorMsg", popErrorMessage(request.getSession(false)));
         request.setAttribute("ioRegInqDTO", dto);
         request.setAttribute("pageId", "page-materials-inout-detail");
         request.setAttribute("pageTitle", "입출고 상세");
@@ -108,7 +123,9 @@ public class IORegInqServlet extends HttpServlet {
         request.setCharacterEncoding("utf-8");
         response.setContentType("text/html; charset=utf-8;");
 
-        List<IORegInqDTO> fullList = new IORegInqService().getIORegInqList(searchDTO);
+        List<IORegInqDTO> fullList = service.getIORegInqList(searchDTO);
+        List<ItemDTO> itemList = service.getMaterialItemList();
+
         int paCurrentPage = parseInt(request.getParameter("page"), 1);
         int paPageSize = 10;
         int paBlockSize = 5;
@@ -124,6 +141,8 @@ public class IORegInqServlet extends HttpServlet {
         int paEndPage = Math.min(paStartPage + paBlockSize - 1, paTotalPage);
 
         request.setAttribute("ioRegInqList", pageList);
+        request.setAttribute("itemList", itemList);
+        request.setAttribute("errorMsg", popErrorMessage(request.getSession(false)));
         request.setAttribute("ioRegInqSearchDTO", searchDTO);
         request.setAttribute("paCurrentPage", paCurrentPage);
         request.setAttribute("paPageSize", paPageSize);
@@ -139,6 +158,14 @@ public class IORegInqServlet extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
     }
 
+    private String popErrorMessage(HttpSession session) {
+        if (session == null) return null;
+        Object value = session.getAttribute("errorMsg");
+        if (value == null) return null;
+        session.removeAttribute("errorMsg");
+        return String.valueOf(value);
+    }
+
     private int[] parseIntArray(String[] values) {
         if (values == null) return new int[0];
         int[] tmp = new int[values.length];
@@ -149,11 +176,6 @@ public class IORegInqServlet extends HttpServlet {
         return r;
     }
 
-    private double parseDouble(String value) {
-        return (value == null || "".equals(value)) ? 0 : Double.parseDouble(value);
-    }
-
-    private int parseInt(String value, int defaultValue) {
-        try { return Integer.parseInt(value); } catch (Exception e) { return defaultValue; }
-    }
+    private double parseDouble(String value) { return (value == null || "".equals(value)) ? 0 : Double.parseDouble(value); }
+    private int parseInt(String value, int defaultValue) { try { return Integer.parseInt(value); } catch (Exception e) { return defaultValue; } }
 }

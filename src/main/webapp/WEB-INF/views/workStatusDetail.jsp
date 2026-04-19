@@ -21,12 +21,7 @@
 			<div class="taPageActions">
 				<a class="taBtn taBtnOutline"
 					href="${pageContext.request.contextPath}/workstatus"
-					style="text-decoration: none;">목록</a> <a class="taBtn taBtnOutline"
-					href="${pageContext.request.contextPath}/workorder/detail?workOrderId=${workStatus.workOrderId}"
-					style="text-decoration: none;">작업지시 보기</a> <a
-					class="taBtn taBtnOutline"
-					href="${pageContext.request.contextPath}/productionresult/list?workOrderId=${workStatus.workOrderId}"
-					style="text-decoration: none;">생산실적</a>
+					style="text-decoration: none;">목록</a> 
 			</div>
 
 			<div class="taFormShell">

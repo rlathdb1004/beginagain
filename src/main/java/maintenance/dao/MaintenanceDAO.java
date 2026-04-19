@@ -20,7 +20,8 @@ public class MaintenanceDAO {
                 + "       E.EQUIPMENT_CODE, E.EQUIPMENT_NAME, E.MODEL_NAME, E.LOCATION, "
                 + "       EM.MAINTENANCE_DATE, EM.MAINTENANCE_TYPE, EM.MAINTENANCE_CONTENT, "
                 + "       EM.NEXT_MAINTENANCE_DATE, EM.STATUS, EM.USE_YN, EM.REMARK, "
-                + "       EM.CREATED_AT, EM.UPDATED_AT "
+                + "       EM.CREATED_AT, EM.UPDATED_AT, "
+                + "       (SELECT COUNT(*) FROM EQUIPMENT_FAILURE_ACTION FA WHERE FA.MAINTENANCE_ID = EM.MAINTENANCE_ID) AS FAILURE_ACTION_COUNT "
                 + "FROM EQUIPMENT_MAINTENANCE EM "
                 + "JOIN EQUIPMENT E ON EM.EQUIPMENT_ID = E.EQUIPMENT_ID "
                 + "WHERE EM.USE_YN = 'Y' "
@@ -31,23 +32,7 @@ public class MaintenanceDAO {
             rs = ps.executeQuery();
 
             while (rs.next()) {
-                MaintenanceDTO dto = new MaintenanceDTO();
-                dto.setMaintenanceId(rs.getInt("MAINTENANCE_ID"));
-                dto.setEquipmentId(rs.getInt("EQUIPMENT_ID"));
-                dto.setEquipmentCode(rs.getString("EQUIPMENT_CODE"));
-                dto.setEquipmentName(rs.getString("EQUIPMENT_NAME"));
-                dto.setModelName(rs.getString("MODEL_NAME"));
-                dto.setLocation(rs.getString("LOCATION"));
-                dto.setMaintenanceDate(rs.getDate("MAINTENANCE_DATE"));
-                dto.setMaintenanceType(rs.getString("MAINTENANCE_TYPE"));
-                dto.setMaintenanceContent(rs.getString("MAINTENANCE_CONTENT"));
-                dto.setNextMaintenanceDate(rs.getDate("NEXT_MAINTENANCE_DATE"));
-                dto.setStatus(rs.getString("STATUS"));
-                dto.setUseYn(rs.getString("USE_YN"));
-                dto.setRemark(rs.getString("REMARK"));
-                dto.setCreatedAt(rs.getDate("CREATED_AT"));
-                dto.setUpdatedAt(rs.getDate("UPDATED_AT"));
-                list.add(dto);
+                list.add(mapRow(rs));
             }
         } catch (Exception e) {
             throw new RuntimeException("정비이력 목록 조회 실패", e);
@@ -69,7 +54,8 @@ public class MaintenanceDAO {
                 + "       E.EQUIPMENT_CODE, E.EQUIPMENT_NAME, E.MODEL_NAME, E.LOCATION, "
                 + "       EM.MAINTENANCE_DATE, EM.MAINTENANCE_TYPE, EM.MAINTENANCE_CONTENT, "
                 + "       EM.NEXT_MAINTENANCE_DATE, EM.STATUS, EM.USE_YN, EM.REMARK, "
-                + "       EM.CREATED_AT, EM.UPDATED_AT "
+                + "       EM.CREATED_AT, EM.UPDATED_AT, "
+                + "       (SELECT COUNT(*) FROM EQUIPMENT_FAILURE_ACTION FA WHERE FA.MAINTENANCE_ID = EM.MAINTENANCE_ID) AS FAILURE_ACTION_COUNT "
                 + "FROM EQUIPMENT_MAINTENANCE EM "
                 + "JOIN EQUIPMENT E ON EM.EQUIPMENT_ID = E.EQUIPMENT_ID "
                 + "WHERE EM.MAINTENANCE_ID = ? "
@@ -81,22 +67,7 @@ public class MaintenanceDAO {
             rs = ps.executeQuery();
 
             if (rs.next()) {
-                dto = new MaintenanceDTO();
-                dto.setMaintenanceId(rs.getInt("MAINTENANCE_ID"));
-                dto.setEquipmentId(rs.getInt("EQUIPMENT_ID"));
-                dto.setEquipmentCode(rs.getString("EQUIPMENT_CODE"));
-                dto.setEquipmentName(rs.getString("EQUIPMENT_NAME"));
-                dto.setModelName(rs.getString("MODEL_NAME"));
-                dto.setLocation(rs.getString("LOCATION"));
-                dto.setMaintenanceDate(rs.getDate("MAINTENANCE_DATE"));
-                dto.setMaintenanceType(rs.getString("MAINTENANCE_TYPE"));
-                dto.setMaintenanceContent(rs.getString("MAINTENANCE_CONTENT"));
-                dto.setNextMaintenanceDate(rs.getDate("NEXT_MAINTENANCE_DATE"));
-                dto.setStatus(rs.getString("STATUS"));
-                dto.setUseYn(rs.getString("USE_YN"));
-                dto.setRemark(rs.getString("REMARK"));
-                dto.setCreatedAt(rs.getDate("CREATED_AT"));
-                dto.setUpdatedAt(rs.getDate("UPDATED_AT"));
+                dto = mapRow(rs);
             }
         } catch (Exception e) {
             throw new RuntimeException("정비이력 상세 조회 실패", e);
@@ -106,6 +77,38 @@ public class MaintenanceDAO {
         }
 
         return dto;
+    }
+
+    public boolean existsEquipment(Connection conn, int equipmentId) {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            ps = conn.prepareStatement("SELECT COUNT(*) FROM EQUIPMENT WHERE EQUIPMENT_ID = ? AND USE_YN = 'Y'");
+            ps.setInt(1, equipmentId);
+            rs = ps.executeQuery();
+            return rs.next() && rs.getInt(1) > 0;
+        } catch (Exception e) {
+            throw new RuntimeException("설비 존재 여부 확인 실패", e);
+        } finally {
+            try { if (rs != null) rs.close(); } catch (Exception e) { e.printStackTrace(); }
+            try { if (ps != null) ps.close(); } catch (Exception e) { e.printStackTrace(); }
+        }
+    }
+
+    public int countFailureActionByMaintenanceId(Connection conn, int maintenanceId) {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            ps = conn.prepareStatement("SELECT COUNT(*) FROM EQUIPMENT_FAILURE_ACTION WHERE MAINTENANCE_ID = ?");
+            ps.setInt(1, maintenanceId);
+            rs = ps.executeQuery();
+            return rs.next() ? rs.getInt(1) : 0;
+        } catch (Exception e) {
+            throw new RuntimeException("고장조치 연결 여부 확인 실패", e);
+        } finally {
+            try { if (rs != null) rs.close(); } catch (Exception e) { e.printStackTrace(); }
+            try { if (ps != null) ps.close(); } catch (Exception e) { e.printStackTrace(); }
+        }
     }
 
     public int insertMaintenance(Connection conn, MaintenanceDTO dto) {
@@ -143,8 +146,7 @@ public class MaintenanceDAO {
 
         String sql = ""
                 + "UPDATE EQUIPMENT_MAINTENANCE "
-                + "SET EQUIPMENT_ID = ?, "
-                + "    MAINTENANCE_DATE = ?, "
+                + "SET MAINTENANCE_DATE = ?, "
                 + "    MAINTENANCE_TYPE = ?, "
                 + "    MAINTENANCE_CONTENT = ?, "
                 + "    NEXT_MAINTENANCE_DATE = ?, "
@@ -156,14 +158,13 @@ public class MaintenanceDAO {
 
         try {
             ps = conn.prepareStatement(sql);
-            ps.setInt(1, dto.getEquipmentId());
-            ps.setDate(2, dto.getMaintenanceDate());
-            ps.setString(3, dto.getMaintenanceType());
-            ps.setString(4, dto.getMaintenanceContent());
-            ps.setDate(5, dto.getNextMaintenanceDate());
-            ps.setString(6, dto.getStatus());
-            ps.setString(7, dto.getRemark());
-            ps.setInt(8, dto.getMaintenanceId());
+            ps.setDate(1, dto.getMaintenanceDate());
+            ps.setString(2, dto.getMaintenanceType());
+            ps.setString(3, dto.getMaintenanceContent());
+            ps.setDate(4, dto.getNextMaintenanceDate());
+            ps.setString(5, dto.getStatus());
+            ps.setString(6, dto.getRemark());
+            ps.setInt(7, dto.getMaintenanceId());
 
             return ps.executeUpdate();
         } catch (Exception e) {
@@ -197,5 +198,40 @@ public class MaintenanceDAO {
         }
 
         return result;
+    }
+
+    public int updateMaintenanceStatus(Connection conn, int maintenanceId, String status) {
+        PreparedStatement ps = null;
+        try {
+            ps = conn.prepareStatement("UPDATE EQUIPMENT_MAINTENANCE SET STATUS = ?, UPDATED_AT = SYSDATE WHERE MAINTENANCE_ID = ? AND USE_YN = 'Y'");
+            ps.setString(1, status);
+            ps.setInt(2, maintenanceId);
+            return ps.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException("정비이력 상태 수정 실패", e);
+        } finally {
+            try { if (ps != null) ps.close(); } catch (Exception e) { e.printStackTrace(); }
+        }
+    }
+
+    private MaintenanceDTO mapRow(ResultSet rs) throws Exception {
+        MaintenanceDTO dto = new MaintenanceDTO();
+        dto.setMaintenanceId(rs.getInt("MAINTENANCE_ID"));
+        dto.setEquipmentId(rs.getInt("EQUIPMENT_ID"));
+        dto.setEquipmentCode(rs.getString("EQUIPMENT_CODE"));
+        dto.setEquipmentName(rs.getString("EQUIPMENT_NAME"));
+        dto.setModelName(rs.getString("MODEL_NAME"));
+        dto.setLocation(rs.getString("LOCATION"));
+        dto.setMaintenanceDate(rs.getDate("MAINTENANCE_DATE"));
+        dto.setMaintenanceType(rs.getString("MAINTENANCE_TYPE"));
+        dto.setMaintenanceContent(rs.getString("MAINTENANCE_CONTENT"));
+        dto.setNextMaintenanceDate(rs.getDate("NEXT_MAINTENANCE_DATE"));
+        dto.setStatus(rs.getString("STATUS"));
+        dto.setUseYn(rs.getString("USE_YN"));
+        dto.setRemark(rs.getString("REMARK"));
+        dto.setCreatedAt(rs.getDate("CREATED_AT"));
+        dto.setUpdatedAt(rs.getDate("UPDATED_AT"));
+        try { dto.setFailureActionCount(rs.getInt("FAILURE_ACTION_COUNT")); } catch (Exception ignore) {}
+        return dto;
     }
 }

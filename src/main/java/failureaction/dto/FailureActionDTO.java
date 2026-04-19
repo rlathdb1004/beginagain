@@ -13,6 +13,10 @@ public class FailureActionDTO {
     private String actionText;
     private Date actionDate;
     private String status;
+    private String equipmentCode;
+    private String equipmentName;
+    private String maintenanceType;
+    private Date maintenanceDate;
 
     public int getFailureActionId() {
         return failureActionId;
@@ -85,4 +89,13 @@ public class FailureActionDTO {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public String getEquipmentCode() { return equipmentCode; }
+    public void setEquipmentCode(String equipmentCode) { this.equipmentCode = equipmentCode; }
+    public String getEquipmentName() { return equipmentName; }
+    public void setEquipmentName(String equipmentName) { this.equipmentName = equipmentName; }
+    public String getMaintenanceType() { return maintenanceType; }
+    public void setMaintenanceType(String maintenanceType) { this.maintenanceType = maintenanceType; }
+    public Date getMaintenanceDate() { return maintenanceDate; }
+    public void setMaintenanceDate(Date maintenanceDate) { this.maintenanceDate = maintenanceDate; }
 }
