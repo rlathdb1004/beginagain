@@ -21,12 +21,16 @@ public class InvRegInqDTO {
     private String itemCode;
     // 품목명
     private String itemName;  
+    // 품목 유형
+    private String itemType;
     // 현재재고
     private double qtyOnHand;   
     // 안전재고
     private double safetyStock;
     // 단위
     private String unit; 
+    // 재고상태
+    private String inventoryStatus;
     // 비고
     private String remark;  
     // 생성일
@@ -80,6 +84,15 @@ public class InvRegInqDTO {
         this.itemName = itemName;
     }
 
+
+    public String getItemType() {
+        return itemType;
+    }
+
+    public void setItemType(String itemType) {
+        this.itemType = itemType;
+    }
+
     public double getQtyOnHand() {
         return qtyOnHand;
     }
@@ -102,6 +115,14 @@ public class InvRegInqDTO {
 
     public void setUnit(String unit) {
         this.unit = unit;
+    }
+
+    public String getInventoryStatus() {
+        return inventoryStatus;
+    }
+
+    public void setInventoryStatus(String inventoryStatus) {
+        this.inventoryStatus = inventoryStatus;
     }
 
     public String getRemark() {
@@ -165,8 +186,8 @@ public class InvRegInqDTO {
 	@Override
 	public String toString() {
 		return "InvRegInqDTO [inventoryId=" + inventoryId + ", itemId=" + itemId + ", itemCode=" + itemCode
-				+ ", itemName=" + itemName + ", qtyOnHand=" + qtyOnHand + ", safetyStock=" + safetyStock + ", unit="
-				+ unit + ", remark=" + remark + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt
+				+ ", itemName=" + itemName + ", itemType=" + itemType + ", qtyOnHand=" + qtyOnHand + ", safetyStock=" + safetyStock + ", unit="
+				+ unit + ", inventoryStatus=" + inventoryStatus + ", remark=" + remark + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt
 				+ ", searchType=" + searchType + ", keyword=" + keyword + ", startDate=" + startDate + ", endDate="
 				+ endDate + "]";
 	}

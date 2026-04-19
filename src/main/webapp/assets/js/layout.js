@@ -1,49 +1,81 @@
-window.addEventListener("load", function () {
-    const menuToggle = document.getElementById("menuToggle");
-    const sidebar = document.querySelector(".sidebar");
+document.addEventListener("DOMContentLoaded", function () {
+    const siMenuToggle = document.getElementById("menuToggle");
+    const siSidebar = document.querySelector(".sidebar");
+    const siMenuTitles = Array.from(document.querySelectorAll(".menu-title"));
+    const siStorageKey = "siSidebarOpenMenus";
 
-    if (menuToggle && sidebar) {
-        menuToggle.addEventListener("click", function () {
-            sidebar.classList.toggle("open");
+    if (siMenuToggle && siSidebar) {
+        siMenuToggle.addEventListener("click", function () {
+            siSidebar.classList.toggle("open");
         });
     }
 
-    const menuTitles = document.querySelectorAll(".menu-title");
-    for (let i = 0; i < menuTitles.length; i++) {
-        menuTitles[i].addEventListener("click", function () {
-            this.classList.toggle("open");
+    let siOpenMenus = [];
+    try {
+        siOpenMenus = JSON.parse(localStorage.getItem(siStorageKey)) || [];
+    } catch (e) {
+        siOpenMenus = [];
+    }
 
-            const menuItems = this.nextElementSibling;
-            if (menuItems) {
-                menuItems.classList.toggle("open");
+    // 저장된 열린 메뉴 복원
+    siMenuTitles.forEach(function (siTitle, siIndex) {
+        const siMenuItems = siTitle.nextElementSibling;
+        if (!siMenuItems || !siMenuItems.classList.contains("menu-items")) return;
+
+        const siIsDashboard = siIndex === 0;
+
+        if (siIsDashboard || siOpenMenus.includes(siIndex)) {
+            siTitle.classList.add("open");
+            siMenuItems.classList.add("open");
+        } else {
+            siTitle.classList.remove("open");
+            siMenuItems.classList.remove("open");
+        }
+
+        // 대제목 클릭
+        siTitle.addEventListener("click", function (e) {
+            e.preventDefault();
+
+            const siIsCurrentlyOpen = siTitle.classList.contains("open");
+
+            // 대시보드는 항상 열림 유지
+            if (siIsDashboard) {
+                siTitle.classList.add("open");
+                siMenuItems.classList.add("open");
+                return;
             }
+
+            if (siIsCurrentlyOpen) {
+                siTitle.classList.remove("open");
+                siMenuItems.classList.remove("open");
+            } else {
+                siTitle.classList.add("open");
+                siMenuItems.classList.add("open");
+            }
+
+            const siUpdatedOpenMenus = [];
+            siMenuTitles.forEach(function (siEachTitle, siEachIndex) {
+                if (siEachTitle.classList.contains("open")) {
+                    siUpdatedOpenMenus.push(siEachIndex);
+                }
+            });
+
+            localStorage.setItem(siStorageKey, JSON.stringify(siUpdatedOpenMenus));
         });
-    }
 
-    const liveCalendar = document.getElementById("liveCalendar");
-    const liveClock = document.getElementById("liveClock");
+        // 소제목 클릭 시 부모 메뉴 열린 상태 저장
+        const siLinks = siMenuItems.querySelectorAll("a");
+        siLinks.forEach(function (siLink) {
+            siLink.addEventListener("click", function () {
+                const siUpdatedOpenMenus = [];
+                siMenuTitles.forEach(function (siEachTitle, siEachIndex) {
+                    if (siEachIndex === 0 || siEachTitle.classList.contains("open") || siEachIndex === siIndex) {
+                        siUpdatedOpenMenus.push(siEachIndex);
+                    }
+                });
 
-    function updateClock() {
-        const now = new Date();
-        const y = now.getFullYear();
-        const m = String(now.getMonth() + 1).padStart(2, "0");
-        const d = String(now.getDate()).padStart(2, "0");
-        const h = String(now.getHours()).padStart(2, "0");
-        const mi = String(now.getMinutes()).padStart(2, "0");
-        const s = String(now.getSeconds()).padStart(2, "0");
-
-        const week = ["일", "월", "화", "수", "목", "금", "토"];
-        const w = week[now.getDay()];
-
-        if (liveCalendar) {
-            liveCalendar.textContent = y + "-" + m + "-" + d + " " + w + "요일";
-        }
-
-        if (liveClock) {
-            liveClock.textContent = h + " : " + mi + " : " + s;
-        }
-    }
-
-    updateClock();
-    setInterval(updateClock, 1000);
+                localStorage.setItem(siStorageKey, JSON.stringify(siUpdatedOpenMenus));
+            });
+        });
+    });
 });

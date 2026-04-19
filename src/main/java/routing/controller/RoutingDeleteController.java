@@ -26,11 +26,16 @@ public class RoutingDeleteController extends HttpServlet {
         String itemId = request.getParameter("itemId");
 
         if (routingIds == null || routingIds.length == 0) {
+            request.getSession().setAttribute("errorMessage", "삭제할 라우팅을 선택하세요.");
             response.sendRedirect(request.getContextPath() + "/routing/list?itemId=" + itemId);
             return;
         }
 
-        routingService.deleteRouting(routingIds);
+        try {
+            routingService.deleteRouting(routingIds);
+        } catch (RuntimeException e) {
+            request.getSession().setAttribute("errorMessage", e.getMessage());
+        }
 
         response.sendRedirect(request.getContextPath() + "/routing/list?itemId=" + itemId);
     }

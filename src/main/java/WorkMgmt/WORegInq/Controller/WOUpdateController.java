@@ -8,6 +8,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import WorkMgmt.WORegInq.DTO.WORegInqDTO;
 import WorkMgmt.WORegInq.Service.WORegInqService;
@@ -32,26 +33,21 @@ public class WOUpdateController extends HttpServlet {
         dto.setStatus(nvl(request.getParameter("status")));
         dto.setRemark(nvl(request.getParameter("remark")));
 
-        service.updateWorkOrder(dto);
+        try {
+            service.updateWorkOrder(dto);
+        } catch (IllegalArgumentException e) {
+            HttpSession session = request.getSession();
+            session.setAttribute("errorMsg", e.getMessage());
+        }
         response.sendRedirect(request.getContextPath() + "/woreginq/detail?seqNO=" + dto.getSeqNO());
     }
 
     private int parseInt(String value) {
-        try {
-            return Integer.parseInt(value);
-        } catch (Exception e) {
-            return 0;
-        }
+        try { return Integer.parseInt(value); } catch (Exception e) { return 0; }
     }
-
     private Date parseDate(String value) {
-        try {
-            return Date.valueOf(value);
-        } catch (Exception e) {
-            return null;
-        }
+        try { return Date.valueOf(value); } catch (Exception e) { return null; }
     }
-
     private String nvl(String str) {
         return str == null ? "" : str.trim();
     }

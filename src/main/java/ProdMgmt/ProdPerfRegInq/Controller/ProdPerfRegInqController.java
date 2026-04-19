@@ -10,6 +10,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import ProdMgmt.ProdPerfRegInq.DTO.ProdPerfRegInqDTO;
 import ProdMgmt.ProdPerfRegInq.Service.ProdPerfRegInqService;
@@ -25,9 +26,7 @@ public class ProdPerfRegInqController extends HttpServlet {
         request.setCharacterEncoding("utf-8");
         response.setContentType("text/html;charset=utf-8");
 
-        ProdPerfRegInqService service = new ProdPerfRegInqService();
-
-        String searched = nvl(request.getParameter("searched"));
+        ProdMgmt.ProdPerfRegInq.Service.ProdPerfRegInqService service = new ProdPerfRegInqService();
 
         String startDate = nvl(request.getParameter("startDate"));
         String endDate = nvl(request.getParameter("endDate"));
@@ -40,45 +39,27 @@ public class ProdPerfRegInqController extends HttpServlet {
 
         String pageParam = request.getParameter("page");
         if (pageParam != null && !pageParam.trim().equals("")) {
-            try {
-                page = Integer.parseInt(pageParam);
-            } catch (Exception e) {
-                page = 1;
-            }
+            try { page = Integer.parseInt(pageParam); } catch (Exception e) { page = 1; }
         }
 
-        int totalCount = 0;
-        int totalPage = 1;
-        int startPage = 1;
-        int endPage = 1;
-        List<ProdPerfRegInqDTO> list = new ArrayList<>();
-
-        // 처음 진입해도 전체 목록 조회
-        totalCount = service.getTotalCount(startDate, endDate, searchType, keyword);
-
-        totalPage = (int) Math.ceil((double) totalCount / pageSize);
-        if (totalPage == 0) {
-            totalPage = 1;
-        }
-
-        if (page < 1) {
-            page = 1;
-        }
-        if (page > totalPage) {
-            page = totalPage;
-        }
+        int totalCount = service.getTotalCount(startDate, endDate, searchType, keyword);
+        int totalPage = (int) Math.ceil((double) totalCount / pageSize);
+        if (totalPage == 0) totalPage = 1;
+        if (page < 1) page = 1;
+        if (page > totalPage) page = totalPage;
 
         int startRow = (page - 1) * pageSize + 1;
         int endRow = page * pageSize;
-
+        List<ProdPerfRegInqDTO> list = new ArrayList<ProdPerfRegInqDTO>();
         list = service.getListByPage(startDate, endDate, searchType, keyword, startRow, endRow);
 
-        startPage = ((page - 1) / pageBlock) * pageBlock + 1;
-        endPage = startPage + pageBlock - 1;
+        int startPage = ((page - 1) / pageBlock) * pageBlock + 1;
+        int endPage = startPage + pageBlock - 1;
+        if (endPage > totalPage) endPage = totalPage;
 
-        if (endPage > totalPage) {
-            endPage = totalPage;
-        }
+        HttpSession session = request.getSession();
+        request.setAttribute("errorMsg", session.getAttribute("errorMsg"));
+        session.removeAttribute("errorMsg");
 
         request.setAttribute("list", list);
         request.setAttribute("workOrderOptions", service.getWorkOrderOptions());
@@ -112,12 +93,15 @@ public class ProdPerfRegInqController extends HttpServlet {
         response.setContentType("text/html;charset=utf-8");
 
         ProdPerfRegInqService service = new ProdPerfRegInqService();
-
         String cmd = request.getParameter("cmd");
 
         if ("delete".equals(cmd)) {
             String[] seqNos = request.getParameterValues("seqNO");
-            service.deleteByIds(seqNos);
+            try {
+                service.deleteByIds(seqNos);
+            } catch (IllegalArgumentException e) {
+                request.getSession().setAttribute("errorMsg", e.getMessage());
+            }
 
             String page = nvl(request.getParameter("page"));
             String searched = nvl(request.getParameter("searched"));

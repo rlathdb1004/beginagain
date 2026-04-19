@@ -9,7 +9,10 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
+import equipment.dto.EquipmentDTO;
+import equipment.service.EquipmentService;
 import maintenance.dto.MaintenanceDTO;
 import maintenance.service.MaintenanceService;
 
@@ -18,6 +21,7 @@ public class MaintenanceListController extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     private MaintenanceService maintenanceService = new MaintenanceService();
+    private EquipmentService equipmentService = new EquipmentService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -45,17 +49,9 @@ public class MaintenanceListController extends HttpServlet {
         int totalCount = filteredList.size();
         int totalPage = (int) Math.ceil((double) totalCount / pageSize);
 
-        if (totalPage < 1) {
-            totalPage = 1;
-        }
-
-        if (page < 1) {
-            page = 1;
-        }
-
-        if (page > totalPage) {
-            page = totalPage;
-        }
+        if (totalPage < 1) totalPage = 1;
+        if (page < 1) page = 1;
+        if (page > totalPage) page = totalPage;
 
         int fromIndex = (page - 1) * pageSize;
         int toIndex = Math.min(fromIndex + pageSize, totalCount);
@@ -67,14 +63,21 @@ public class MaintenanceListController extends HttpServlet {
 
         int startPage = ((page - 1) / pageBlock) * pageBlock + 1;
         int endPage = startPage + pageBlock - 1;
-
-        if (endPage > totalPage) {
-            endPage = totalPage;
-        }
+        if (endPage > totalPage) endPage = totalPage;
 
         request.setAttribute("maintenanceList", pageList);
+        request.setAttribute("equipmentList", equipmentService.getEquipmentList());
         request.setAttribute("searchType", searchType);
         request.setAttribute("keyword", keyword);
+
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            Object errorMsg = session.getAttribute("errorMsg");
+            if (errorMsg != null) {
+                request.setAttribute("errorMsg", errorMsg);
+                session.removeAttribute("errorMsg");
+            }
+        }
 
         request.setAttribute("paCurrentPage", page);
         request.setAttribute("paPageSize", pageSize);
@@ -91,44 +94,25 @@ public class MaintenanceListController extends HttpServlet {
     }
 
     private int parseInt(String value, int defaultValue) {
-        try {
-            return Integer.parseInt(value);
-        } catch (Exception e) {
-            return defaultValue;
-        }
+        try { return Integer.parseInt(value); } catch (Exception e) { return defaultValue; }
     }
 
-    private String nvl(String str) {
-        return str == null ? "" : str.trim();
-    }
+    private String nvl(String str) { return str == null ? "" : str.trim(); }
 
     private boolean matches(MaintenanceDTO dto, String searchType, String keyword) {
-        if (keyword == null || keyword.trim().isEmpty()) {
-            return true;
-        }
+        if (keyword == null || keyword.trim().isEmpty()) return true;
 
         String lowerKeyword = keyword.toLowerCase();
-
         String equipmentCode = dto.getEquipmentCode() == null ? "" : dto.getEquipmentCode().toLowerCase();
         String equipmentName = dto.getEquipmentName() == null ? "" : dto.getEquipmentName().toLowerCase();
         String maintenanceType = dto.getMaintenanceType() == null ? "" : dto.getMaintenanceType().toLowerCase();
         String maintenanceContent = dto.getMaintenanceContent() == null ? "" : dto.getMaintenanceContent().toLowerCase();
         String status = dto.getStatus() == null ? "" : dto.getStatus().toLowerCase();
 
-        if ("equipmentCode".equals(searchType)) {
-            return equipmentCode.contains(lowerKeyword);
-        } else if ("equipmentName".equals(searchType)) {
-            return equipmentName.contains(lowerKeyword);
-        } else if ("maintenanceType".equals(searchType)) {
-            return maintenanceType.contains(lowerKeyword);
-        } else if ("status".equals(searchType)) {
-            return status.contains(lowerKeyword);
-        } else {
-            return equipmentCode.contains(lowerKeyword)
-                    || equipmentName.contains(lowerKeyword)
-                    || maintenanceType.contains(lowerKeyword)
-                    || maintenanceContent.contains(lowerKeyword)
-                    || status.contains(lowerKeyword);
-        }
+        if ("equipmentCode".equals(searchType)) return equipmentCode.contains(lowerKeyword);
+        if ("equipmentName".equals(searchType)) return equipmentName.contains(lowerKeyword);
+        if ("maintenanceType".equals(searchType)) return maintenanceType.contains(lowerKeyword);
+        if ("status".equals(searchType)) return status.contains(lowerKeyword);
+        return equipmentCode.contains(lowerKeyword) || equipmentName.contains(lowerKeyword) || maintenanceType.contains(lowerKeyword) || maintenanceContent.contains(lowerKeyword) || status.contains(lowerKeyword);
     }
 }

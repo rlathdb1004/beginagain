@@ -31,8 +31,12 @@ public class RoutingUpdateController extends HttpServlet {
         dto.setProcessSeq(Integer.parseInt(request.getParameter("processSeq")));
         dto.setRemark(request.getParameter("remark"));
 
-        routingService.updateRouting(dto);
-
-        response.sendRedirect(request.getContextPath() + "/routing/detail?routingId=" + dto.getRoutingId());
+        try {
+            routingService.updateRouting(dto);
+            response.sendRedirect(request.getContextPath() + "/routing/detail?routingId=" + dto.getRoutingId());
+        } catch (RuntimeException e) {
+            request.getSession().setAttribute("errorMessage", e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/routing/detail?routingId=" + dto.getRoutingId());
+        }
     }
 }

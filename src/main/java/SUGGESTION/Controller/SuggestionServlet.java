@@ -108,6 +108,7 @@ public class SuggestionServlet extends HttpServlet {
         String suStatus = getString(request.getParameter("status"), "");
         String suDeptCode = getString(request.getParameter("deptCode"), "");
         String suModal = getString(request.getParameter("modal"), "");
+        String suAnswerMode = getString(request.getParameter("answerMode"), "");
 
         int suPage = parseInt(request.getParameter("page"), 1);
         int suSize = parseInt(request.getParameter("size"), 10);
@@ -150,6 +151,7 @@ public class SuggestionServlet extends HttpServlet {
         request.setAttribute("deptCode", suDeptCode);
         request.setAttribute("mode", suMode);
         request.setAttribute("modal", suModal);
+        request.setAttribute("answerMode", suAnswerMode);
         request.setAttribute("page", suPage);
         request.setAttribute("size", suSize);
         request.setAttribute("totalCount", suTotalCount);
@@ -246,7 +248,7 @@ public class SuggestionServlet extends HttpServlet {
         anDto.setWriterEmpId(resolveWriterEmpId(request.getSession(false)));
 
         anAnswerService.insertAnswer(anDto);
-        response.sendRedirect(request.getContextPath() + "/suggestion/list?mode=detail&id=" + suSuggestionId);
+        response.sendRedirect(request.getContextPath() + "/suggestion/list?mode=detail&id=" + suSuggestionId + "#suAnswerWriteBox");
     }
 
     private void answerUpdate(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -261,7 +263,7 @@ public class SuggestionServlet extends HttpServlet {
         anDto.setRemark(getString(request.getParameter("remark"), ""));
 
         anAnswerService.updateAnswer(anDto);
-        response.sendRedirect(request.getContextPath() + "/suggestion/list?mode=detail&id=" + suSuggestionId);
+        response.sendRedirect(request.getContextPath() + "/suggestion/list?mode=detail&id=" + suSuggestionId + "#suAnswerWriteBox");
     }
 
     private void answerDelete(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -320,3 +322,4 @@ public class SuggestionServlet extends HttpServlet {
         throw new IllegalStateException("로그인 사용자 정보를 찾을 수 없습니다.");
     }
 }
+

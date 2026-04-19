@@ -47,14 +47,15 @@
 					<tr>
 						<th class="taFormLabel">품목</th>
 						<td class="taFormValue"><select
-							class="taFormInput taEditableField" name="planCode"
-							id="prodPlanCodeSelect"><c:forEach var="item"
-									items="${itemOptions}">
-									<option value="${item.planCode}" data-name="${item.planName}"
-										data-unit="${item.planUnit}"
-										${item.planCode eq productionPlan.planCode ? 'selected' : ''}>${item.planCode}
+							class="taFormInput taEditableField" name="itemId"
+							id="prodPlanCodeSelect">
+								<c:forEach var="item" items="${itemOptions}">
+									<option value="${item.itemId}" data-name="${item.planName}"
+										data-unit="${item.planUnit}" data-code="${item.planCode}"
+										${item.itemId eq productionPlan.itemId ? 'selected' : ''}>${item.planCode}
 										/ ${item.planName}</option>
-								</c:forEach></select></td>
+								</c:forEach>
+						</select></td>
 					</tr>
 					<tr>
 						<th class="taFormLabel">품목명</th>
@@ -64,7 +65,7 @@
 					<tr>
 						<th class="taFormLabel">생산계획량</th>
 						<td class="taFormValue"><input
-							class="taFormInput taEditableField" type="number" min="0"
+							class="taFormInput taEditableField" type="number" min="1"
 							name="planAmount" value="${productionPlan.planAmount}"></td>
 					</tr>
 					<tr>
@@ -74,19 +75,29 @@
 					</tr>
 					<tr>
 						<th class="taFormLabel">라인</th>
-						<td class="taFormValue"><input
-							class="taFormInput taEditableField" type="text" name="planLine"
-							value="${productionPlan.planLine}"></td>
+						<td class="taFormValue"><select class="taFormInput taEditableField" name="planLine">
+							<option value="LN-A" ${productionPlan.planLine eq 'LN-A' ? 'selected' : ''}>LN-A</option>
+							<option value="LN-B" ${productionPlan.planLine eq 'LN-B' ? 'selected' : ''}>LN-B</option>
+							<option value="LN-C" ${productionPlan.planLine eq 'LN-C' ? 'selected' : ''}>LN-C</option>
+						</select></td>
 					</tr>
 					<tr>
 						<th class="taFormLabel">상태</th>
-						<td class="taFormValue"><select
-							class="taFormInput taEditableField" name="status"><option
-									value="대기" ${productionPlan.status eq '대기' ? 'selected' : ''}>대기</option>
-								<option value="진행중"
-									${productionPlan.status eq '진행중' ? 'selected' : ''}>진행중</option>
-								<option value="완료"
-									${productionPlan.status eq '완료' ? 'selected' : ''}>완료</option></select></td>
+						<td class="taFormValue"><select class="taFormInput taEditableField" name="status">
+							<option value="대기" ${productionPlan.status eq '대기' ? 'selected' : ''}>대기</option>
+							<option value="작업지시중" ${productionPlan.status eq '작업지시중' ? 'selected' : ''}>작업지시중</option>
+							<option value="작업지시완료" ${productionPlan.status eq '작업지시완료' ? 'selected' : ''}>작업지시완료</option>
+							<option value="진행중" ${productionPlan.status eq '진행중' ? 'selected' : ''}>진행중</option>
+							<option value="완료" ${productionPlan.status eq '완료' ? 'selected' : ''}>완료</option>
+						</select></td>
+					</tr>
+					<tr>
+						<th class="taFormLabel">작업지시 합계</th>
+						<td class="taFormValue"><span class="taReadonlyText">${productionPlan.workOrderSum}</span></td>
+					</tr>
+					<tr>
+						<th class="taFormLabel">남은 지시 가능 수량</th>
+						<td class="taFormValue"><span class="taReadonlyText">${productionPlan.remainingQty}</span></td>
 					</tr>
 					<tr>
 						<th class="taFormLabel">비고</th>
@@ -97,7 +108,44 @@
 			</div>
 		</form>
 		<script>
-(function(){const f=document.getElementById('prodPlanUpdateForm'); if(!f) return; const e=document.getElementById('prodPlanEditBtn'), s=document.getElementById('prodPlanSaveBtn'), c=document.getElementById('prodPlanCancelBtn'); const fields=f.querySelectorAll('.taEditableField'); const code=document.getElementById('prodPlanCodeSelect'), name=document.getElementById('prodPlanName'), unit=document.getElementById('prodPlanUnit'); function sync(){const o=code&&code.options[code.selectedIndex]; if(!o) return; name.textContent=o.dataset.name||''; unit.textContent=o.dataset.unit||'';} function view(){fields.forEach(x=>{if(x.tagName==='SELECT')x.disabled=true; else x.readOnly=true;}); e.style.display=''; s.style.display='none'; c.style.display='none';} function edit(){fields.forEach(x=>{if(x.tagName==='SELECT')x.disabled=false; else x.readOnly=false;}); e.style.display='none'; s.style.display=''; c.style.display='';} fields.forEach(x=>x.dataset.originalValue=x.value); code&&code.addEventListener('change',sync); e.addEventListener('click',edit); c.addEventListener('click',()=>{fields.forEach(x=>x.value=x.dataset.originalValue||''); sync(); view();}); f.addEventListener('submit',ev=>{if(s.style.display==='none'){ev.preventDefault(); return;} fields.forEach(x=>{if(x.tagName==='SELECT')x.disabled=false;}); if(!confirm('수정하시겠습니까?')) ev.preventDefault();}); sync(); view();})();
+(function(){
+	const f=document.getElementById('prodPlanUpdateForm');
+	if(!f) return;
+	const e=document.getElementById('prodPlanEditBtn');
+	const s=document.getElementById('prodPlanSaveBtn');
+	const c=document.getElementById('prodPlanCancelBtn');
+	const fields=f.querySelectorAll('.taEditableField');
+	const code=document.getElementById('prodPlanCodeSelect');
+	const name=document.getElementById('prodPlanName');
+	const unit=document.getElementById('prodPlanUnit');
+	const hasWorkOrder=${productionPlan.workOrderSum > 0 ? 'true' : 'false'};
+	function sync(){
+		const o=code&&code.options[code.selectedIndex];
+		if(!o) return;
+		name.textContent=o.dataset.name||'';
+		unit.textContent=o.dataset.unit||'';
+	}
+	function view(){
+		fields.forEach(x=>{ if(x.tagName==='SELECT') x.disabled=true; else x.readOnly=true; });
+		e.style.display=''; s.style.display='none'; c.style.display='none';
+	}
+	function edit(){
+		fields.forEach(x=>{ if(x.tagName==='SELECT') x.disabled=false; else x.readOnly=false; });
+		if(hasWorkOrder && code){ code.disabled=true; }
+		e.style.display='none'; s.style.display=''; c.style.display='';
+	}
+	fields.forEach(x=>x.dataset.originalValue=x.value);
+	code&&code.addEventListener('change',sync);
+	e.addEventListener('click',edit);
+	c.addEventListener('click',()=>{ fields.forEach(x=>x.value=x.dataset.originalValue||''); sync(); view(); });
+	f.addEventListener('submit',ev=>{
+		if(s.style.display==='none'){ ev.preventDefault(); return; }
+		fields.forEach(x=>{ if(x.tagName==='SELECT') x.disabled=false; });
+		if(!confirm('수정하시겠습니까?')) ev.preventDefault();
+	});
+	sync();
+	view();
+})();
 </script>
 	</c:otherwise>
 </c:choose>

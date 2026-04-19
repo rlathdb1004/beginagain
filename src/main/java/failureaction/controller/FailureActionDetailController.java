@@ -7,6 +7,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import failureaction.dto.FailureActionDTO;
 import failureaction.service.FailureActionService;
@@ -34,6 +35,15 @@ public class FailureActionDetailController extends HttpServlet {
         if (failureAction == null) {
             response.sendRedirect(request.getContextPath() + "/maintenance/list");
             return;
+        }
+
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            Object errorMsg = session.getAttribute("errorMsg");
+            if (errorMsg != null) {
+                request.setAttribute("errorMsg", errorMsg);
+                session.removeAttribute("errorMsg");
+            }
         }
 
         request.setAttribute("failureAction", failureAction);

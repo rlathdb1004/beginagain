@@ -22,6 +22,7 @@ public class SuggestionDAO {
         sql.append(" FROM SUGGESTION_BOARD s ");
         sql.append(" LEFT JOIN EMP e ON s.WRITER_EMP_ID = e.EMP_ID ");
         sql.append(" WHERE NVL(s.STATUS, '-') <> '내림' ");
+        sql.append("   AND NVL(s.USE_YN, 'Y') = 'Y' ");
 
         List<Object> params = new ArrayList<>();
 
@@ -85,6 +86,7 @@ public class SuggestionDAO {
         sql.append("     FROM SUGGESTION_BOARD s ");
         sql.append("     LEFT JOIN EMP e ON s.WRITER_EMP_ID = e.EMP_ID ");
         sql.append("     WHERE NVL(s.STATUS, '-') <> '내림' ");
+        sql.append("       AND NVL(s.USE_YN, 'Y') = 'Y' ");
 
         List<Object> params = new ArrayList<>();
 
@@ -151,7 +153,8 @@ public class SuggestionDAO {
                 + "     s.UPDATED_AT "
                 + " FROM SUGGESTION_BOARD s "
                 + " LEFT JOIN EMP e ON s.WRITER_EMP_ID = e.EMP_ID "
-                + " WHERE s.SUGGESTION_ID = ? ";
+                + " WHERE s.SUGGESTION_ID = ? "
+                + "   AND NVL(s.USE_YN, 'Y') = 'Y' ";
 
         try (
             Connection conn = DBCPUtil.getConnection();
@@ -272,7 +275,9 @@ public class SuggestionDAO {
     public int deleteSuggestion(long suggestionId) {
         int result = 0;
 
-        String sql = " DELETE FROM SUGGESTION_BOARD WHERE SUGGESTION_ID = ? ";
+        String sql = "UPDATE SUGGESTION_BOARD "
+                + "SET USE_YN = 'N', UPDATED_AT = SYSDATE "
+                + "WHERE SUGGESTION_ID = ?";
 
         try (
             Connection conn = DBCPUtil.getConnection();
