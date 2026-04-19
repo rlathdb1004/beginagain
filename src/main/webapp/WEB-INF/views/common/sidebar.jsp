@@ -48,7 +48,9 @@
 				<div class="menu-items open">
 					<a href="${pageContext.request.contextPath}/ceomain">메인</a> <a
 						href="${pageContext.request.contextPath}/notice">공지사항</a> <a
-						href="${pageContext.request.contextPath}/suggestion">건의사항</a>
+						href="${pageContext.request.contextPath}/suggestion">건의사항</a> <a
+						href="${pageContext.request.contextPath}/prodmain">생산관리메인</a> <a
+						href="${pageContext.request.contextPath}/adminmain">mes관리자메인</a>
 				</div>
 			</div>
 

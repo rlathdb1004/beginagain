@@ -25,6 +25,10 @@
 	href="${pageContext.request.contextPath}/assets/css/WORegInq.css">
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/assets/css/ceomain.css">
+<link rel="stylesheet"
+	href="${pageContext.request.contextPath}/assets/css/prodmain.css">
+<link rel="stylesheet"
+	href="${pageContext.request.contextPath}/assets/css/adminmain.css">
 <%-- 	<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/WorkStatusInq.css"> --%>
 
 </head>
