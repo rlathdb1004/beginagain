@@ -33,7 +33,7 @@
                 <div class="form-row"><label>검사수량</label><input type="number" step="0.001" min="0.001" name="inspectQty" required></div>
                 <div class="form-row"><label>양품수량</label><input type="number" step="0.001" min="0" name="goodQty" required></div>
                 <div class="form-row"><label>불량수량</label><input type="number" step="0.001" min="0" name="defectQty" required></div>
-                <div class="form-row"><label>판정</label><select name="result" class="taSelect"><option value="합격">합격</option><option value="불합격">불합격</option></select></div>
+                <div class="form-row"><label>판정</label><input type="hidden" name="result" value="합격"><input type="text" class="taInput" value="자동 판정 (불량률 5% 이하 합격)" readonly></div>
                 <div class="form-row"><label>검사일</label><input type="date" name="inspectionDate" required></div>
                 <div class="form-row full"><label>비고</label><textarea name="remark"></textarea></div>
             </div>
@@ -55,7 +55,6 @@
                 <option value="" hidden <c:if test="${empty matInspRegInqSearchDTO.resultType or matInspRegInqSearchDTO.resultType eq '전체'}">selected</c:if>>전체 / 합격 / 불합격</option>
                 <option value="all">전체</option>
                 <option value="합격" <c:if test="${matInspRegInqSearchDTO.resultType eq '합격'}">selected</c:if>>합격</option>
-                <option value="부분합격" <c:if test="${matInspRegInqSearchDTO.resultType eq '부분합격'}">selected</c:if>>부분합격</option>
                 <option value="불합격" <c:if test="${matInspRegInqSearchDTO.resultType eq '불합격'}">selected</c:if>>불합격</option>
             </select>
         </div>

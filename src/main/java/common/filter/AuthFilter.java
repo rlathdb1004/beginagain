@@ -22,10 +22,11 @@ public class AuthFilter extends HttpFilter implements Filter {
     private static final long serialVersionUID = 1L;
 
     private static final Set<String> COMMON_GET_PATHS = new HashSet<String>(Arrays.asList(
-            "/notice", "/suggestion", "/report"));
+            "/notice", "/suggestion", "/suggestion/list"));
 
     private static final Set<String> CEO_GET_PATHS = new HashSet<String>(Arrays.asList(
             "/ceomain",
+            "/report",
             "/prodperf", "/prodperf/detail",
             "/workstatus", "/workstatus/detail",
             "/item/list", "/item/detail",
@@ -36,6 +37,7 @@ public class AuthFilter extends HttpFilter implements Filter {
 
     private static final Set<String> SITE_MANAGER_GET_PATHS = new HashSet<String>(Arrays.asList(
             "/prodmain",
+            "/report",
             "/ioRegInq", "/invRegInq",
             "/prodplan",
             "/prodperf", "/prodperf/detail",
@@ -56,10 +58,14 @@ public class AuthFilter extends HttpFilter implements Filter {
             "/failureaction/register", "/failureaction/update", "/failureaction/delete"));
 
     private static final Set<String> WORKER_GET_PATHS = new HashSet<String>(Arrays.asList(
-            "/prodmain",
-            "/prodperf", "/prodperf/detail",
-            "/workstatus", "/workstatus/detail",
-            "/matInspRegInq", "/fpInspRegInq", "/defectRegInq"));
+            "/prod/worker"));
+
+    private static final Set<String> WORKER_POST_PATHS = new HashSet<String>(Arrays.asList(
+            "/prodperf/register",
+            "/suggestion/insert", "/suggestion/update", "/suggestion/delete"));
+
+    private static final Set<String> CEO_POST_PATHS = new HashSet<String>(Arrays.asList(
+            "/suggestion/insert"));
 
     @Override
     public void init(FilterConfig fConfig) throws ServletException {
@@ -134,7 +140,7 @@ public class AuthFilter extends HttpFilter implements Filter {
         }
 
         if ("CEO".equals(role)) {
-            if (isCeoAllowed(path, method)) {
+            if (isCeoAllowed(path, method) || isCeoPostAllowed(path, method)) {
                 chain.doFilter(request, response);
                 return;
             }
@@ -152,7 +158,7 @@ public class AuthFilter extends HttpFilter implements Filter {
         }
 
         if ("WORKER".equals(role)) {
-            if (isWorkerAllowed(path, method) || ("POST".equalsIgnoreCase(method) && isWorkerPostAllowed(request, path))) {
+            if (isWorkerAllowed(path, method) || isWorkerPostAllowed(request, path)) {
                 chain.doFilter(request, response);
                 return;
             }
@@ -169,8 +175,10 @@ public class AuthFilter extends HttpFilter implements Filter {
             return "/ceomain";
         } else if ("MES_ADMIN".equals(roleName)) {
             return "/adminmain";
-        } else if ("SITE_MANAGER".equals(roleName) || "WORKER".equals(roleName)) {
+        } else if ("SITE_MANAGER".equals(roleName)) {
             return "/prodmain";
+        } else if ("WORKER".equals(roleName)) {
+            return "/prod/worker";
         }
         return "/ceomain";
     }
@@ -181,6 +189,10 @@ public class AuthFilter extends HttpFilter implements Filter {
 
     private boolean isCeoAllowed(String path, String method) {
         return "GET".equalsIgnoreCase(method) && CEO_GET_PATHS.contains(path);
+    }
+
+    private boolean isCeoPostAllowed(String path, String method) {
+        return "POST".equalsIgnoreCase(method) && CEO_POST_PATHS.contains(path);
     }
 
     private boolean isSiteManagerAllowed(String path, String method) {
@@ -198,16 +210,20 @@ public class AuthFilter extends HttpFilter implements Filter {
     }
 
     private boolean isWorkerPostAllowed(HttpServletRequest request, String path) {
-        if (!("/matInspRegInq".equals(path) || "/fpInspRegInq".equals(path) || "/defectRegInq".equals(path))) {
+        if (!"POST".equalsIgnoreCase(request.getMethod())) {
             return false;
         }
 
-        String cmd = request.getParameter("cmd");
-        if (cmd == null || "".equals(cmd.trim())) {
-            cmd = "list";
+        if (!WORKER_POST_PATHS.contains(path)) {
+            return false;
         }
 
-        return "list".equals(cmd) || "detail".equals(cmd);
+        if ("/suggestion/update".equals(path) || "/suggestion/delete".equals(path)) {
+            String suggestionId = request.getParameter("suggestionId");
+            return suggestionId != null && !"".equals(suggestionId.trim());
+        }
+
+        return true;
     }
 
     private void redirectNoAuth(HttpServletRequest request, HttpServletResponse response, MemberDTO loginUser)

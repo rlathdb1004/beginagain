@@ -122,6 +122,65 @@
 			</div>
 		</form>
 
+
+		<form id="failureActionDeleteForm"
+			action="${pageContext.request.contextPath}/failureaction/delete" method="post">
+			<input type="hidden" name="maintenanceId" value="${maintenance.maintenanceId}">
+
+			<div class="taPageActions" style="margin-top: 20px;">
+				<c:if test="${isManager}">
+					<a class="taBtn taBtnPrimary"
+						href="${pageContext.request.contextPath}/failureaction/register?maintenanceId=${maintenance.maintenanceId}"
+						style="text-decoration: none;">고장조치 등록</a>
+					<button type="submit" class="taBtn taBtnOutline">선택 삭제</button>
+				</c:if>
+			</div>
+
+			<div class="taTableShell" style="margin-top: 8px;">
+				<div class="taTableScroll">
+					<table class="taMesTable">
+						<thead>
+							<tr>
+								<c:if test="${isManager}">
+									<th class="taTableHeadCell taColFit"><input type="checkbox" id="failureActionCheckAll" class="taCheckInput"></th>
+								</c:if>
+								<th class="taTableHeadCell taColFit">조치번호</th>
+								<th class="taTableHeadCell taColDate">고장일자</th>
+								<th class="taTableHeadCell taColFit">고장부위</th>
+								<th class="taTableHeadCell taColGrow">고장내용</th>
+								<th class="taTableHeadCell taColGrow">조치내용</th>
+								<th class="taTableHeadCell taColDate">조치일</th>
+								<th class="taTableHeadCell taColFit">상태</th>
+								<th class="taTableHeadCell taColAction taLastCol">상세보기</th>
+							</tr>
+						</thead>
+						<tbody>
+							<c:forEach var="fa" items="${failureActionList}">
+								<tr class="taTableBodyRow">
+									<c:if test="${isManager}">
+										<td class="taTableBodyCell taColFit"><input type="checkbox" class="taCheckInput failureActionItem" name="failureActionId" value="${fa.failureActionId}"></td>
+									</c:if>
+									<td class="taTableBodyCell taColFit">${fa.failureActionId}</td>
+									<td class="taTableBodyCell taColDate">${fa.failureDate}</td>
+									<td class="taTableBodyCell taColFit">${fa.failurePart}</td>
+									<td class="taTableBodyCell taColGrow">${fa.failureContent}</td>
+									<td class="taTableBodyCell taColGrow">${fa.actionText}</td>
+									<td class="taTableBodyCell taColDate">${fa.actionDate}</td>
+									<td class="taTableBodyCell taColFit">${fa.status}</td>
+									<td class="taTableBodyCell taColAction taLastCol"><a class="taLinkAnchor" href="${pageContext.request.contextPath}/failureaction/detail?failureActionId=${fa.failureActionId}">상세보기</a></td>
+								</tr>
+							</c:forEach>
+							<c:if test="${empty failureActionList}">
+								<tr class="taTableBodyRow">
+									<td class="taTableBodyCell taLastCol" colspan="${isManager ? 9 : 8}" style="text-align: center;">등록된 고장조치가 없습니다.</td>
+								</tr>
+							</c:if>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</form>
+
 		<script>
 			(function() {
 				const f = document.getElementById('maintenanceUpdateForm');
@@ -191,6 +250,30 @@
 						});
 						if (!confirm('수정하시겠습니까?'))
 							ev.preventDefault();
+					});
+				}
+
+				const failureActionCheckAll = document.getElementById('failureActionCheckAll');
+				if (failureActionCheckAll) {
+					failureActionCheckAll.addEventListener('change', function() {
+						document.querySelectorAll('.failureActionItem').forEach(function(cb) {
+							cb.checked = failureActionCheckAll.checked;
+						});
+					});
+				}
+
+				const failureActionDeleteForm = document.getElementById('failureActionDeleteForm');
+				if (failureActionDeleteForm) {
+					failureActionDeleteForm.addEventListener('submit', function(ev) {
+						const checked = failureActionDeleteForm.querySelectorAll('.failureActionItem:checked');
+						if (checked.length === 0) {
+							ev.preventDefault();
+							alert('삭제할 고장조치를 선택하세요.');
+							return;
+						}
+						if (!confirm('선택한 고장조치를 삭제하시겠습니까?')) {
+							ev.preventDefault();
+						}
 					});
 				}
 

@@ -20,6 +20,10 @@ public class ProdPerfRegInqService {
         return dao.getWorkOrderOptions();
     }
 
+    public List<ProdPerfRegInqDTO> getWorkOrderOptionsByEmpId(int empId) {
+        return dao.getWorkOrderOptionsByEmpId(empId);
+    }
+
     public ProdPerfRegInqDTO getDetail(int resultId) {
         return dao.getDetail(resultId);
     }

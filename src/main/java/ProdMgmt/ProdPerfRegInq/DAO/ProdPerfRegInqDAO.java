@@ -150,6 +150,61 @@ public class ProdPerfRegInqDAO {
         return list;
     }
 
+    public List<ProdPerfRegInqDTO> getWorkOrderOptionsByEmpId(int empId) {
+        List<ProdPerfRegInqDTO> list = new ArrayList<ProdPerfRegInqDTO>();
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT wo.WORK_ORDER_ID, wo.PLAN_ID, wo.WORK_DATE, wo.WORK_QTY, wo.STATUS AS WORK_STATUS, ");
+        sql.append("       pp.PLAN_QTY, pp.LINE_CODE, i.ITEM_CODE, i.ITEM_NAME, i.UNIT, ");
+        sql.append("       NVL(sumInfo.SUM_PRODUCED_QTY, 0) AS CURRENT_PRODUCED_SUM, ");
+        sql.append("       NVL(sumInfo.SUM_LOSS_QTY, 0) AS CURRENT_LOSS_SUM, ");
+        sql.append("       (wo.WORK_QTY - NVL(sumInfo.SUM_TOTAL_QTY, 0)) AS REMAINING_QTY, ");
+        sql.append("       'WO-' || TO_CHAR(wo.WORK_DATE, 'YYYYMMDD') || '-' || LPAD(wo.WORK_ORDER_ID, 3, '0') AS WORK_ORDER_NO ");
+        sql.append("FROM WORK_ORDER wo ");
+        sql.append("JOIN PRODUCTION_PLAN pp ON wo.PLAN_ID = pp.PLAN_ID ");
+        sql.append("JOIN ITEM i ON wo.ITEM_ID = i.ITEM_ID ");
+        sql.append("LEFT JOIN ( ");
+        sql.append("    SELECT WORK_ORDER_ID, ");
+        sql.append("           NVL(SUM(PRODUCED_QTY), 0) AS SUM_PRODUCED_QTY, ");
+        sql.append("           NVL(SUM(LOSS_QTY), 0) AS SUM_LOSS_QTY, ");
+        sql.append("           NVL(SUM(PRODUCED_QTY + LOSS_QTY), 0) AS SUM_TOTAL_QTY ");
+        sql.append("    FROM PRODUCTION_RESULT ");
+        sql.append("    WHERE NVL(USE_YN, 'Y') = 'Y' ");
+        sql.append("    GROUP BY WORK_ORDER_ID ");
+        sql.append(") sumInfo ON wo.WORK_ORDER_ID = sumInfo.WORK_ORDER_ID ");
+        sql.append("WHERE NVL(wo.USE_YN, 'Y') = 'Y' ");
+        sql.append("  AND NVL(wo.STATUS, '대기') = '완료' ");
+        sql.append("  AND wo.EMP_ID = ? ");
+        sql.append("  AND (wo.WORK_QTY - NVL(sumInfo.SUM_TOTAL_QTY, 0)) > 0 ");
+        sql.append("ORDER BY wo.WORK_ORDER_ID DESC");
+
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            ps.setInt(1, empId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ProdPerfRegInqDTO dto = new ProdPerfRegInqDTO();
+                    dto.setWorkOrderId(rs.getInt("WORK_ORDER_ID"));
+                    dto.setPlanId(rs.getInt("PLAN_ID"));
+                    dto.setWorkOrderNo(rs.getString("WORK_ORDER_NO"));
+                    dto.setWorkDate(rs.getDate("WORK_DATE"));
+                    dto.setLineCode(rs.getString("LINE_CODE"));
+                    dto.setItemCode(rs.getString("ITEM_CODE"));
+                    dto.setItemName(rs.getString("ITEM_NAME"));
+                    dto.setUnit(rs.getString("UNIT"));
+                    dto.setPlanQty(rs.getInt("PLAN_QTY"));
+                    dto.setWorkQty(rs.getInt("WORK_QTY"));
+                    dto.setCurrentProducedSum(rs.getInt("CURRENT_PRODUCED_SUM"));
+                    dto.setCurrentLossSum(rs.getInt("CURRENT_LOSS_SUM"));
+                    dto.setRemainingQty(rs.getInt("REMAINING_QTY"));
+                    list.add(dto);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     public ProdPerfRegInqDTO getDetail(int resultId) {
         ProdPerfRegInqDTO dto = null;
         StringBuilder sql = new StringBuilder();

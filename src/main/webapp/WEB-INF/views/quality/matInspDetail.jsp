@@ -89,13 +89,11 @@
 					</tr>
 					<tr>
 						<th class="taFormLabel">판정</th>
-						<td class="taFormValue"><select
-							class="taFormInput taEditableField" name="result"><option
-									value="합격" ${matInspRegInqDTO.result eq '합격' ? 'selected' : ''}>합격</option>
-								<option value="부분합격"
-									${matInspRegInqDTO.result eq '부분합격' ? 'selected' : ''}>부분합격</option>
-								<option value="불합격"
-									${matInspRegInqDTO.result eq '불합격' ? 'selected' : ''}>불합격</option></select></td>
+						<td class="taFormValue">
+							<input type="hidden" name="result" value="${matInspRegInqDTO.result}">
+							<input class="taFormInput" type="text" value="${matInspRegInqDTO.result}" readonly>
+							<div style="margin-top:8px; color:#6F7B8D; font-size:13px;">불량률 5% 이하 합격, 초과 시 불합격으로 자동 판정됩니다.</div>
+						</td>
 					</tr>
 					<tr>
 						<th class="taFormLabel">검사일</th>

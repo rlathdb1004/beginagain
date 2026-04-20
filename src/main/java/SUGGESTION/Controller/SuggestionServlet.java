@@ -167,17 +167,17 @@ public class SuggestionServlet extends HttpServlet {
         /*
          * 상세 모드일 때 게시글 / 답글 다시 조회
          */
+        SuggestionDTO suSelectedSuggestion = null;
+        AnswerDTO anSelectedAnswer = null;
+        List<AnswerDTO> anAnswerList = null;
+
         if ("detail".equals(suMode)) {
             long suSuggestionId = parseLong(request.getParameter("id"), 0L);
 
             if (suSuggestionId > 0L) {
-                SuggestionDTO suSelectedSuggestion =
-                        suSuggestionService.getSuggestionDetail(suSuggestionId, true);
+                suSelectedSuggestion = suSuggestionService.getSuggestionDetail(suSuggestionId, true);
+                anSelectedAnswer = anAnswerService.getAnswerBySuggestionId(suSuggestionId);
 
-                AnswerDTO anSelectedAnswer =
-                        anAnswerService.getAnswerBySuggestionId(suSuggestionId);
-
-                List<AnswerDTO> anAnswerList = null;
                 try {
                     anAnswerList = anAnswerService.getAnswerListBySuggestionId(suSuggestionId);
                 } catch (Exception e) {
@@ -190,12 +190,17 @@ public class SuggestionServlet extends HttpServlet {
             }
         }
 
-        request.setAttribute("isAdmin", true);
-        request.setAttribute("canEditSuggestion", true);
-        request.setAttribute("canDeleteSuggestion", true);
-        request.setAttribute("canWriteAnswer", true);
-        request.setAttribute("canEditAnswer", true);
-        request.setAttribute("canDeleteAnswer", true);
+        MemberDTO loginUser = (MemberDTO) request.getSession().getAttribute("loginUser");
+        boolean isAdminRole = isAdminRole(loginUser);
+        boolean isOwnSuggestion = suSelectedSuggestion != null && loginUser != null
+                && suSelectedSuggestion.getWriterEmpId() == loginUser.getEmpId();
+
+        request.setAttribute("isAdmin", Boolean.valueOf(isAdminRole));
+        request.setAttribute("canEditSuggestion", Boolean.valueOf(isAdminRole || isOwnSuggestion));
+        request.setAttribute("canDeleteSuggestion", Boolean.valueOf(isAdminRole || isOwnSuggestion));
+        request.setAttribute("canWriteAnswer", Boolean.valueOf(isAdminRole));
+        request.setAttribute("canEditAnswer", Boolean.valueOf(isAdminRole));
+        request.setAttribute("canDeleteAnswer", Boolean.valueOf(isAdminRole));
 
         request.setAttribute("pageTitle", "건의사항 게시판");
         request.setAttribute("contentPage", "/WEB-INF/views/Suggestion.jsp");
@@ -218,6 +223,7 @@ public class SuggestionServlet extends HttpServlet {
 
     private void update(HttpServletRequest request, HttpServletResponse response) throws Exception {
         long suSuggestionId = parseLong(request.getParameter("suggestionId"), 0L);
+        validateSuggestionAuthority(request.getSession(false), suSuggestionId, true);
 
         SuggestionDTO suDto = new SuggestionDTO();
         suDto.setSuggestionId(suSuggestionId);
@@ -232,23 +238,27 @@ public class SuggestionServlet extends HttpServlet {
 
     private void delete(HttpServletRequest request, HttpServletResponse response) throws Exception {
         long suSuggestionId = parseLong(request.getParameter("suggestionId"), 0L);
+        validateSuggestionAuthority(request.getSession(false), suSuggestionId, true);
         suSuggestionService.deleteSuggestion(suSuggestionId);
         response.sendRedirect(request.getContextPath() + "/suggestion/list");
     }
 
     private void hide(HttpServletRequest request, HttpServletResponse response) throws Exception {
         long suSuggestionId = parseLong(request.getParameter("suggestionId"), 0L);
+        validateAdminRole(request.getSession(false));
         suSuggestionService.hideSuggestion(suSuggestionId);
         response.sendRedirect(request.getContextPath() + "/suggestion/list?mode=detail&id=" + suSuggestionId);
     }
     
     private void restore(HttpServletRequest request, HttpServletResponse response) throws Exception {
         long suSuggestionId = parseLong(request.getParameter("suggestionId"), 0L);
+        validateAdminRole(request.getSession(false));
         suSuggestionService.restoreSuggestion(suSuggestionId);
         response.sendRedirect(request.getContextPath() + "/suggestion/list?mode=detail&id=" + suSuggestionId);
     }
 
     private void answerInsert(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        validateAdminRole(request.getSession(false));
         long suSuggestionId = parseLong(request.getParameter("suggestionId"), 0L);
 
         AnswerDTO anDto = new AnswerDTO();
@@ -263,6 +273,7 @@ public class SuggestionServlet extends HttpServlet {
     }
 
     private void answerUpdate(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        validateAdminRole(request.getSession(false));
         long anAnswerId = parseLong(request.getParameter("answerId"), 0L);
         long suSuggestionId = parseLong(request.getParameter("suggestionId"), 0L);
 
@@ -278,6 +289,7 @@ public class SuggestionServlet extends HttpServlet {
     }
 
     private void answerDelete(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        validateAdminRole(request.getSession(false));
         long anAnswerId = parseLong(request.getParameter("answerId"), 0L);
         long suSuggestionId = parseLong(request.getParameter("suggestionId"), 0L);
         anAnswerService.deleteAnswer(anAnswerId);
@@ -285,6 +297,7 @@ public class SuggestionServlet extends HttpServlet {
     }
 
     private void answerHide(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        validateAdminRole(request.getSession(false));
         long anAnswerId = parseLong(request.getParameter("answerId"), 0L);
         long suSuggestionId = parseLong(request.getParameter("suggestionId"), 0L);
         anAnswerService.hideAnswer(anAnswerId);
@@ -332,5 +345,41 @@ public class SuggestionServlet extends HttpServlet {
 
         throw new IllegalStateException("로그인 사용자 정보를 찾을 수 없습니다.");
     }
+    private boolean isAdminRole(MemberDTO loginUser) {
+        if (loginUser == null || loginUser.getRoleName() == null) {
+            return false;
+        }
+
+        String roleName = loginUser.getRoleName();
+        return "MES_ADMIN".equals(roleName) || "CEO".equals(roleName) || "SITE_MANAGER".equals(roleName);
+    }
+
+    private void validateAdminRole(HttpSession session) {
+        MemberDTO loginUser = session == null ? null : (MemberDTO) session.getAttribute("loginUser");
+        if (!isAdminRole(loginUser)) {
+            throw new IllegalStateException("해당 작업에 대한 권한이 없습니다.");
+        }
+    }
+
+    private void validateSuggestionAuthority(HttpSession session, long suggestionId, boolean allowOwner) throws Exception {
+        MemberDTO loginUser = session == null ? null : (MemberDTO) session.getAttribute("loginUser");
+        if (loginUser == null) {
+            throw new IllegalStateException("로그인 사용자 정보를 찾을 수 없습니다.");
+        }
+
+        if (isAdminRole(loginUser)) {
+            return;
+        }
+
+        if (!allowOwner) {
+            throw new IllegalStateException("해당 작업에 대한 권한이 없습니다.");
+        }
+
+        SuggestionDTO target = suSuggestionService.getSuggestionDetail(suggestionId, false);
+        if (target == null || target.getWriterEmpId() != loginUser.getEmpId()) {
+            throw new IllegalStateException("본인 게시글만 처리할 수 있습니다.");
+        }
+    }
+
 }
 

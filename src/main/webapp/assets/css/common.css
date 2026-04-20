@@ -161,8 +161,8 @@ button, input, select, textarea {
 	width: 50px;
 	height: 42px;
 	border-radius: 14px;
-	object-fit: cover;
-	background: linear-gradient(135deg, var(--symbol), #4A9DFF);
+	object-fit: contain;
+	background: white;
 }
 
 .brand-title {
@@ -409,7 +409,7 @@ button, input, select, textarea {
 	#menuToggle {
 		position: fixed;
 		top: 16px;
-		left: 16px;
+		right: 16px;
 		z-index: 30;
 		background: var(--main);
 		color: white;
@@ -417,6 +417,10 @@ button, input, select, textarea {
 		width: 42px;
 		height: 42px;
 		border-radius: 12px;
+	}
+	.global-clock{
+		position: fixed;
+		right: 70px;
 	}
 }
 
@@ -539,6 +543,3 @@ button, input, select, textarea {
 	line-height: 1.2;
 	white-space: nowrap;
 }
-
-.taDateLabel { display:block; margin-bottom:6px; font-size:13px; font-weight:700; color:#22304A; }
-.taAutoCodeHint { color:#64748b; font-size:12px; }

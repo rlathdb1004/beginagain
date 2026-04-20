@@ -187,18 +187,21 @@ public class ItemDAO {
 public int insertItem(Connection conn, ItemDTO dto) {
     PreparedStatement ps = null;
     int result = 0;
+    int itemId = getNextSequenceValue(conn, "SEQ_ITEM");
+    String itemCode = buildCode("ITEM", itemId);
     String sql = "INSERT INTO ITEM (ITEM_ID, ITEM_CODE, ITEM_NAME, ITEM_TYPE, UNIT, SPEC, SUPPLIER_NAME, SAFETY_STOCK, USE_YN, REMARK, CREATED_AT, UPDATED_AT) "
-            + "SELECT seq_no, 'ITEM' || LPAD(seq_no, 4, '0'), ?, ?, ?, ?, ?, ?, 'Y', ?, SYSDATE, SYSDATE "
-            + "FROM (SELECT SEQ_ITEM.NEXTVAL AS seq_no FROM DUAL)";
+            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, SYSDATE, SYSDATE)";
     try {
         ps = conn.prepareStatement(sql);
-        ps.setString(1, dto.getItemName());
-        ps.setString(2, dto.getItemType());
-        ps.setString(3, dto.getUnit());
-        ps.setString(4, dto.getSpec());
-        ps.setString(5, dto.getSupplierName());
-        ps.setDouble(6, dto.getSafetyStock());
-        ps.setString(7, dto.getRemark());
+        ps.setInt(1, itemId);
+        ps.setString(2, itemCode);
+        ps.setString(3, dto.getItemName());
+        ps.setString(4, dto.getItemType());
+        ps.setString(5, dto.getUnit());
+        ps.setString(6, dto.getSpec());
+        ps.setString(7, dto.getSupplierName());
+        ps.setDouble(8, dto.getSafetyStock());
+        ps.setString(9, dto.getRemark());
         result = ps.executeUpdate();
     } catch (Exception e) {
         throw new RuntimeException("품목 등록 실패", e);
@@ -206,6 +209,29 @@ public int insertItem(Connection conn, ItemDTO dto) {
         try { if (ps != null) ps.close(); } catch (Exception e) { e.printStackTrace(); }
     }
     return result;
+}
+
+private int getNextSequenceValue(Connection conn, String sequenceName) {
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+    String sql = "SELECT " + sequenceName + ".NEXTVAL FROM DUAL";
+    try {
+        ps = conn.prepareStatement(sql);
+        rs = ps.executeQuery();
+        if (rs.next()) {
+            return rs.getInt(1);
+        }
+        throw new RuntimeException("시퀀스 값을 가져오지 못했습니다: " + sequenceName);
+    } catch (Exception e) {
+        throw new RuntimeException("시퀀스 조회 실패: " + sequenceName, e);
+    } finally {
+        try { if (rs != null) rs.close(); } catch (Exception e) { e.printStackTrace(); }
+        try { if (ps != null) ps.close(); } catch (Exception e) { e.printStackTrace(); }
+    }
+}
+
+private String buildCode(String prefix, int seqValue) {
+    return prefix + String.format("%04d", seqValue);
 }
 
 }

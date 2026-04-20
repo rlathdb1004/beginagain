@@ -11,42 +11,7 @@
 
 	<input type="hidden" name="itemId" value="${item.itemId}">
 
-	<div class="table-box">
-		<table class="ta">
-			<tbody>
-				<tr>
-					<th>품목코드</th>
-					<td><input type="text" name="itemCode"
-						value="${item.itemCode}" readonly></td>
-				</tr>
-
-				<tr>
-					<th>품목명</th>
-					<td><input type="text" name="itemName"
-						value="${item.itemName}" class="editable-field" readonly>
-					</td>
-				</tr>
-
-				<tr>
-					<th>품목유형</th>
-					<td><select name="itemType" class="editable-field" disabled>
-							<option value="완제품" ${item.itemType eq '완제품' ? 'selected' : ''}>완제품</option>
-							<option value="원자재" ${item.itemType eq '원자재' ? 'selected' : ''}>원자재</option>
-					</select></td>
-				</tr>
-
-				<tr>
-					<th>단위</th>
-					<td><input type="text" name="unit" value="${item.unit}"
-						class="editable-field" readonly></td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
-
-	<!-- 🔥 버튼 영역 -->
 	<div class="taPageActions">
-
 		<c:if test="${isMesAdmin}">
 			<button type="button" id="editBtn" class="taBtn taBtnPrimary">수정</button>
 			<button type="submit" id="saveBtn" class="taBtn taBtnPrimary"
@@ -56,47 +21,79 @@
 		</c:if>
 
 		<a href="${pageContext.request.contextPath}/item/list"
-			class="taBtn taBtnOutline">목록</a>
+			class="taBtn taBtnOutline" style="text-decoration: none;">목록</a>
 	</div>
 
+	<div class="taFormShell">
+		<table class="taFormTable">
+			<tbody>
+				<tr>
+					<th class="taFormLabel">품목코드</th>
+					<td class="taFormValue"><span class="taReadonlyText">${item.itemCode}</span></td>
+				</tr>
+
+				<tr>
+					<th class="taFormLabel">품목명</th>
+					<td class="taFormValue"><input type="text" name="itemName"
+						value="${item.itemName}" class="taFormInput taEditableField"></td>
+				</tr>
+
+				<tr>
+					<th class="taFormLabel">품목유형</th>
+					<td class="taFormValue"><select name="itemType" class="taFormInput taEditableField">
+							<option value="완제품" ${item.itemType eq '완제품' ? 'selected' : ''}>완제품</option>
+							<option value="원자재" ${item.itemType eq '원자재' ? 'selected' : ''}>원자재</option>
+					</select></td>
+				</tr>
+
+				<tr>
+					<th class="taFormLabel">단위</th>
+					<td class="taFormValue"><input type="text" name="unit" value="${item.unit}"
+						class="taFormInput taEditableField"></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
 </form>
 
 <script>
-const editBtn = document.getElementById("editBtn");
-const saveBtn = document.getElementById("saveBtn");
-const cancelBtn = document.getElementById("cancelBtn");
+(function() {
+    const form = document.getElementById("itemUpdateForm");
+    const editBtn = document.getElementById("editBtn");
+    const saveBtn = document.getElementById("saveBtn");
+    const cancelBtn = document.getElementById("cancelBtn");
+    const fields = form ? form.querySelectorAll(".taEditableField") : [];
 
-const fields = document.querySelectorAll(".editable-field");
-
-// 🔥 버튼 없는 경우 (CEO)
-if (!editBtn || !saveBtn || !cancelBtn) {
-    fields.forEach(field => {
-        if (field.tagName === 'SELECT') {
-            field.disabled = true;
-        } else {
-            field.readOnly = true;
-        }
-    });
-}
-
-// 수정 모드
-if (editBtn) {
-    editBtn.addEventListener("click", function () {
+    function viewMode() {
         fields.forEach(field => {
-            if (field.tagName === 'SELECT') {
-                field.disabled = false;
-            } else {
-                field.readOnly = false;
-            }
+            if (field.tagName === 'SELECT') field.disabled = true;
+            else field.readOnly = true;
         });
+        if (editBtn) editBtn.style.display = "";
+        if (saveBtn) saveBtn.style.display = "none";
+        if (cancelBtn) cancelBtn.style.display = "none";
+    }
 
-        editBtn.style.display = "none";
-        saveBtn.style.display = "inline-block";
-        cancelBtn.style.display = "inline-block";
-    });
+    function editMode() {
+        fields.forEach(field => {
+            if (field.tagName === 'SELECT') field.disabled = false;
+            else field.readOnly = false;
+        });
+        if (editBtn) editBtn.style.display = "none";
+        if (saveBtn) saveBtn.style.display = "";
+        if (cancelBtn) cancelBtn.style.display = "";
+    }
 
-    cancelBtn.addEventListener("click", function () {
-        location.reload();
-    });
-}
+    fields.forEach(field => field.dataset.originalValue = field.value);
+
+    if (editBtn && saveBtn && cancelBtn) {
+        editBtn.addEventListener("click", editMode);
+        cancelBtn.addEventListener("click", function() {
+            fields.forEach(field => field.value = field.dataset.originalValue || "");
+            viewMode();
+        });
+    }
+
+    viewMode();
+})();
 </script>

@@ -11,23 +11,23 @@
 <c:set var="isSiteManager" value="${role eq 'SITE_MANAGER'}" />
 <c:set var="isWorker" value="${role eq 'WORKER'}" />
 
-<c:set var="canUseProdMain"
-	value="${isMesAdmin or isSiteManager or isWorker}" />
-<c:set var="canViewMasterMenu" value="${isCeo or isMesAdmin}" />
+<c:set var="canUseProdMain" value="${isMesAdmin or isSiteManager}" />
+<c:set var="canUseWorkerMain" value="${isWorker}" />
+<c:set var="canViewMasterMenu" value="${isMesAdmin}" />
 
 <c:set var="showMaterialsMenu" value="${isMesAdmin or isSiteManager}" />
 <c:set var="showProductionMenu"
-	value="${isMesAdmin or isSiteManager or isWorker or isCeo}" />
+	value="${isMesAdmin or isSiteManager or isCeo}" />
 <c:set var="showWorkMenu"
-	value="${isMesAdmin or isSiteManager or isWorker or isCeo}" />
-<c:set var="showQualityMenu"
-	value="${isMesAdmin or isSiteManager or isWorker}" />
+	value="${isMesAdmin or isSiteManager or isCeo}" />
+<c:set var="showQualityMenu" value="${isMesAdmin or isSiteManager}" />
 <c:set var="showFacilityMenu" value="${isMesAdmin or isSiteManager}" />
-<c:set var="showReportMenu" value="true" />
+<c:set var="showReportMenu" value="${not isWorker}" />
 
 <c:set var="siIsDashboard"
 	value="${fn:contains(siUri, '/ceomain')
 		or fn:contains(siUri, '/prodmain')
+		or fn:contains(siUri, '/prod/worker')
 		or fn:contains(siUri, '/adminmain')
 		or fn:contains(siUri, '/notice')
 		or fn:contains(siUri, '/suggestion')}" />
@@ -38,7 +38,8 @@
 
 <c:set var="siIsProduction"
 	value="${fn:contains(siUri, '/prodplan')
-		or fn:contains(siUri, '/prodperf')}" />
+		or fn:contains(siUri, '/prodperf')
+		or fn:contains(siUri, '/prod/worker')}" />
 
 <c:set var="siIsWork"
 	value="${fn:contains(siUri, '/woreginq')
@@ -115,20 +116,30 @@
 			<!-- 1. 대시보드 -->
 			<div class="menu-group">
 				<button class="menu-title${siIsDashboard ? ' open' : ''}"
-					type="button">1. 대시보드</button>
+					type="button">대시보드</button>
 				<div class="menu-items${siIsDashboard ? ' open' : ''}">
+
 					<c:if test="${isCeo or isMesAdmin}">
 						<a href="${siCtx}/ceomain"
-							class="${fn:contains(siUri, '/ceomain') ? 'active' : ''}">ceo 메인</a>
-					</c:if>
-					<c:if test="${canUseProdMain}">
-						<a href="${siCtx}/prodmain"
-							class="${fn:contains(siUri, '/prodmain') ? 'active' : ''}">생산관리 메인</a>
+							class="${fn:contains(siUri, '/ceomain') ? 'active' : ''}">ceo
+							메인</a>
 					</c:if>
 
 					<c:if test="${isMesAdmin}">
 						<a href="${siCtx}/adminmain"
-							class="${fn:contains(siUri, '/adminmain') ? 'active' : ''}">mes관리자 메인</a>
+							class="${fn:contains(siUri, '/adminmain') ? 'active' : ''}">mes
+							관리자 메인</a>
+					</c:if>
+
+					<c:if test="${canUseProdMain}">
+						<a href="${siCtx}/prodmain"
+							class="${fn:contains(siUri, '/prodmain') ? 'active' : ''}">생산
+							관리 메인</a>
+					</c:if>
+					<c:if test="${canUseWorkerMain}">
+						<a href="${siCtx}/prod/worker"
+							class="${fn:contains(siUri, '/prod/worker') ? 'active' : ''}">작업자
+							메인</a>
 					</c:if>
 
 					<a href="${siCtx}/notice"
@@ -144,13 +155,13 @@
 			<c:if test="${showMaterialsMenu}">
 				<div class="menu-group">
 					<button class="menu-title${siIsMaterials ? ' open' : ''}"
-						type="button">2. 자재관리</button>
+						type="button">자재관리</button>
 					<div class="menu-items${siIsMaterials ? ' open' : ''}">
 						<a href="${siCtx}/ioRegInq"
 							class="${fn:contains(siUri, '/ioRegInq') ? 'active' : ''}">입출고
 							관리</a> <a href="${siCtx}/invRegInq"
 							class="${fn:contains(siUri, '/invRegInq') ? 'active' : ''}">재고
-							관리</a>
+							조회</a>
 					</div>
 				</div>
 			</c:if>
@@ -159,7 +170,7 @@
 			<c:if test="${showProductionMenu}">
 				<div class="menu-group">
 					<button class="menu-title${siIsProduction ? ' open' : ''}"
-						type="button">3. 생산관리</button>
+						type="button">생산관리</button>
 					<div class="menu-items${siIsProduction ? ' open' : ''}">
 						<c:if test="${isMesAdmin or isSiteManager}">
 							<a href="${siCtx}/prodplan"
@@ -167,7 +178,7 @@
 								관리</a>
 						</c:if>
 
-						<c:if test="${isMesAdmin or isSiteManager or isWorker or isCeo}">
+						<c:if test="${isMesAdmin or isSiteManager or isCeo}">
 							<a href="${siCtx}/prodperf"
 								class="${fn:contains(siUri, '/prodperf') ? 'active' : ''}">생산실적
 								관리</a>
@@ -179,8 +190,7 @@
 			<!-- 4. 작업관리 -->
 			<c:if test="${showWorkMenu}">
 				<div class="menu-group">
-					<button class="menu-title${siIsWork ? ' open' : ''}" type="button">4.
-						작업관리</button>
+					<button class="menu-title${siIsWork ? ' open' : ''}" type="button">작업관리</button>
 					<div class="menu-items${siIsWork ? ' open' : ''}">
 						<c:if test="${isMesAdmin or isSiteManager}">
 							<a href="${siCtx}/woreginq"
@@ -200,7 +210,7 @@
 			<c:if test="${showQualityMenu}">
 				<div class="menu-group">
 					<button class="menu-title${siIsQuality ? ' open' : ''}"
-						type="button">5. 품질관리</button>
+						type="button">품질관리</button>
 					<div class="menu-items${siIsQuality ? ' open' : ''}">
 						<a href="${siCtx}/matInspRegInq"
 							class="${fn:contains(siUri, '/matInspRegInq') ? 'active' : ''}">자재검사
@@ -217,7 +227,7 @@
 			<c:if test="${showReportMenu}">
 				<div class="menu-group">
 					<button class="menu-title${siIsReport ? ' open' : ''}"
-						type="button">6. 리포트</button>
+						type="button">리포트</button>
 					<div class="menu-items${siIsReport ? ' open' : ''}">
 						<a href="${siCtx}/report"
 							class="${fn:contains(siUri, '/report') ? 'active' : ''}">리포트
@@ -230,7 +240,7 @@
 			<c:if test="${showFacilityMenu}">
 				<div class="menu-group">
 					<button class="menu-title${siIsFacility ? ' open' : ''}"
-						type="button">7. 설비운영</button>
+						type="button">설비운영</button>
 					<div class="menu-items${siIsFacility ? ' open' : ''}">
 						<a href="${siCtx}/maintenance/list"
 							class="${fn:contains(siUri, '/maintenance/list') ? 'active' : ''}">정비이력</a>
@@ -245,7 +255,7 @@
 			<c:if test="${canViewMasterMenu}">
 				<div class="menu-group">
 					<button class="menu-title${siIsMaster ? ' open' : ''}"
-						type="button">8. 기준관리</button>
+						type="button">기준관리</button>
 					<div class="menu-items${siIsMaster ? ' open' : ''}">
 						<a href="${siCtx}/item/list"
 							class="${fn:contains(siUri, '/item/list') or fn:contains(siUri, '/item/detail') ? 'active' : ''}">품목

@@ -106,14 +106,17 @@ public class ProcessDAO {
 public int insertProcess(Connection conn, ProcessDTO dto) {
     PreparedStatement ps = null;
     int result = 0;
+    int processId = getNextSequenceValue(conn, "SEQ_PROCESS");
+    String processCode = buildCode("PROC", processId);
     String sql = "INSERT INTO PROCESS (PROCESS_ID, PROCESS_CODE, PROCESS_NAME, DESCRIPTION, USE_YN, REMARK, CREATED_AT, UPDATED_AT) "
-            + "SELECT seq_no, 'PROC' || LPAD(seq_no, 4, '0'), ?, ?, 'Y', ?, SYSDATE, SYSDATE "
-            + "FROM (SELECT SEQ_PROCESS.NEXTVAL AS seq_no FROM DUAL)";
+            + "VALUES (?, ?, ?, ?, 'Y', ?, SYSDATE, SYSDATE)";
     try {
         ps = conn.prepareStatement(sql);
-        ps.setString(1, dto.getProcessName());
-        ps.setString(2, dto.getDescription());
-        ps.setString(3, dto.getRemark());
+        ps.setInt(1, processId);
+        ps.setString(2, processCode);
+        ps.setString(3, dto.getProcessName());
+        ps.setString(4, dto.getDescription());
+        ps.setString(5, dto.getRemark());
         result = ps.executeUpdate();
     } catch (Exception e) {
         throw new RuntimeException("공정 등록 실패", e);
@@ -121,6 +124,29 @@ public int insertProcess(Connection conn, ProcessDTO dto) {
         try { if (ps != null) ps.close(); } catch (Exception e) {}
     }
     return result;
+}
+
+private int getNextSequenceValue(Connection conn, String sequenceName) {
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+    String sql = "SELECT " + sequenceName + ".NEXTVAL FROM DUAL";
+    try {
+        ps = conn.prepareStatement(sql);
+        rs = ps.executeQuery();
+        if (rs.next()) {
+            return rs.getInt(1);
+        }
+        throw new RuntimeException("시퀀스 값을 가져오지 못했습니다: " + sequenceName);
+    } catch (Exception e) {
+        throw new RuntimeException("시퀀스 조회 실패: " + sequenceName, e);
+    } finally {
+        try { if (rs != null) rs.close(); } catch (Exception e) {}
+        try { if (ps != null) ps.close(); } catch (Exception e) {}
+    }
+}
+
+private String buildCode(String prefix, int seqValue) {
+    return prefix + String.format("%04d", seqValue);
 }
 
 }

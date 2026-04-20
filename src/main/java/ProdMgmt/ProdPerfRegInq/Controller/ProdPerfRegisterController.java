@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import member.dto.MemberDTO;
+
 import ProdMgmt.ProdPerfRegInq.DTO.ProdPerfRegInqDTO;
 import ProdMgmt.ProdPerfRegInq.Service.ProdPerfRegInqService;
 
@@ -32,11 +34,17 @@ public class ProdPerfRegisterController extends HttpServlet {
         dto.setStatus("완료");
         dto.setRemark(nvl(request.getParameter("remark")));
 
+        HttpSession session = request.getSession();
         try {
             service.insertProductionResult(dto);
         } catch (IllegalArgumentException e) {
-            HttpSession session = request.getSession();
             session.setAttribute("errorMsg", e.getMessage());
+        }
+
+        MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
+        if (loginUser != null && "WORKER".equals(loginUser.getRoleName())) {
+            response.sendRedirect(request.getContextPath() + "/prod/worker");
+            return;
         }
         response.sendRedirect(request.getContextPath() + "/prodperf");
     }

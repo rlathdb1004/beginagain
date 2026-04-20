@@ -111,8 +111,10 @@ public class ChangePasswordController extends HttpServlet {
             return "/ceomain";
         } else if ("MES_ADMIN".equals(roleName)) {
             return "/adminmain";
-        } else if ("SITE_MANAGER".equals(roleName) || "WORKER".equals(roleName)) {
+        } else if ("SITE_MANAGER".equals(roleName)) {
             return "/prodmain";
+        } else if ("WORKER".equals(roleName)) {
+            return "/prod/worker";
         }
         return "/ceomain";
     }

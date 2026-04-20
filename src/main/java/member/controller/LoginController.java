@@ -60,7 +60,7 @@ public class LoginController extends HttpServlet {
 		case "SITE_MANAGER":
 			return "/prodmain"; // 현장관리자
 		case "WORKER":
-			return "/notice"; // 작업자 → 공지사항
+			return "/prod/worker"; // 작업자 전용 메인
 		default:
 			return "/";
 		}

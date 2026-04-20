@@ -192,19 +192,22 @@ public class EquipmentDAO {
 public int insertEquipment(Connection conn, EquipmentDTO dto) {
     PreparedStatement ps = null;
     int result = 0;
+    int equipmentId = getNextSequenceValue(conn, "SEQ_EQUIPMENT");
+    String equipmentCode = buildCode("EQP", equipmentId);
     String sql = "INSERT INTO EQUIPMENT (EQUIPMENT_ID, EQUIPMENT_CODE, EQUIPMENT_NAME, MODEL_NAME, LOCATION, MANUFACTURER, VENDOR_NAME, EQUIPMENT_PRICE, PURCHASE_DATE, USE_YN, REMARK, CREATED_AT, UPDATED_AT) "
-            + "SELECT seq_no, 'EQP' || LPAD(seq_no, 4, '0'), ?, ?, ?, ?, ?, ?, ?, 'Y', ?, SYSDATE, SYSDATE "
-            + "FROM (SELECT SEQ_EQUIPMENT.NEXTVAL AS seq_no FROM DUAL)";
+            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, SYSDATE, SYSDATE)";
     try {
         ps = conn.prepareStatement(sql);
-        ps.setString(1, dto.getEquipmentName());
-        ps.setString(2, dto.getModelName());
-        ps.setString(3, dto.getLocation());
-        ps.setString(4, dto.getManufacturer());
-        ps.setString(5, dto.getVendorName());
-        ps.setDouble(6, dto.getEquipmentPrice());
-        ps.setDate(7, dto.getPurchaseDate());
-        ps.setString(8, dto.getRemark());
+        ps.setInt(1, equipmentId);
+        ps.setString(2, equipmentCode);
+        ps.setString(3, dto.getEquipmentName());
+        ps.setString(4, dto.getModelName());
+        ps.setString(5, dto.getLocation());
+        ps.setString(6, dto.getManufacturer());
+        ps.setString(7, dto.getVendorName());
+        ps.setDouble(8, dto.getEquipmentPrice());
+        ps.setDate(9, dto.getPurchaseDate());
+        ps.setString(10, dto.getRemark());
         result = ps.executeUpdate();
     } catch (Exception e) {
         throw new RuntimeException("설비 등록 실패", e);
@@ -212,6 +215,29 @@ public int insertEquipment(Connection conn, EquipmentDTO dto) {
         try { if (ps != null) ps.close(); } catch (Exception e) { e.printStackTrace(); }
     }
     return result;
+}
+
+private int getNextSequenceValue(Connection conn, String sequenceName) {
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+    String sql = "SELECT " + sequenceName + ".NEXTVAL FROM DUAL";
+    try {
+        ps = conn.prepareStatement(sql);
+        rs = ps.executeQuery();
+        if (rs.next()) {
+            return rs.getInt(1);
+        }
+        throw new RuntimeException("시퀀스 값을 가져오지 못했습니다: " + sequenceName);
+    } catch (Exception e) {
+        throw new RuntimeException("시퀀스 조회 실패: " + sequenceName, e);
+    } finally {
+        try { if (rs != null) rs.close(); } catch (Exception e) { e.printStackTrace(); }
+        try { if (ps != null) ps.close(); } catch (Exception e) { e.printStackTrace(); }
+    }
+}
+
+private String buildCode(String prefix, int seqValue) {
+    return prefix + String.format("%04d", seqValue);
 }
 
 }

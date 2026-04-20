@@ -15,6 +15,7 @@ public class MatInspRegInqService {
 
     public int register(MatInspRegInqDTO dto) {
         validateForSave(dto, false);
+        dto.setResult(resolveInspectionResult(dto.getInspectQty(), dto.getDefectQty()));
         return dao.insertMatInspRegInq(dto);
     }
 
@@ -39,6 +40,7 @@ public class MatInspRegInqService {
         dto.setItemId(origin.getItemId());
         dto.setEmpId(origin.getEmpId());
         validateForSave(dto, true);
+        dto.setResult(resolveInspectionResult(dto.getInspectQty(), dto.getDefectQty()));
         return dao.updateMatInspRegInq(dto);
     }
 
@@ -58,19 +60,14 @@ public class MatInspRegInqService {
         if (!equalsQty(dto.getGoodQty() + dto.getDefectQty(), dto.getInspectQty())) {
             throw new RuntimeException("양품수량 + 불량수량은 검사수량과 같아야 합니다.");
         }
-        String result = dto.getResult();
-        if (!("합격".equals(result) || "부분합격".equals(result) || "불합격".equals(result))) {
-            throw new RuntimeException("판정값이 올바르지 않습니다.");
+    }
+
+    private String resolveInspectionResult(double inspectQty, double defectQty) {
+        if (inspectQty <= 0) {
+            throw new RuntimeException("검사수량은 0보다 커야 합니다.");
         }
-        if (equalsQty(dto.getDefectQty(), 0d) && !"합격".equals(result)) {
-            throw new RuntimeException("불량수량이 0이면 판정은 합격이어야 합니다.");
-        }
-        if (equalsQty(dto.getDefectQty(), dto.getInspectQty()) && !"불합격".equals(result)) {
-            throw new RuntimeException("불량수량이 검사수량과 같으면 판정은 불합격이어야 합니다.");
-        }
-        if (dto.getDefectQty() > 0 && dto.getDefectQty() < dto.getInspectQty() && !"부분합격".equals(result)) {
-            throw new RuntimeException("불량수량이 일부 존재하면 판정은 부분합격이어야 합니다.");
-        }
+        double defectRate = (defectQty / inspectQty) * 100.0d;
+        return defectRate <= 5.0d ? "합격" : "불합격";
     }
 
     private boolean equalsQty(double a, double b) {
