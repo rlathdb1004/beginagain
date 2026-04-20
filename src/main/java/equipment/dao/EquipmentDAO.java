@@ -193,18 +193,18 @@ public int insertEquipment(Connection conn, EquipmentDTO dto) {
     PreparedStatement ps = null;
     int result = 0;
     String sql = "INSERT INTO EQUIPMENT (EQUIPMENT_ID, EQUIPMENT_CODE, EQUIPMENT_NAME, MODEL_NAME, LOCATION, MANUFACTURER, VENDOR_NAME, EQUIPMENT_PRICE, PURCHASE_DATE, USE_YN, REMARK, CREATED_AT, UPDATED_AT) "
-            + "VALUES (SEQ_EQUIPMENT.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, SYSDATE, SYSDATE)";
+            + "SELECT seq_no, 'EQP' || LPAD(seq_no, 4, '0'), ?, ?, ?, ?, ?, ?, ?, 'Y', ?, SYSDATE, SYSDATE "
+            + "FROM (SELECT SEQ_EQUIPMENT.NEXTVAL AS seq_no FROM DUAL)";
     try {
         ps = conn.prepareStatement(sql);
-        ps.setString(1, dto.getEquipmentCode());
-        ps.setString(2, dto.getEquipmentName());
-        ps.setString(3, dto.getModelName());
-        ps.setString(4, dto.getLocation());
-        ps.setString(5, dto.getManufacturer());
-        ps.setString(6, dto.getVendorName());
-        ps.setDouble(7, dto.getEquipmentPrice());
-        ps.setDate(8, dto.getPurchaseDate());
-        ps.setString(9, dto.getRemark());
+        ps.setString(1, dto.getEquipmentName());
+        ps.setString(2, dto.getModelName());
+        ps.setString(3, dto.getLocation());
+        ps.setString(4, dto.getManufacturer());
+        ps.setString(5, dto.getVendorName());
+        ps.setDouble(6, dto.getEquipmentPrice());
+        ps.setDate(7, dto.getPurchaseDate());
+        ps.setString(8, dto.getRemark());
         result = ps.executeUpdate();
     } catch (Exception e) {
         throw new RuntimeException("설비 등록 실패", e);

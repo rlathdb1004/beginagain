@@ -1,6 +1,9 @@
 <%@ page contentType="text/html; charset=UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
+<c:set var="isManager"
+	value="${sessionScope.loginUser.roleName eq 'MES_ADMIN' or sessionScope.loginUser.roleName eq 'SITE_MANAGER'}" />
+
 <c:if test="${not empty errorMsg}">
 	<script>
 		alert('${errorMsg}');
@@ -8,10 +11,12 @@
 </c:if>
 
 <div class="taPageActions">
-	<button type="button" class="taBtn taBtnPrimary"
-		data-modal-target="registerModal">등록</button>
-	<button type="submit" form="deleteForm" class="taBtn taBtnOutline"
-		onclick="return confirm('선택한 정비이력을 삭제하시겠습니까?');">선택 삭제</button>
+	<c:if test="${isManager}">
+		<button type="button" class="taBtn taBtnPrimary"
+			data-modal-target="registerModal">등록</button>
+		<button type="submit" form="deleteForm" class="taBtn taBtnOutline"
+			onclick="return confirm('선택한 정비이력을 삭제하시겠습니까?');">선택 삭제</button>
+	</c:if>
 </div>
 
 <form id="paSearchForm" method="get"
@@ -58,8 +63,10 @@
 			<table class="taMesTable" id="maintenanceTable">
 				<thead>
 					<tr>
-						<th class="taTableHeadCell taCheckCell"><input
-							type="checkbox" id="checkAll" class="taCheckInput"></th>
+						<th class="taTableHeadCell taCheckCell"><c:if
+								test="${isManager}">
+								<input type="checkbox" id="checkAll" class="taCheckInput">
+							</c:if></th>
 						<th class="taTableHeadCell taColFit">정비번호</th>
 						<th class="taTableHeadCell taColFit">정비일자</th>
 						<th class="taTableHeadCell taColFit">설비코드</th>
@@ -74,9 +81,11 @@
 						<c:when test="${not empty maintenanceList}">
 							<c:forEach var="m" items="${maintenanceList}">
 								<tr class="taTableBodyRow">
-									<td class="taTableBodyCell taCheckCell"><input
-										type="checkbox" name="maintenanceId"
-										value="${m.maintenanceId}" class="taCheckInput"></td>
+									<td class="taTableBodyCell taCheckCell"><c:if
+											test="${isManager}">
+											<input type="checkbox" name="maintenanceId"
+												value="${m.maintenanceId}" class="taCheckInput">
+										</c:if></td>
 									<td class="taTableBodyCell taColFit">${m.maintenanceId}</td>
 									<td class="taTableBodyCell taColFit">${m.maintenanceDate}</td>
 									<td class="taTableBodyCell taColFit">${m.equipmentCode}</td>
@@ -102,94 +111,100 @@
 	</div>
 </form>
 
-<div class="taModal" id="registerModal" hidden aria-hidden="true">
-	<div class="taModalDialog modal-lg">
-		<div class="taModalHeader">
-			<h3 class="taModalTitle">정비이력 등록</h3>
-			<button type="button" class="taModalClose">&times;</button>
+<c:if test="${isManager}">
+	<div class="taModal" id="registerModal" hidden aria-hidden="true">
+		<div class="taModalDialog modal-lg">
+			<div class="taModalHeader">
+				<h3 class="taModalTitle">정비이력 등록</h3>
+				<button type="button" class="taModalClose">&times;</button>
+			</div>
+			<form
+				action="${pageContext.request.contextPath}/maintenance/register"
+				method="post">
+				<div class="taModalBody taModalGrid">
+					<div class="form-row">
+						<label>설비선택</label> <select name="equipmentId"
+							id="maintenanceEquipmentId" class="taSelect" required>
+							<option value="">설비를 선택하세요</option>
+							<c:forEach var="equipment" items="${equipmentList}">
+								<option value="${equipment.equipmentId}"
+									data-code="${equipment.equipmentCode}"
+									data-name="${equipment.equipmentName}"
+									data-model="${equipment.modelName}"
+									data-location="${equipment.location}">
+									${equipment.equipmentCode} - ${equipment.equipmentName}</option>
+							</c:forEach>
+						</select>
+					</div>
+					<div class="form-row">
+						<label>설비코드</label><input type="text"
+							id="maintenanceEquipmentCode" readonly>
+					</div>
+					<div class="form-row">
+						<label>설비명</label><input type="text" id="maintenanceEquipmentName"
+							readonly>
+					</div>
+					<div class="form-row">
+						<label>모델명</label><input type="text" id="maintenanceModelName"
+							readonly>
+					</div>
+					<div class="form-row">
+						<label>위치</label><input type="text" id="maintenanceLocation"
+							readonly>
+					</div>
+					<div class="form-row">
+						<label>정비일자</label><input type="date" name="maintenanceDate"
+							required>
+					</div>
+					<div class="form-row">
+						<label>정비유형</label><select name="maintenanceType"><option
+								value="정기점검">정기점검</option>
+							<option value="예방정비">예방정비</option>
+							<option value="고장정비">고장정비</option></select>
+					</div>
+					<div class="form-row">
+						<label>다음정비일</label><input type="date" name="nextMaintenanceDate">
+					</div>
+					<div class="form-row">
+						<label>상태</label><select name="status"><option value="정상">정상</option>
+							<option value="점검중">점검중</option>
+							<option value="고장">고장</option>
+							<option value="수리완료">수리완료</option></select>
+					</div>
+					<div class="form-row full">
+						<label>정비내용</label>
+						<textarea name="maintenanceContent"></textarea>
+					</div>
+					<div class="form-row full">
+						<label>비고</label>
+						<textarea name="remark"></textarea>
+					</div>
+				</div>
+				<div class="taModalFooter">
+					<button type="button" class="taBtn taBtnOutline taModalClose">취소</button>
+					<button type="submit" class="taBtn taBtnPrimary">등록</button>
+				</div>
+			</form>
 		</div>
-		<form action="${pageContext.request.contextPath}/maintenance/register"
-			method="post">
-			<div class="taModalBody taModalGrid">
-				<div class="form-row">
-					<label>설비선택</label> <select name="equipmentId"
-						id="maintenanceEquipmentId" class="taSelect" required>
-						<option value="">설비를 선택하세요</option>
-						<c:forEach var="equipment" items="${equipmentList}">
-							<option value="${equipment.equipmentId}"
-								data-code="${equipment.equipmentCode}"
-								data-name="${equipment.equipmentName}"
-								data-model="${equipment.modelName}"
-								data-location="${equipment.location}">
-								${equipment.equipmentCode} - ${equipment.equipmentName}</option>
-						</c:forEach>
-					</select>
-				</div>
-				<div class="form-row">
-					<label>설비코드</label><input type="text" id="maintenanceEquipmentCode"
-						readonly>
-				</div>
-				<div class="form-row">
-					<label>설비명</label><input type="text" id="maintenanceEquipmentName"
-						readonly>
-				</div>
-				<div class="form-row">
-					<label>모델명</label><input type="text" id="maintenanceModelName"
-						readonly>
-				</div>
-				<div class="form-row">
-					<label>위치</label><input type="text" id="maintenanceLocation"
-						readonly>
-				</div>
-				<div class="form-row">
-					<label>정비일자</label><input type="date" name="maintenanceDate"
-						required>
-				</div>
-				<div class="form-row">
-					<label>정비유형</label><select name="maintenanceType"><option
-							value="정기점검">정기점검</option>
-						<option value="예방정비">예방정비</option>
-						<option value="고장정비">고장정비</option></select>
-				</div>
-				<div class="form-row">
-					<label>다음정비일</label><input type="date" name="nextMaintenanceDate">
-				</div>
-				<div class="form-row">
-					<label>상태</label><select name="status"><option value="정상">정상</option>
-						<option value="점검중">점검중</option>
-						<option value="고장">고장</option>
-						<option value="수리완료">수리완료</option></select>
-				</div>
-				<div class="form-row full">
-					<label>정비내용</label>
-					<textarea name="maintenanceContent"></textarea>
-				</div>
-				<div class="form-row full">
-					<label>비고</label>
-					<textarea name="remark"></textarea>
-				</div>
-			</div>
-			<div class="taModalFooter">
-				<button type="button" class="taBtn taBtnOutline taModalClose">취소</button>
-				<button type="submit" class="taBtn taBtnPrimary">등록</button>
-			</div>
-		</form>
 	</div>
-</div>
+</c:if>
 
 <script>
-	document.getElementById("checkAll").addEventListener(
-			"change",
-			function() {
-				document.querySelectorAll("input[name='maintenanceId']")
-						.forEach(function(chk) {
-							chk.checked = this.checked;
-						});
-			});
+	const checkAll = document.getElementById("checkAll");
+	if (checkAll) {
+		checkAll.addEventListener("change", function() {
+			document.querySelectorAll("input[name='maintenanceId']").forEach(
+					function(chk) {
+						chk.checked = checkAll.checked;
+					});
+		});
+	}
+
 	(function() {
 		const select = document.getElementById('maintenanceEquipmentId');
 		if (!select)
 			return;
+
 		function sync() {
 			const opt = select.options[select.selectedIndex];
 			document.getElementById('maintenanceEquipmentCode').value = opt
@@ -201,6 +216,8 @@
 			document.getElementById('maintenanceLocation').value = opt
 					&& opt.value ? (opt.dataset.location || '') : '';
 		}
+
 		select.addEventListener('change', sync);
+		sync();
 	})();
 </script>

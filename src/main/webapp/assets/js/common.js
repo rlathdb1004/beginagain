@@ -14,8 +14,31 @@ document.addEventListener("DOMContentLoaded", function () {
         syncBodyState();
     }
 
+    function initializeModalForm(modal) {
+        if (!modal) return;
+        const form = modal.querySelector("form");
+        if (!form) return;
+        try { form.reset(); } catch (e) {}
+
+        form.querySelectorAll("input[type='date']").forEach(function(input) {
+            if (!input.readOnly && !input.disabled && !input.value) {
+                const today = new Date();
+                const yyyy = today.getFullYear();
+                const mm = String(today.getMonth() + 1).padStart(2, "0");
+                const dd = String(today.getDate()).padStart(2, "0");
+                input.value = yyyy + "-" + mm + "-" + dd;
+            }
+        });
+
+        const firstSelect = form.querySelector("select");
+        if (firstSelect) {
+            firstSelect.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+    }
+
     function showModal(modal) {
         if (!modal) return;
+        initializeModalForm(modal);
         modal.removeAttribute("hidden");
         modal.setAttribute("aria-hidden", "false");
         modal.classList.add("open");
@@ -92,6 +115,25 @@ document.addEventListener("DOMContentLoaded", function () {
             box.addEventListener("change", function () {
                 checkAll.checked = itemBoxes.length > 0 && itemBoxes.every(function (item) { return item.checked; });
             });
+        });
+    });
+
+    document.querySelectorAll(".taModal form, .taPageContent form, .page-content form").forEach(function(form) {
+        form.querySelectorAll("input[required], select[required], textarea[required]").forEach(function(field) {
+            const row = field.closest(".form-row, .modal-form-group, td, div");
+            if (!row) return;
+            const label = row.querySelector("label");
+            if (label) label.classList.add("taRequiredLabel");
+        });
+
+        form.querySelectorAll("input[type='date']").forEach(function(input) {
+            if (!input.readOnly && !input.disabled && !input.value && input.closest('.taModal')) {
+                const today = new Date();
+                const yyyy = today.getFullYear();
+                const mm = String(today.getMonth() + 1).padStart(2, "0");
+                const dd = String(today.getDate()).padStart(2, "0");
+                input.value = yyyy + "-" + mm + "-" + dd;
+            }
         });
     });
 

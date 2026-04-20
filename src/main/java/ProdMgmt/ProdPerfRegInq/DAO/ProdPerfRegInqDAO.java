@@ -119,8 +119,8 @@ public class ProdPerfRegInqDAO {
         sql.append("    GROUP BY WORK_ORDER_ID ");
         sql.append(") sumInfo ON wo.WORK_ORDER_ID = sumInfo.WORK_ORDER_ID ");
         sql.append("WHERE NVL(wo.USE_YN, 'Y') = 'Y' ");
+        sql.append("  AND NVL(wo.STATUS, '대기') = '완료' ");
         sql.append("  AND (wo.WORK_QTY - NVL(sumInfo.SUM_TOTAL_QTY, 0)) > 0 ");
-        sql.append("  AND NVL(wo.STATUS, '대기') <> '완료' ");
         sql.append("ORDER BY wo.WORK_ORDER_ID DESC");
 
         try (Connection conn = getConnection();
@@ -189,15 +189,14 @@ public class ProdPerfRegInqDAO {
     public int insertProductionResult(ProdPerfRegInqDTO dto) {
         int result = 0;
         String sql = "INSERT INTO PRODUCTION_RESULT (RESULT_ID, WORK_ORDER_ID, RESULT_DATE, LOT_NO, PRODUCED_QTY, LOSS_QTY, STATUS, USE_YN, REMARK, CREATED_AT, UPDATED_AT) "
-                + "VALUES (SEQ_PRODUCTION_RESULT.NEXTVAL, ?, ?, ?, ?, ?, ?, 'Y', ?, SYSDATE, SYSDATE)";
+                + "VALUES (SEQ_PRODUCTION_RESULT.NEXTVAL, ?, ?, ?, ?, ?, '완료', 'Y', ?, SYSDATE, SYSDATE)";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, dto.getWorkOrderId());
             ps.setDate(2, dto.getResultDate());
             ps.setString(3, dto.getLotNo());
             ps.setInt(4, dto.getProducedQty());
             ps.setInt(5, dto.getLossQty());
-            ps.setString(6, dto.getStatus());
-            ps.setString(7, dto.getRemark());
+            ps.setString(6, dto.getRemark());
             result = ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -207,16 +206,15 @@ public class ProdPerfRegInqDAO {
 
     public int updateProductionResult(ProdPerfRegInqDTO dto) {
         int result = 0;
-        String sql = "UPDATE PRODUCTION_RESULT SET RESULT_DATE = ?, LOT_NO = ?, PRODUCED_QTY = ?, LOSS_QTY = ?, STATUS = ?, REMARK = ?, UPDATED_AT = SYSDATE "
+        String sql = "UPDATE PRODUCTION_RESULT SET RESULT_DATE = ?, LOT_NO = ?, PRODUCED_QTY = ?, LOSS_QTY = ?, STATUS = '완료', REMARK = ?, UPDATED_AT = SYSDATE "
                 + "WHERE RESULT_ID = ? AND NVL(USE_YN, 'Y') = 'Y'";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setDate(1, dto.getResultDate());
             ps.setString(2, dto.getLotNo());
             ps.setInt(3, dto.getProducedQty());
             ps.setInt(4, dto.getLossQty());
-            ps.setString(5, dto.getStatus());
-            ps.setString(6, dto.getRemark());
-            ps.setInt(7, dto.getSeqNO());
+            ps.setString(5, dto.getRemark());
+            ps.setInt(6, dto.getSeqNO());
             result = ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();

@@ -23,17 +23,21 @@ public class BOMMgmtCon extends HttpServlet {
             throws ServletException, IOException {
         request.setCharacterEncoding("utf-8");
         String productCode = request.getParameter("product_code");
+        if (productCode == null || productCode.trim().isEmpty()) {
+            productCode = request.getParameter("keyword");
+        }
         BOMMgmtSearchDTO searchDTO = new BOMMgmtSearchDTO();
         if (productCode != null && !productCode.trim().isEmpty()) {
             searchDTO.setProduct_code(productCode);
         }
-        List<BOMMgmtDTO> list = null;
+        List<BOMMgmtDTO> list = java.util.Collections.emptyList();
         if (searchDTO.getProduct_code() != null && !searchDTO.getProduct_code().trim().isEmpty()) {
             list = service.getBOMList(searchDTO);
         }
         List<ItemMgmtDTO> productItems = service.getProductItems();
         List<ItemMgmtDTO> materialItems = service.getMaterialItems();
-        request.setAttribute("BOMList", list);
+        request.setAttribute("list", list);
+        request.setAttribute("keyword", productCode);
         request.setAttribute("productItems", productItems);
         request.setAttribute("materialItems", materialItems);
         request.setAttribute("contentPage", "/WEB-INF/views/item/BOMMgmt.jsp");
@@ -48,6 +52,9 @@ public class BOMMgmtCon extends HttpServlet {
         HttpSession session = request.getSession();
         try {
             String productCode = request.getParameter("product_code");
+        if (productCode == null || productCode.trim().isEmpty()) {
+            productCode = request.getParameter("keyword");
+        }
             String materialId = request.getParameter("material_id");
             String qty = request.getParameter("qty_required");
             String remark = request.getParameter("remark");

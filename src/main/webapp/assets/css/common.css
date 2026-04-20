@@ -539,3 +539,6 @@ button, input, select, textarea {
 	line-height: 1.2;
 	white-space: nowrap;
 }
+
+.taDateLabel { display:block; margin-bottom:6px; font-size:13px; font-weight:700; color:#22304A; }
+.taAutoCodeHint { color:#64748b; font-size:12px; }

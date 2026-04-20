@@ -101,12 +101,6 @@ public class ProdPerfRegInqService {
         if (dto.getLotNo() == null || dto.getLotNo().trim().equals("")) {
             throw new IllegalArgumentException("LOT 번호를 입력하세요.");
         }
-        if (!isAllowedStatus(dto.getStatus())) {
-            throw new IllegalArgumentException("허용되지 않은 상태값입니다.");
-        }
-    }
-
-    private boolean isAllowedStatus(String status) {
-        return "대기".equals(status) || "진행중".equals(status) || "완료".equals(status);
+        dto.setStatus("완료");
     }
 }

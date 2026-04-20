@@ -115,13 +115,14 @@ public class DefectMgmtDAO {
         Connection conn = null; PreparedStatement ps = null;
         try {
             conn = getConnection();
-            String sql = "INSERT INTO DEFECT_CODE (DEFECT_CODE_ID, DEFECT_CODE, DEFECT_NAME, DEFECT_TYPE, DESCRIPTION, USE_YN, REMARK, CREATED_AT, UPDATED_AT) VALUES (SEQ_DEFECT_CODE.NEXTVAL, ?, ?, ?, ?, 'Y', ?, SYSDATE, SYSDATE)";
+            String sql = "INSERT INTO DEFECT_CODE (DEFECT_CODE_ID, DEFECT_CODE, DEFECT_NAME, DEFECT_TYPE, DESCRIPTION, USE_YN, REMARK, CREATED_AT, UPDATED_AT) "
+                    + "SELECT seq_no, 'DEF' || LPAD(seq_no, 4, '0'), ?, ?, ?, 'Y', ?, SYSDATE, SYSDATE "
+                    + "FROM (SELECT SEQ_DEFECT_CODE.NEXTVAL AS seq_no FROM DUAL)";
             ps = conn.prepareStatement(sql);
-            ps.setString(1, dto.getDefect_code());
-            ps.setString(2, dto.getDefect_name());
-            ps.setString(3, dto.getDefect_type());
-            ps.setString(4, dto.getDescription());
-            ps.setString(5, dto.getRemark());
+            ps.setString(1, dto.getDefect_name());
+            ps.setString(2, dto.getDefect_type());
+            ps.setString(3, dto.getDescription());
+            ps.setString(4, dto.getRemark());
             ps.executeUpdate();
         } catch (Exception e) { throw new RuntimeException("불량코드 등록 실패", e); }
         finally { close(null, ps, conn); }

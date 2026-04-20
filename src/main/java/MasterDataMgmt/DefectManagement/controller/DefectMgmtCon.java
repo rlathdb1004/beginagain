@@ -54,7 +54,7 @@ public class DefectMgmtCon extends HttpServlet {
 
         request.setAttribute("searchType", searchType);
         request.setAttribute("keyword", keyword);
-        request.setAttribute("defectList", list);
+        request.setAttribute("list", list);
         request.setAttribute("paCurrentPage", page);
         request.setAttribute("paTotalPage", totalPage);
         request.setAttribute("paStartPage", startPage);

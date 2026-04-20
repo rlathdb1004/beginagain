@@ -26,8 +26,8 @@
 					<option value="empName" ${param.searchType eq 'empName' ? 'selected' : ''}>작업자</option>
 				</select>
 			</div>
-			<div class="taToolbarField taToolbarSpan2"><input class="taSearchInput" type="date" name="startDate" value="${param.startDate}"></div>
-			<div class="taToolbarField taToolbarSpan2"><input class="taSearchInput" type="date" name="endDate" value="${param.endDate}"></div>
+			<div class="taToolbarField taToolbarSpan2"><label class="taDateLabel">시작일</label><input class="taSearchInput" type="date" name="startDate" value="${param.startDate}"></div>
+			<div class="taToolbarField taToolbarSpan2"><label class="taDateLabel">종료일</label><input class="taSearchInput" type="date" name="endDate" value="${param.endDate}"></div>
 			<div class="taToolbarField taToolbarFieldGrow taToolbarSpan6">
 				<div class="taSearchBox">
 					<input class="taSearchInput" type="text" name="keyword" placeholder="검색어" value="${param.keyword}">

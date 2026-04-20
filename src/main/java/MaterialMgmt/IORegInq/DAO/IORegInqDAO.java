@@ -145,7 +145,7 @@ public class IORegInqDAO {
         return dto;
     }
 
-    public List<ItemDTO> selectMaterialItemList() {
+    public List<ItemDTO> selectItemList() {
         List<ItemDTO> list = new ArrayList<ItemDTO>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -154,12 +154,28 @@ public class IORegInqDAO {
             conn = getConnection();
             String sql = ""
                     + "SELECT i.ITEM_ID, i.ITEM_CODE, i.ITEM_NAME, i.ITEM_TYPE, i.UNIT, "
-                    + "       NVL(iv.QTY_ON_HAND, 0) AS CURRENT_STOCK "
+                    + "       NVL(iv.QTY_ON_HAND, 0) AS CURRENT_STOCK, "
+                    + "       CASE WHEN i.ITEM_TYPE = '원자재' THEN "
+                    + "            NVL((SELECT SUM(NVL(mi.GOOD_QTY, 0)) FROM MATERIAL_INSPECTION mi WHERE mi.ITEM_ID = i.ITEM_ID AND NVL(mi.USE_YN, 'Y') = 'Y'), 0) "
+                    + "            ELSE NVL((SELECT SUM(NVL(fi.INSPECT_QTY, 0)) "
+                    + "                        FROM FINAL_INSPECTION fi "
+                    + "                        JOIN PRODUCTION_RESULT pr ON fi.RESULT_ID = pr.RESULT_ID "
+                    + "                        JOIN WORK_ORDER wo ON pr.WORK_ORDER_ID = wo.WORK_ORDER_ID "
+                    + "                        JOIN PRODUCTION_PLAN pp ON wo.PLAN_ID = pp.PLAN_ID "
+                    + "                       WHERE pp.ITEM_ID = i.ITEM_ID "
+                    + "                         AND NVL(fi.USE_YN, 'Y') = 'Y' "
+                    + "                         AND fi.STATUS = '합격'), 0) "
+                    + "       END - NVL((SELECT SUM(NVL(io.QTY, 0)) "
+                    + "                    FROM MATERIAL_INOUT io "
+                    + "                   WHERE io.ITEM_ID = i.ITEM_ID "
+                    + "                     AND NVL(io.USE_YN, 'Y') = 'Y' "
+                    + "                     AND io.INOUT_TYPE = '입고' "
+                    + "                     AND io.STATUS = '완료'), 0) AS AVAILABLE_INBOUND_QTY "
                     + "  FROM ITEM i "
                     + "  LEFT JOIN INVENTORY iv ON i.ITEM_ID = iv.ITEM_ID "
                     + " WHERE NVL(i.USE_YN, 'Y') = 'Y' "
                     + "   AND i.ITEM_TYPE IN ('원자재', '완제품') "
-                    + " ORDER BY i.ITEM_CODE ";
+                    + " ORDER BY CASE WHEN i.ITEM_TYPE = '완제품' THEN 0 ELSE 1 END, i.ITEM_CODE ";
             ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
             while (rs.next()) {
@@ -169,18 +185,19 @@ public class IORegInqDAO {
                 dto.setItemName(rs.getString("ITEM_NAME"));
                 dto.setItemType(rs.getString("ITEM_TYPE"));
                 dto.setUnit(rs.getString("UNIT"));
-                dto.setSafetyStock(rs.getDouble("CURRENT_STOCK")); // currentStock 임시 전달용
+                dto.setCurrentStock(rs.getDouble("CURRENT_STOCK"));
+                dto.setAvailableInboundQty(Math.max(0, rs.getDouble("AVAILABLE_INBOUND_QTY")));
                 list.add(dto);
             }
         } catch (Exception e) {
-            throw new RuntimeException("자재 품목 목록 조회 실패", e);
+            throw new RuntimeException("품목 목록 조회 실패", e);
         } finally {
             close(rs); close(ps); close(conn);
         }
         return list;
     }
 
-    public ItemDTO selectMaterialItemById(int itemId) {
+    public ItemDTO selectItemById(int itemId) {
         ItemDTO dto = null;
         Connection conn = null;
         PreparedStatement ps = null;
@@ -189,7 +206,23 @@ public class IORegInqDAO {
             conn = getConnection();
             String sql = ""
                     + "SELECT i.ITEM_ID, i.ITEM_CODE, i.ITEM_NAME, i.ITEM_TYPE, i.UNIT, "
-                    + "       NVL(iv.QTY_ON_HAND, 0) AS CURRENT_STOCK "
+                    + "       NVL(iv.QTY_ON_HAND, 0) AS CURRENT_STOCK, "
+                    + "       CASE WHEN i.ITEM_TYPE = '원자재' THEN "
+                    + "            NVL((SELECT SUM(NVL(mi.GOOD_QTY, 0)) FROM MATERIAL_INSPECTION mi WHERE mi.ITEM_ID = i.ITEM_ID AND NVL(mi.USE_YN, 'Y') = 'Y'), 0) "
+                    + "            ELSE NVL((SELECT SUM(NVL(fi.INSPECT_QTY, 0)) "
+                    + "                        FROM FINAL_INSPECTION fi "
+                    + "                        JOIN PRODUCTION_RESULT pr ON fi.RESULT_ID = pr.RESULT_ID "
+                    + "                        JOIN WORK_ORDER wo ON pr.WORK_ORDER_ID = wo.WORK_ORDER_ID "
+                    + "                        JOIN PRODUCTION_PLAN pp ON wo.PLAN_ID = pp.PLAN_ID "
+                    + "                       WHERE pp.ITEM_ID = i.ITEM_ID "
+                    + "                         AND NVL(fi.USE_YN, 'Y') = 'Y' "
+                    + "                         AND fi.STATUS = '합격'), 0) "
+                    + "       END - NVL((SELECT SUM(NVL(io.QTY, 0)) "
+                    + "                    FROM MATERIAL_INOUT io "
+                    + "                   WHERE io.ITEM_ID = i.ITEM_ID "
+                    + "                     AND NVL(io.USE_YN, 'Y') = 'Y' "
+                    + "                     AND io.INOUT_TYPE = '입고' "
+                    + "                     AND io.STATUS = '완료'), 0) AS AVAILABLE_INBOUND_QTY "
                     + "  FROM ITEM i "
                     + "  LEFT JOIN INVENTORY iv ON i.ITEM_ID = iv.ITEM_ID "
                     + " WHERE i.ITEM_ID = ? "
@@ -205,10 +238,11 @@ public class IORegInqDAO {
                 dto.setItemName(rs.getString("ITEM_NAME"));
                 dto.setItemType(rs.getString("ITEM_TYPE"));
                 dto.setUnit(rs.getString("UNIT"));
-                dto.setSafetyStock(rs.getDouble("CURRENT_STOCK")); // currentStock 임시 전달용
+                dto.setCurrentStock(rs.getDouble("CURRENT_STOCK"));
+                dto.setAvailableInboundQty(Math.max(0, rs.getDouble("AVAILABLE_INBOUND_QTY")));
             }
         } catch (Exception e) {
-            throw new RuntimeException("자재 품목 조회 실패", e);
+            throw new RuntimeException("품목 조회 실패", e);
         } finally {
             close(rs); close(ps); close(conn);
         }
@@ -369,8 +403,8 @@ public class IORegInqDAO {
     }
 
     private double calculateDelta(String inoutType, double qty) {
-        if ("입고".equals(inoutType) || "반품".equals(inoutType)) return qty;
-        if ("출고".equals(inoutType) || "폐기".equals(inoutType)) return -qty;
+        if ("입고".equals(inoutType)) return qty;
+        if ("출고".equals(inoutType)) return -qty;
         throw new RuntimeException("허용되지 않은 입출고구분입니다.");
     }
 

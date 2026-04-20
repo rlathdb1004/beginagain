@@ -31,11 +31,13 @@
 		</div>
 
 		<div class="taToolbarField taToolbarSpan2">
+			<label class="taDateLabel">시작일</label>
 			<input type="date" class="taSearchInput" name="startDate"
 				value="${invRegInqSearchDTO.startDate}">
 		</div>
 
 		<div class="taToolbarField taToolbarSpan2">
+			<label class="taDateLabel">종료일</label>
 			<input type="date" class="taSearchInput" name="endDate"
 				value="${invRegInqSearchDTO.endDate}">
 		</div>

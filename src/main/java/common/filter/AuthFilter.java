@@ -1,6 +1,9 @@
 package common.filter;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -16,70 +19,205 @@ import member.dto.MemberDTO;
 
 @WebFilter("/*")
 public class AuthFilter extends HttpFilter implements Filter {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Override
-	public void init(FilterConfig fConfig) throws ServletException {
-	}
+    private static final Set<String> COMMON_GET_PATHS = new HashSet<String>(Arrays.asList(
+            "/notice", "/suggestion", "/report"));
 
-	@Override
-	public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-			throws IOException, ServletException {
+    private static final Set<String> CEO_GET_PATHS = new HashSet<String>(Arrays.asList(
+            "/ceomain",
+            "/prodperf", "/prodperf/detail",
+            "/workstatus", "/workstatus/detail",
+            "/item/list", "/item/detail",
+            "/process/list", "/process/detail",
+            "/routing/list", "/routing/detail",
+            "/equipment/list", "/equipment/detail",
+            "/BOM-mgmt", "/defect-mgmt"));
 
-		String uri = request.getRequestURI();
-		String cp = request.getContextPath();
+    private static final Set<String> SITE_MANAGER_GET_PATHS = new HashSet<String>(Arrays.asList(
+            "/prodmain",
+            "/ioRegInq", "/invRegInq",
+            "/prodplan",
+            "/prodperf", "/prodperf/detail",
+            "/woreginq", "/woreginq/detail",
+            "/workstatus", "/workstatus/detail",
+            "/matInspRegInq", "/fpInspRegInq", "/defectRegInq",
+            "/maintenance/list", "/maintenance/detail",
+            "/downtime/list", "/downtime/detail",
+            "/failureaction/register", "/failureaction/detail"));
 
-		boolean loginRequest = uri.equals(cp + "/login");
-		boolean logoutRequest = uri.equals(cp + "/logout");
-		boolean changePasswordRequest = uri.equals(cp + "/changePassword");
-		boolean mainRequest = uri.equals(cp + "/main");
+    private static final Set<String> SITE_MANAGER_POST_PATHS = new HashSet<String>(Arrays.asList(
+            "/ioRegInq", "/invRegInq",
+            "/prodplan",
+            "/prodperf", "/prodperf/register", "/prodperf/update",
+            "/woreginq", "/woreginq/register", "/woreginq/update",
+            "/matInspRegInq", "/fpInspRegInq", "/defectRegInq",
+            "/maintenance/register", "/maintenance/update", "/maintenance/delete",
+            "/failureaction/register", "/failureaction/update", "/failureaction/delete"));
 
-		boolean staticRequest = uri.startsWith(cp + "/assets/") || uri.startsWith(cp + "/favicon.ico");
+    private static final Set<String> WORKER_GET_PATHS = new HashSet<String>(Arrays.asList(
+            "/prodmain",
+            "/prodperf", "/prodperf/detail",
+            "/workstatus", "/workstatus/detail",
+            "/matInspRegInq", "/fpInspRegInq", "/defectRegInq"));
 
-		if (staticRequest) {
-			chain.doFilter(request, response);
-			return;
-		}
+    @Override
+    public void init(FilterConfig fConfig) throws ServletException {
+    }
 
-		HttpSession session = request.getSession(false);
-		MemberDTO loginUser = null;
+    @Override
+    public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
 
-		if (session != null) {
-			loginUser = (MemberDTO) session.getAttribute("loginUser");
-		}
+        String uri = request.getRequestURI();
+        String cp = request.getContextPath();
+        String path = uri.substring(cp.length());
+        String method = request.getMethod();
 
-		if (loginUser == null) {
-			if (loginRequest) {
-				chain.doFilter(request, response);
-			} else {
-				response.sendRedirect(cp + "/login");
-			}
-			return;
-		}
+        boolean loginRequest = path.equals("/login");
+        boolean logoutRequest = path.equals("/logout");
+        boolean changePasswordRequest = path.equals("/changePassword");
+        boolean mainRequest = path.equals("/main");
+        boolean myPageRequest = path.equals("/mypage") || path.equals("/mypage/update");
+        boolean staticRequest = path.startsWith("/assets/") || path.equals("/favicon.ico");
 
-		if ("Y".equals(loginUser.getTempPwdYn())) {
-			if (changePasswordRequest || logoutRequest) {
-				chain.doFilter(request, response);
-			} else {
-				response.sendRedirect(cp + "/changePassword");
-			}
-			return;
-		}
+        if (staticRequest) {
+            chain.doFilter(request, response);
+            return;
+        }
 
-		if (loginRequest) {
-			response.sendRedirect(cp + "/main");
-			return;
-		}
+        HttpSession session = request.getSession(false);
+        MemberDTO loginUser = null;
 
-		if (mainRequest) {
-			chain.doFilter(request, response);
-			return;
-		}
+        if (session != null) {
+            loginUser = (MemberDTO) session.getAttribute("loginUser");
+        }
 
-		chain.doFilter(request, response);
-	}
+        if (loginUser == null) {
+            if (loginRequest) {
+                chain.doFilter(request, response);
+            } else {
+                response.sendRedirect(cp + "/login");
+            }
+            return;
+        }
 
-	@Override
-	public void destroy() {
-	}
+        if ("Y".equals(loginUser.getTempPwdYn())) {
+            if (changePasswordRequest || logoutRequest) {
+                chain.doFilter(request, response);
+            } else {
+                response.sendRedirect(cp + "/changePassword");
+            }
+            return;
+        }
+
+        if (loginRequest) {
+            response.sendRedirect(cp + getMainPageByRole(loginUser.getRoleName()));
+            return;
+        }
+
+        if (mainRequest) {
+            response.sendRedirect(cp + getMainPageByRole(loginUser.getRoleName()));
+            return;
+        }
+
+        String role = loginUser.getRoleName();
+
+        if (logoutRequest || changePasswordRequest || myPageRequest || isCommonAllowed(path, method)) {
+            chain.doFilter(request, response);
+            return;
+        }
+
+        if ("MES_ADMIN".equals(role)) {
+            chain.doFilter(request, response);
+            return;
+        }
+
+        if ("CEO".equals(role)) {
+            if (isCeoAllowed(path, method)) {
+                chain.doFilter(request, response);
+                return;
+            }
+            redirectNoAuth(request, response, loginUser);
+            return;
+        }
+
+        if ("SITE_MANAGER".equals(role)) {
+            if (isSiteManagerAllowed(path, method)) {
+                chain.doFilter(request, response);
+                return;
+            }
+            redirectNoAuth(request, response, loginUser);
+            return;
+        }
+
+        if ("WORKER".equals(role)) {
+            if (isWorkerAllowed(path, method) || ("POST".equalsIgnoreCase(method) && isWorkerPostAllowed(request, path))) {
+                chain.doFilter(request, response);
+                return;
+            }
+            redirectNoAuth(request, response, loginUser);
+            return;
+        }
+
+        session.invalidate();
+        response.sendRedirect(cp + "/login");
+    }
+
+    private String getMainPageByRole(String roleName) {
+        if ("CEO".equals(roleName)) {
+            return "/ceomain";
+        } else if ("MES_ADMIN".equals(roleName)) {
+            return "/adminmain";
+        } else if ("SITE_MANAGER".equals(roleName) || "WORKER".equals(roleName)) {
+            return "/prodmain";
+        }
+        return "/ceomain";
+    }
+
+    private boolean isCommonAllowed(String path, String method) {
+        return "GET".equalsIgnoreCase(method) && COMMON_GET_PATHS.contains(path);
+    }
+
+    private boolean isCeoAllowed(String path, String method) {
+        return "GET".equalsIgnoreCase(method) && CEO_GET_PATHS.contains(path);
+    }
+
+    private boolean isSiteManagerAllowed(String path, String method) {
+        if ("GET".equalsIgnoreCase(method)) {
+            return SITE_MANAGER_GET_PATHS.contains(path);
+        }
+        return SITE_MANAGER_POST_PATHS.contains(path);
+    }
+
+    private boolean isWorkerAllowed(String path, String method) {
+        if ("GET".equalsIgnoreCase(method)) {
+            return WORKER_GET_PATHS.contains(path);
+        }
+        return false;
+    }
+
+    private boolean isWorkerPostAllowed(HttpServletRequest request, String path) {
+        if (!("/matInspRegInq".equals(path) || "/fpInspRegInq".equals(path) || "/defectRegInq".equals(path))) {
+            return false;
+        }
+
+        String cmd = request.getParameter("cmd");
+        if (cmd == null || "".equals(cmd.trim())) {
+            cmd = "list";
+        }
+
+        return "list".equals(cmd) || "detail".equals(cmd);
+    }
+
+    private void redirectNoAuth(HttpServletRequest request, HttpServletResponse response, MemberDTO loginUser)
+            throws IOException {
+        HttpSession session = request.getSession();
+        session.setAttribute("alertMsg", "접근 권한이 없습니다.");
+        response.sendRedirect(request.getContextPath() + getMainPageByRole(loginUser.getRoleName()));
+    }
+
+    @Override
+    public void destroy() {
+    }
 }

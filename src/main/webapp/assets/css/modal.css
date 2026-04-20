@@ -134,3 +134,9 @@ body.modal-open {
     grid-template-columns: 1fr;
   }
 }
+
+.taRequiredLabel::after {
+  content: " *";
+  color: #d93025;
+  font-weight: 800;
+}

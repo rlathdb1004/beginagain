@@ -30,7 +30,7 @@ public class MemberResetPasswordController extends HttpServlet {
         }
 
         MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
-        if (!"관리자".equals(loginUser.getRoleName())) {
+        if (!"MES_ADMIN".equals(loginUser.getRoleName())) {
             response.sendRedirect(request.getContextPath() + "/member/list");
             return;
         }

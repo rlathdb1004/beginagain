@@ -188,17 +188,17 @@ public int insertItem(Connection conn, ItemDTO dto) {
     PreparedStatement ps = null;
     int result = 0;
     String sql = "INSERT INTO ITEM (ITEM_ID, ITEM_CODE, ITEM_NAME, ITEM_TYPE, UNIT, SPEC, SUPPLIER_NAME, SAFETY_STOCK, USE_YN, REMARK, CREATED_AT, UPDATED_AT) "
-            + "VALUES (SEQ_ITEM.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, SYSDATE, SYSDATE)";
+            + "SELECT seq_no, 'ITEM' || LPAD(seq_no, 4, '0'), ?, ?, ?, ?, ?, ?, 'Y', ?, SYSDATE, SYSDATE "
+            + "FROM (SELECT SEQ_ITEM.NEXTVAL AS seq_no FROM DUAL)";
     try {
         ps = conn.prepareStatement(sql);
-        ps.setString(1, dto.getItemCode());
-        ps.setString(2, dto.getItemName());
-        ps.setString(3, dto.getItemType());
-        ps.setString(4, dto.getUnit());
-        ps.setString(5, dto.getSpec());
-        ps.setString(6, dto.getSupplierName());
-        ps.setDouble(7, dto.getSafetyStock());
-        ps.setString(8, dto.getRemark());
+        ps.setString(1, dto.getItemName());
+        ps.setString(2, dto.getItemType());
+        ps.setString(3, dto.getUnit());
+        ps.setString(4, dto.getSpec());
+        ps.setString(5, dto.getSupplierName());
+        ps.setDouble(6, dto.getSafetyStock());
+        ps.setString(7, dto.getRemark());
         result = ps.executeUpdate();
     } catch (Exception e) {
         throw new RuntimeException("품목 등록 실패", e);

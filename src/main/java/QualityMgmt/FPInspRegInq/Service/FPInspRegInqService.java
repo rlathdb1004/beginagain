@@ -44,7 +44,7 @@ public class FPInspRegInqService {
     }
 
     private void validateStatus(String status) {
-        if (!"합격".equals(status) && !"부분합격".equals(status) && !"불합격".equals(status)) {
+        if (!"합격".equals(status) && !"불합격".equals(status)) {
             throw new RuntimeException("허용되지 않은 판정값입니다.");
         }
     }

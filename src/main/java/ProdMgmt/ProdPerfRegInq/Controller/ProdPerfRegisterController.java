@@ -29,7 +29,7 @@ public class ProdPerfRegisterController extends HttpServlet {
         dto.setLotNo(nvl(request.getParameter("lotNo")));
         dto.setProducedQty(parseInt(request.getParameter("producedQty")));
         dto.setLossQty(parseInt(request.getParameter("lossQty")));
-        dto.setStatus(nvl(request.getParameter("status")));
+        dto.setStatus("완료");
         dto.setRemark(nvl(request.getParameter("remark")));
 
         try {

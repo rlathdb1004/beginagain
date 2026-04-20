@@ -44,7 +44,25 @@ public class LoginController extends HttpServlet {
 		if ("Y".equals(loginUser.getTempPwdYn())) {
 			response.sendRedirect(request.getContextPath() + "/changePassword");
 		} else {
-			response.sendRedirect(request.getContextPath() + "/ceomain");
+			response.sendRedirect(request.getContextPath() + getMainPageByRole(loginUser.getRoleName()));
+		}
+	}
+
+	private String getMainPageByRole(String role) {
+		if (role == null)
+			return "/";
+
+		switch (role) {
+		case "MES_ADMIN":
+			return "/adminmain"; // 관리자
+		case "CEO":
+			return "/ceomain"; // CEO
+		case "SITE_MANAGER":
+			return "/prodmain"; // 현장관리자
+		case "WORKER":
+			return "/notice"; // 작업자 → 공지사항
+		default:
+			return "/";
 		}
 	}
 }

@@ -67,7 +67,8 @@ public class IORegInqServlet extends HttpServlet {
             dto.setItemId(parseInt(request.getParameter("itemId"), 0));
             dto.setInoutType(request.getParameter("inoutType"));
             dto.setQty(parseDouble(request.getParameter("qty")));
-            dto.setStatus(request.getParameter("status"));
+            String status = request.getParameter("status");
+            dto.setStatus((status == null || "".equals(status)) ? "완료" : status);
             dto.setRemark(request.getParameter("remark"));
             String inoutDate = request.getParameter("inoutDate");
             dto.setInoutDate((inoutDate == null || "".equals(inoutDate)) ? new Date(System.currentTimeMillis()) : Date.valueOf(inoutDate));
@@ -84,7 +85,8 @@ public class IORegInqServlet extends HttpServlet {
         dto.setInoutId(parseInt(request.getParameter("inoutId"), 0));
         dto.setInoutType(request.getParameter("inoutType"));
         dto.setQty(parseDouble(request.getParameter("qty")));
-        dto.setStatus(request.getParameter("status"));
+        String status = request.getParameter("status");
+        dto.setStatus((status == null || "".equals(status)) ? "완료" : status);
         dto.setRemark(request.getParameter("remark"));
         String inoutDate = request.getParameter("inoutDate");
         dto.setInoutDate((inoutDate == null || "".equals(inoutDate)) ? null : Date.valueOf(inoutDate));
@@ -124,7 +126,7 @@ public class IORegInqServlet extends HttpServlet {
         response.setContentType("text/html; charset=utf-8;");
 
         List<IORegInqDTO> fullList = service.getIORegInqList(searchDTO);
-        List<ItemDTO> itemList = service.getMaterialItemList();
+        List<ItemDTO> itemList = service.getItemList();
 
         int paCurrentPage = parseInt(request.getParameter("page"), 1);
         int paPageSize = 10;
@@ -153,7 +155,7 @@ public class IORegInqServlet extends HttpServlet {
         request.setAttribute("paEndPage", paEndPage);
         request.setAttribute("pageId", "page-materials-inout");
         request.setAttribute("pageTitle", "입출고 등록 / 조회");
-        request.setAttribute("pageSubTitle", "자재 입출고 내역 등록, 조회");
+        request.setAttribute("pageSubTitle", "원자재 및 완제품 입출고 내역 등록, 조회");
         request.setAttribute("contentPage", "/WEB-INF/views/IORegInq.jsp");
         request.getRequestDispatcher("/WEB-INF/views/table.jsp").forward(request, response);
     }

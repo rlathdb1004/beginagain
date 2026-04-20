@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<c:set var="canManage" value="${sessionScope.loginUser.roleName eq 'MES_ADMIN' or sessionScope.loginUser.roleName eq 'SITE_MANAGER'}" />
 <c:choose>
     <c:when test="${empty productionResult}">
         <div class="taFormShell taEmptyState">
@@ -17,9 +18,11 @@
             <input type="hidden" name="seqNO" value="${productionResult.seqNO}">
             <input type="hidden" name="workOrderId" value="${productionResult.workOrderId}">
             <div class="taPageActions">
+                <c:if test="${canManage}">
                 <button type="button" id="prodPerfUpdateFormEditBtn" class="taBtn taBtnPrimary">수정</button>
                 <button type="submit" id="prodPerfUpdateFormSaveBtn" class="taBtn taBtnPrimary" style="display:none;">수정완료</button>
                 <button type="button" id="prodPerfUpdateFormCancelBtn" class="taBtn taBtnOutline" style="display:none;">취소</button>
+                </c:if>
                 <a class="taBtn taBtnOutline" href="${pageContext.request.contextPath}/prodperf" style="text-decoration:none;">목록</a>
             </div>
             <div class="taFormShell">
@@ -38,8 +41,7 @@
                     <tr><th class="taFormLabel">손실량</th><td class="taFormValue"><input class="taFormInput taEditableField" type="number" name="lossQty" min="0" value="${productionResult.lossQty}"></td></tr>
                     <tr><th class="taFormLabel">단위</th><td class="taFormValue"><span class="taReadonlyText">${productionResult.unit}</span></td></tr>
                     <tr><th class="taFormLabel">라인</th><td class="taFormValue"><span class="taReadonlyText">${productionResult.lineCode}</span></td></tr>
-                    <tr><th class="taFormLabel">LOT</th><td class="taFormValue"><input class="taFormInput taEditableField" type="text" name="lotNo" value="${productionResult.lotNo}"></td></tr>
-                    <tr><th class="taFormLabel">상태</th><td class="taFormValue"><select class="taFormInput taEditableField" name="status"><option value="대기" ${productionResult.status eq '대기' ? 'selected' : ''}>대기</option><option value="진행중" ${productionResult.status eq '진행중' ? 'selected' : ''}>진행중</option><option value="완료" ${productionResult.status eq '완료' ? 'selected' : ''}>완료</option></select></td></tr>
+                    <tr><th class="taFormLabel">LOT</th><td class="taFormValue"><input class="taFormInput" type="text" name="lotNo" value="${productionResult.lotNo}" readonly></td></tr>
                     <tr><th class="taFormLabel">비고</th><td class="taFormValue"><textarea class="taFormTextarea taEditableField" name="remark">${productionResult.remark}</textarea></td></tr>
                 </table>
             </div>
@@ -74,6 +76,15 @@
     }
 
     fields.forEach(function(field) { field.dataset.originalValue = field.value; });
+
+    if (!editBtn || !saveBtn || !cancelBtn) {
+        fields.forEach(function(field) {
+            if (field.tagName === 'SELECT') field.disabled = true;
+            else field.readOnly = true;
+        });
+        return;
+    }
+
     editBtn.addEventListener('click', setEditMode);
     cancelBtn.addEventListener('click', function() {
         fields.forEach(function(field) { field.value = field.dataset.originalValue || ''; });

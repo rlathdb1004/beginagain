@@ -33,7 +33,6 @@ public class EquipmentRegisterController extends HttpServlet {
             purchaseDate = Date.valueOf(purchaseDateStr);
         }
         EquipmentDTO dto = new EquipmentDTO();
-        dto.setEquipmentCode(request.getParameter("equipmentCode"));
         dto.setEquipmentName(request.getParameter("equipmentName"));
         dto.setModelName(request.getParameter("modelName"));
         dto.setLocation(request.getParameter("location"));

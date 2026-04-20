@@ -22,7 +22,6 @@ public class ProcessRegisterController extends HttpServlet {
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         ProcessDTO dto = new ProcessDTO();
-        dto.setProcessCode(request.getParameter("processCode"));
         dto.setProcessName(request.getParameter("processName"));
         dto.setDescription(request.getParameter("description"));
         dto.setRemark(request.getParameter("remark"));

@@ -1,10 +1,14 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<c:set var="canManage" value="${sessionScope.loginUser.roleName eq 'MES_ADMIN' or sessionScope.loginUser.roleName eq 'SITE_MANAGER'}" />
 <c:if test="${not empty errorMsg}"><script>alert('${errorMsg}');</script></c:if>
+<c:if test="${canManage}">
 <div class="taPageActions">
     <button type="button" class="taOpenModal taBtn taBtnPrimary" data-modal-target="defectRegisterModal">등록</button>
     <button type="submit" form="defectDeleteForm" class="taBtn taBtnOutline">선택 삭제</button>
 </div>
+</c:if>
+<c:if test="${canManage}">
 <div id="defectRegisterModal" class="taModal" hidden aria-hidden="true">
     <div class="taModalDialog">
         <div class="taModalHeader"><h3 class="taModalTitle">불량 등록</h3><button type="button" class="taModalClose">×</button></div>
@@ -60,6 +64,7 @@
         </form>
     </div>
 </div>
+</c:if>
 
 <form id="paSearchForm" method="post" action="${pageContext.request.contextPath}/defectRegInq">
     <input type="hidden" name="cmd" value="list"><input type="hidden" name="page" id="paPage" value="${paCurrentPage}">
@@ -83,8 +88,8 @@
                 <option value="defectName" <c:if test="${defectRegInqSearchDTO.searchType eq 'defectName'}">selected</c:if>>불량명</option>
             </select>
         </div>
-        <div class="taToolbarField taToolbarSpan2"><input type="date" class="taSearchInput" name="startDate" value="${defectRegInqSearchDTO.startDate}"></div>
-        <div class="taToolbarField taToolbarSpan2"><input type="date" class="taSearchInput" name="endDate" value="${defectRegInqSearchDTO.endDate}"></div>
+        <div class="taToolbarField taToolbarSpan2"><label class="taDateLabel">시작일</label><input type="date" class="taSearchInput" name="startDate" value="${defectRegInqSearchDTO.startDate}"></div>
+        <div class="taToolbarField taToolbarSpan2"><label class="taDateLabel">종료일</label><input type="date" class="taSearchInput" name="endDate" value="${defectRegInqSearchDTO.endDate}"></div>
         <div class="taToolbarField taToolbarFieldGrow taToolbarSpan4"><div class="taSearchBox"><input type="text" class="taSearchInput" name="keyword" placeholder="검색키워드" value="${defectRegInqSearchDTO.keyword}"><button type="submit" class="taSearchBtn" aria-label="검색" onclick="document.getElementById('paPage').value=1;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20L16.65 16.65"></path></svg></button><button type="button" class="taBtn taBtnOutline taSearchReset" onclick="location.href='${pageContext.request.contextPath}/defectRegInq'">초기화</button></div></div>
     </div>
 </form>

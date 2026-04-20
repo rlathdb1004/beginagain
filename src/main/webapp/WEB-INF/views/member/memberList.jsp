@@ -1,10 +1,15 @@
 <%@ page contentType="text/html; charset=UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
+<c:set var="isMesAdmin" value="${sessionScope.loginUser.roleName eq 'MES_ADMIN'}" />
+
 <div class="taPageActions">
-	<button type="button" class="taBtn taBtnPrimary"
-		data-modal-target="registerModal">등록</button>
-	<button type="submit" form="deleteForm" class="taBtn taBtnOutline"
-		onclick="return confirm('선택한 사원을 삭제하시겠습니까?');">선택 삭제</button>
+	<c:if test="${isMesAdmin}">
+		<button type="button" class="taBtn taBtnPrimary"
+			data-modal-target="registerModal">등록</button>
+		<button type="submit" form="deleteForm" class="taBtn taBtnOutline"
+			onclick="return confirm('선택한 사원을 삭제하시겠습니까?');">선택 삭제</button>
+	</c:if>
 </div>
 <!-- 페이징때문에 내용추가함 / 령 -->
 <!-- <form class="taLocalSearchForm" data-table-id="memberTable"> -->
@@ -71,8 +76,11 @@
 			<table class="taMesTable" id="memberTable">
 				<thead>
 					<tr>
-						<th class="taTableHeadCell taCheckCell"><input
-							type="checkbox" id="checkAll" class="taCheckInput"></th>
+						<th class="taTableHeadCell taCheckCell">
+							<c:if test="${isMesAdmin}">
+								<input type="checkbox" id="checkAll" class="taCheckInput">
+							</c:if>
+						</th>
 						<th class="taTableHeadCell taColFit">ID</th>
 						<th class="taTableHeadCell taColFit">사번</th>
 						<th class="taTableHeadCell taColFit">이름</th>
@@ -89,9 +97,12 @@
 						<c:when test="${not empty memberList}">
 							<c:forEach var="m" items="${memberList}">
 								<tr class="taTableBodyRow">
-									<td class="taTableBodyCell taCheckCell"><input
-										type="checkbox" name="empId" value="${m.empId}"
-										class="taCheckInput"></td>
+									<td class="taTableBodyCell taCheckCell">
+										<c:if test="${isMesAdmin}">
+											<input type="checkbox" name="empId" value="${m.empId}"
+												class="taCheckInput">
+										</c:if>
+									</td>
 									<td class="taTableBodyCell taColFit">${m.empId}</td>
 									<td class="taTableBodyCell taColFit" data-search-key="empNo">${m.empNo}</td>
 									<td class="taTableBodyCell taColFit" data-search-key="empName">${m.empName}</td>
@@ -99,7 +110,13 @@
 									<td class="taTableBodyCell taColFit"
 										data-search-key="positionName">${m.positionName}</td>
 									<td class="taTableBodyCell taColFit">${m.status}</td>
-									<td class="taTableBodyCell taColFit">${m.roleName}</td>
+									<td class="taTableBodyCell taColFit"><c:choose>
+											<c:when test="${m.roleName eq 'CEO'}">ceo</c:when>
+											<c:when test="${m.roleName eq 'MES_ADMIN'}">mes관리자</c:when>
+											<c:when test="${m.roleName eq 'SITE_MANAGER'}">현장관리자</c:when>
+											<c:when test="${m.roleName eq 'WORKER'}">작업자</c:when>
+											<c:otherwise>${m.roleName}</c:otherwise>
+										</c:choose></td>
 									<td class="taTableBodyCell taColFit">${m.tempPwdYn}</td>
 									<td class="taTableBodyCell taColAction taLastCol"><a
 										class="taLinkAnchor"
@@ -119,63 +136,69 @@
 		</div>
 	</div>
 </form>
-<div class="taModal" id="registerModal" hidden aria-hidden="true">
-	<div class="taModalDialog modal-lg">
-		<div class="taModalHeader">
-			<h3 class="taModalTitle">사원 등록</h3>
-			<button type="button" class="taModalClose">&times;</button>
+
+<c:if test="${isMesAdmin}">
+	<div class="taModal" id="registerModal" hidden aria-hidden="true">
+		<div class="taModalDialog modal-lg">
+			<div class="taModalHeader">
+				<h3 class="taModalTitle">사원 등록</h3>
+				<button type="button" class="taModalClose">&times;</button>
+			</div>
+			<form action="${pageContext.request.contextPath}/member/register"
+				method="post">
+				<div class="taModalBody taModalGrid">
+					<div class="form-row">
+						<label>사번</label><input type="text" name="empNo" required>
+					</div>
+					<div class="form-row">
+						<label>이름</label><input type="text" name="empName" required>
+					</div>
+					<div class="form-row">
+						<label>부서코드</label><select name="deptCode"><option
+								value="PROD">생산</option>
+							<option value="QUAL">품질</option>
+							<option value="MTRL">자재</option>
+							<option value="FAC">설비</option>
+							<option value="ADMIN">관리</option></select>
+					</div>
+					<div class="form-row">
+						<label>직급</label><select name="positionName"><option
+								value="사원">사원</option>
+							<option value="대리">대리</option>
+							<option value="과장">과장</option>
+							<option value="차장">차장</option>
+							<option value="부장">부장</option></select>
+					</div>
+					<div class="form-row">
+						<label>이메일</label><input type="email" name="email">
+					</div>
+					<div class="form-row">
+						<label>전화번호</label><input type="text" name="phone">
+					</div>
+					<div class="form-row">
+						<label>상태</label><select name="status"><option value="재직"
+								selected>재직</option>
+							<option value="휴직">휴직</option>
+							<option value="퇴사">퇴사</option></select>
+					</div>
+					<div class="form-row">
+						<label>권한</label><select name="roleName">
+							<option value="CEO">ceo</option>
+							<option value="MES_ADMIN">mes관리자</option>
+							<option value="SITE_MANAGER">현장관리자</option>
+							<option value="WORKER" selected>작업자</option>
+						</select>
+					</div>
+					<div class="form-row full">
+						<label>비고</label>
+						<textarea name="remark"></textarea>
+					</div>
+				</div>
+				<div class="taModalFooter">
+					<button type="button" class="taBtn taBtnOutline taModalClose">취소</button>
+					<button type="submit" class="taBtn taBtnPrimary">등록</button>
+				</div>
+			</form>
 		</div>
-		<form action="${pageContext.request.contextPath}/member/register"
-			method="post">
-			<div class="taModalBody taModalGrid">
-				<div class="form-row">
-					<label>사번</label><input type="text" name="empNo" required>
-				</div>
-				<div class="form-row">
-					<label>이름</label><input type="text" name="empName" required>
-				</div>
-				<div class="form-row">
-					<label>부서코드</label><select name="deptCode"><option
-							value="PROD">생산</option>
-						<option value="QUAL">품질</option>
-						<option value="MTRL">자재</option>
-						<option value="FAC">설비</option>
-						<option value="ADMIN">관리</option></select>
-				</div>
-				<div class="form-row">
-					<label>직급</label><select name="positionName"><option
-							value="사원">사원</option>
-						<option value="대리">대리</option>
-						<option value="과장">과장</option>
-						<option value="차장">차장</option>
-						<option value="부장">부장</option></select>
-				</div>
-				<div class="form-row">
-					<label>이메일</label><input type="email" name="email">
-				</div>
-				<div class="form-row">
-					<label>전화번호</label><input type="text" name="phone">
-				</div>
-				<div class="form-row">
-					<label>상태</label><select name="status"><option value="재직"
-							selected>재직</option>
-						<option value="휴직">휴직</option>
-						<option value="퇴사">퇴사</option></select>
-				</div>
-				<div class="form-row">
-					<label>권한</label><select name="roleName"><option
-							value="USER" selected>USER</option>
-						<option value="ADMIN">ADMIN</option></select>
-				</div>
-				<div class="form-row full">
-					<label>비고</label>
-					<textarea name="remark"></textarea>
-				</div>
-			</div>
-			<div class="taModalFooter">
-				<button type="button" class="taBtn taBtnOutline taModalClose">취소</button>
-				<button type="submit" class="taBtn taBtnPrimary">등록</button>
-			</div>
-		</form>
 	</div>
-</div>
+</c:if>

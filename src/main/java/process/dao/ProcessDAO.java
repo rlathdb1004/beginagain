@@ -106,13 +106,14 @@ public class ProcessDAO {
 public int insertProcess(Connection conn, ProcessDTO dto) {
     PreparedStatement ps = null;
     int result = 0;
-    String sql = "INSERT INTO PROCESS (PROCESS_ID, PROCESS_CODE, PROCESS_NAME, DESCRIPTION, USE_YN, REMARK, CREATED_AT, UPDATED_AT) VALUES (SEQ_PROCESS.NEXTVAL, ?, ?, ?, 'Y', ?, SYSDATE, SYSDATE)";
+    String sql = "INSERT INTO PROCESS (PROCESS_ID, PROCESS_CODE, PROCESS_NAME, DESCRIPTION, USE_YN, REMARK, CREATED_AT, UPDATED_AT) "
+            + "SELECT seq_no, 'PROC' || LPAD(seq_no, 4, '0'), ?, ?, 'Y', ?, SYSDATE, SYSDATE "
+            + "FROM (SELECT SEQ_PROCESS.NEXTVAL AS seq_no FROM DUAL)";
     try {
         ps = conn.prepareStatement(sql);
-        ps.setString(1, dto.getProcessCode());
-        ps.setString(2, dto.getProcessName());
-        ps.setString(3, dto.getDescription());
-        ps.setString(4, dto.getRemark());
+        ps.setString(1, dto.getProcessName());
+        ps.setString(2, dto.getDescription());
+        ps.setString(3, dto.getRemark());
         result = ps.executeUpdate();
     } catch (Exception e) {
         throw new RuntimeException("공정 등록 실패", e);

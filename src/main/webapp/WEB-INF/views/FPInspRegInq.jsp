@@ -1,11 +1,15 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<c:set var="canManage" value="${sessionScope.loginUser.roleName eq 'MES_ADMIN' or sessionScope.loginUser.roleName eq 'SITE_MANAGER'}" />
 <c:if test="${not empty errorMsg}"><script>alert('${errorMsg}');</script></c:if>
+<c:if test="${canManage}">
 <div class="taPageActions">
 	<button type="button" class="taOpenModal taBtn taBtnPrimary" data-modal-target="fpInspRegisterModal">등록</button>
 	<button type="submit" form="fpInspDeleteForm" class="taBtn taBtnOutline">선택 삭제</button>
 </div>
+</c:if>
+<c:if test="${canManage}">
 <div id="fpInspRegisterModal" class="taModal" hidden aria-hidden="true">
 	<div class="taModalDialog">
 		<div class="taModalHeader">
@@ -32,7 +36,7 @@
 				<div class="form-row"><label>누적 검사수량</label><input type="text" id="fpCurrentInspectSum" readonly></div>
 				<div class="form-row"><label>남은 가능 수량</label><input type="text" id="fpRemainingQty" readonly></div>
 				<div class="form-row"><label>검사수량</label><input type="number" step="0.001" min="0.001" name="inspectQty" required></div>
-				<div class="form-row"><label>판정</label><select name="result"><option value="합격">합격</option><option value="부분합격">부분합격</option><option value="불합격">불합격</option></select></div>
+				<div class="form-row"><label>판정</label><select name="result"><option value="합격">합격</option><option value="불합격">불합격</option></select></div>
 				<div class="form-row"><label>검사일</label><input type="date" name="inspectionDate" required></div>
 				<div class="form-row full"><label>비고</label><textarea name="remark"></textarea></div>
 			</div>
@@ -40,16 +44,17 @@
 		</form>
 	</div>
 </div>
+</c:if>
 
 <form id="paSearchForm" method="post" action="${pageContext.request.contextPath}/fpInspRegInq">
 	<input type="hidden" name="cmd" value="list"> <input type="hidden" name="page" id="paPage" value="${paCurrentPage}">
 	<div class="taToolbarRow">
 		<div class="taToolbarField taToolbarSpan2">
 			<select class="taSelect taAutoSelectColor ${empty fpInspRegInqSearchDTO.resultType or fpInspRegInqSearchDTO.resultType eq '전체' ? 'taSelectPlaceholder' : ''}" name="resultType">
-				<option value="" disabled hidden <c:if test="${empty fpInspRegInqSearchDTO.resultType or fpInspRegInqSearchDTO.resultType eq '전체'}">selected</c:if>>전체 / 합격 / 부분합격 / 불합격</option>
+				<option value="" disabled hidden <c:if test="${empty fpInspRegInqSearchDTO.resultType or fpInspRegInqSearchDTO.resultType eq '전체'}">selected</c:if>>전체 / 합격 / 불합격</option>
 				<option value="전체" <c:if test="${fpInspRegInqSearchDTO.resultType eq '전체'}">selected</c:if>>전체</option>
 				<option value="합격" <c:if test="${fpInspRegInqSearchDTO.resultType eq '합격'}">selected</c:if>>합격</option>
-				<option value="부분합격" <c:if test="${fpInspRegInqSearchDTO.resultType eq '부분합격'}">selected</c:if>>부분합격</option>
+				
 				<option value="불합격" <c:if test="${fpInspRegInqSearchDTO.resultType eq '불합격'}">selected</c:if>>불합격</option>
 			</select>
 		</div>
@@ -61,8 +66,8 @@
 				<option value="itemName" <c:if test="${fpInspRegInqSearchDTO.searchType eq 'itemName'}">selected</c:if>>품목명</option>
 			</select>
 		</div>
-		<div class="taToolbarField taToolbarSpan2"><input type="date" class="taSearchInput" name="startDate" value="${fpInspRegInqSearchDTO.startDate}"></div>
-		<div class="taToolbarField taToolbarSpan2"><input type="date" class="taSearchInput" name="endDate" value="${fpInspRegInqSearchDTO.endDate}"></div>
+		<div class="taToolbarField taToolbarSpan2"><label class="taDateLabel">시작일</label><input type="date" class="taSearchInput" name="startDate" value="${fpInspRegInqSearchDTO.startDate}"></div>
+		<div class="taToolbarField taToolbarSpan2"><label class="taDateLabel">종료일</label><input type="date" class="taSearchInput" name="endDate" value="${fpInspRegInqSearchDTO.endDate}"></div>
 		<div class="taToolbarField taToolbarFieldGrow taToolbarSpan4"><div class="taSearchBox"><input type="text" class="taSearchInput" name="keyword" placeholder="검색키워드" value="${fpInspRegInqSearchDTO.keyword}"><button type="submit" class="taSearchBtn" aria-label="검색" onclick="document.getElementById('paPage').value=1;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20L16.65 16.65"></path></svg></button><button type="button" class="taBtn taBtnOutline taSearchReset" onclick="location.href='${pageContext.request.contextPath}/fpInspRegInq'">초기화</button></div></div>
 	</div>
 </form>

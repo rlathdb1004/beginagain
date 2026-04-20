@@ -2,95 +2,99 @@
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
+<c:set var="isManager"
+	value="${sessionScope.loginUser.roleName eq 'MES_ADMIN' or sessionScope.loginUser.roleName eq 'SITE_MANAGER'}" />
+
 <c:if test="${not empty errorMsg}">
     <script>alert("${errorMsg}");</script>
 </c:if>
 
-<div id="ioRegisterModal" class="taModal" hidden aria-hidden="true">
-    <div class="taModalDialog">
-        <div class="taModalHeader">
-            <h3 class="taModalTitle">입출고 등록</h3>
-            <button type="button" class="taModalClose">×</button>
-        </div>
-        <form method="post" action="${pageContext.request.contextPath}/ioRegInq">
-            <input type="hidden" name="cmd" value="register">
-            <div class="taModalBody taModalGrid">
-                <div class="form-row">
-                    <label>품목 선택</label>
-                    <select name="itemId" id="ioItemId" class="taSelect" required>
-                        <option value="">품목을 선택하세요</option>
-                        <c:forEach var="item" items="${itemList}">
-                            <option value="${item.itemId}"
-                                data-code="${item.itemCode}"
-                                data-name="${item.itemName}"
-                                data-type="${item.itemType}"
-                                data-unit="${item.unit}"
-                                data-stock="${item.safetyStock}">
-                                ${item.itemCode} - ${item.itemName}
-                            </option>
-                        </c:forEach>
-                    </select>
-                </div>
-                <div class="form-row">
-                    <label>품목코드</label>
-                    <input type="text" id="ioItemCode" readonly>
-                </div>
-                <div class="form-row">
-                    <label>품목명</label>
-                    <input type="text" id="ioItemName" readonly>
-                </div>
-                <div class="form-row">
-                    <label>품목 유형</label>
-                    <input type="text" id="ioItemType" readonly>
-                </div>
-                <div class="form-row">
-                    <label>입출고구분</label>
-                    <select name="inoutType" class="taSelect">
-                        <option value="입고">입고</option>
-                        <option value="출고">출고</option>
-                        <option value="반품">반품</option>
-                        <option value="폐기">폐기</option>
-                    </select>
-                </div>
-                <div class="form-row">
-                    <label>수량</label>
-                    <input type="number" step="0.001" min="0.001" name="qty" required>
-                </div>
-                <div class="form-row">
-                    <label>단위</label>
-                    <input type="text" name="unit" id="ioUnit" readonly>
-                </div>
-                <div class="form-row">
-                    <label>현재고</label>
-                    <input type="text" id="ioCurrentStock" readonly>
-                </div>
-                <div class="form-row">
-                    <label>일자</label>
-                    <input type="date" name="inoutDate" required>
-                </div>
-                <div class="form-row">
-                    <label>상태</label>
-                    <select name="status" class="taSelect">
-                        <option value="대기">대기</option>
-                        <option value="완료">완료</option>
-                    </select>
-                </div>
-                <div class="form-row full">
-                    <label>비고</label>
-                    <textarea name="remark"></textarea>
-                </div>
-            </div>
-            <div class="taModalFooter">
-                <button type="button" class="taBtn taBtnOutline taModalClose">취소</button>
-                <button type="submit" class="taBtn taBtnPrimary">저장</button>
-            </div>
-        </form>
-    </div>
-</div>
+<c:if test="${isManager}">
+	<div id="ioRegisterModal" class="taModal" hidden aria-hidden="true">
+	    <div class="taModalDialog">
+	        <div class="taModalHeader">
+	            <h3 class="taModalTitle">입출고 등록</h3>
+	            <button type="button" class="taModalClose">×</button>
+	        </div>
+	        <form method="post" action="${pageContext.request.contextPath}/ioRegInq">
+	            <input type="hidden" name="cmd" value="register">
+	            <div class="taModalBody taModalGrid">
+	                <div class="form-row">
+	                    <label>품목 선택</label>
+	                    <select name="itemId" id="ioItemId" class="taSelect" required>
+	                        <option value="">품목을 선택하세요</option>
+	                        <c:forEach var="item" items="${itemList}">
+	                            <option value="${item.itemId}"
+	                                data-code="${item.itemCode}"
+	                                data-name="${item.itemName}"
+	                                data-type="${item.itemType}"
+	                                data-unit="${item.unit}"
+	                                data-stock="${item.currentStock}"
+	                                data-inbound="${item.availableInboundQty}">
+	                                ${item.itemCode} - ${item.itemName}
+	                            </option>
+	                        </c:forEach>
+	                    </select>
+	                </div>
+	                <div class="form-row">
+	                    <label>품목코드</label>
+	                    <input type="text" id="ioItemCode" readonly>
+	                </div>
+	                <div class="form-row">
+	                    <label>품목명</label>
+	                    <input type="text" id="ioItemName" readonly>
+	                </div>
+	                <div class="form-row">
+	                    <label>품목 유형</label>
+	                    <input type="text" id="ioItemType" readonly>
+	                </div>
+	                <div class="form-row">
+	                    <label>입출고구분</label>
+	                    <select name="inoutType" id="ioInoutType" class="taSelect">
+	                        <option value="입고">입고</option>
+	                        <option value="출고">출고</option>
+	                    </select>
+	                    <small class="taFieldHint">입고는 검사 합격 기준 남은 수량 이내에서만 가능합니다.</small>
+	                </div>
+	                <div class="form-row">
+	                    <label>수량</label>
+	                    <input type="number" step="0.001" min="0.001" name="qty" required>
+	                </div>
+	                <div class="form-row">
+	                    <label>단위</label>
+	                    <input type="text" name="unit" id="ioUnit" readonly>
+	                </div>
+	                <div class="form-row">
+	                    <label>현재고</label>
+	                    <input type="text" id="ioCurrentStock" readonly>
+	                </div>
+	                <div class="form-row">
+	                    <label>입고 가능 수량</label>
+	                    <input type="text" id="ioAvailableInboundQty" readonly>
+	                </div>
+	                <div class="form-row">
+	                    <label>일자</label>
+	                    <input type="date" name="inoutDate" required>
+	                </div>
+	                <div class="form-row full">
+	                    <label>비고</label>
+	                    <textarea name="remark"></textarea>
+	                </div>
+	            </div>
+	            <div class="taModalFooter">
+	                <button type="button" class="taBtn taBtnOutline taModalClose">취소</button>
+	                <button type="submit" class="taBtn taBtnPrimary">저장</button>
+	            </div>
+	        </form>
+	    </div>
+	</div>
+</c:if>
 
 <div class="taPageActions">
-    <button type="button" class="taOpenModal taBtn taBtnPrimary" data-modal-target="ioRegisterModal">등록</button>
-    <button type="submit" form="ioDeleteForm" class="taBtn taBtnOutline">선택 삭제</button>
+	<c:if test="${isManager}">
+	    <button type="button" class="taOpenModal taBtn taBtnPrimary" data-modal-target="ioRegisterModal">등록</button>
+	    <button type="submit" form="ioDeleteForm" class="taBtn taBtnOutline">선택 삭제</button>
+	</c:if>
 </div>
 
 <form id="paSearchForm" method="post" action="${pageContext.request.contextPath}/ioRegInq">
@@ -109,10 +113,10 @@
             </select>
         </div>
         <div class="taToolbarField taToolbarSpan2">
-            <input type="date" class="taSearchInput" name="startDate" value="${ioRegInqSearchDTO.startDate}">
+            <label class="taDateLabel">시작일</label><input type="date" class="taSearchInput" name="startDate" value="${ioRegInqSearchDTO.startDate}">
         </div>
         <div class="taToolbarField taToolbarSpan2">
-            <input type="date" class="taSearchInput" name="endDate" value="${ioRegInqSearchDTO.endDate}">
+            <label class="taDateLabel">종료일</label><input type="date" class="taSearchInput" name="endDate" value="${ioRegInqSearchDTO.endDate}">
         </div>
         <div class="taToolbarField taToolbarFieldGrow taToolbarSpan6">
             <div class="taSearchBox">
@@ -137,7 +141,11 @@
             <table class="taMesTable">
                 <thead>
                     <tr>
-                        <th class="taTableHeadCell taColFit"><input type="checkbox" id="checkAll" class="taCheckInput"></th>
+                        <th class="taTableHeadCell taColFit">
+                        	<c:if test="${isManager}">
+                        		<input type="checkbox" id="checkAll" class="taCheckInput">
+                        	</c:if>
+                        </th>
                         <th class="taTableHeadCell taColFit">NO</th>
                         <th class="taTableHeadCell taColFit">입출고구분</th>
                         <th class="taTableHeadCell taColFit">품목코드</th>
@@ -145,15 +153,18 @@
                         <th class="taTableHeadCell taColGrow">품목명</th>
                         <th class="taTableHeadCell taColFit">입출고량</th>
                         <th class="taTableHeadCell taColFit">단위</th>
-                        <th class="taTableHeadCell taColFit">상태</th>
-                        <th class="taTableHeadCell taColDate">일자</th>
+                                                <th class="taTableHeadCell taColDate">일자</th>
                         <th class="taTableHeadCell taColAction taLastCol">상세보기</th>
                     </tr>
                 </thead>
                 <tbody>
                     <c:forEach var="dto" items="${ioRegInqList}">
                         <tr class="taTableBodyRow">
-                            <td class="taTableBodyCell taColFit"><input type="checkbox" class="taCheckInput" name="inoutIds" value="${dto.inoutId}"></td>
+                            <td class="taTableBodyCell taColFit">
+                            	<c:if test="${isManager}">
+                            		<input type="checkbox" class="taCheckInput" name="inoutIds" value="${dto.inoutId}">
+                            	</c:if>
+                            </td>
                             <td class="taTableBodyCell taColFit">${dto.inoutId}</td>
                             <td class="taTableBodyCell taColFit">${dto.inoutType}</td>
                             <td class="taTableBodyCell taColFit">${dto.itemCode}</td>
@@ -161,7 +172,6 @@
                             <td class="taTableBodyCell taColGrow">${dto.itemName}</td>
                             <td class="taTableBodyCell taColFit">${dto.qty}</td>
                             <td class="taTableBodyCell taColFit">${dto.unit}</td>
-                            <td class="taTableBodyCell taColFit">${dto.status}</td>
                             <td class="taTableBodyCell taColDate">${dto.inoutDate}</td>
                             <td class="taTableBodyCell taColAction taLastCol">
                                 <a class="taLinkAnchor" href="${pageContext.request.contextPath}/ioRegInq?inoutId=${dto.inoutId}">상세보기</a>
@@ -187,24 +197,64 @@
     const itemType = document.getElementById("ioItemType");
     const unit = document.getElementById("ioUnit");
     const currentStock = document.getElementById("ioCurrentStock");
+    const availableInboundQty = document.getElementById("ioAvailableInboundQty");
+    const inoutTypeSelect = document.getElementById("ioInoutType");
+    const qtyInput = document.querySelector("#ioRegisterModal input[name='qty']");
 
-    if (!itemSelect) return;
+    if (itemSelect) {
+        itemSelect.addEventListener("change", function() {
+            const selected = this.options[this.selectedIndex];
+            if (!selected || !selected.value) {
+                itemCode.value = "";
+                itemName.value = "";
+                itemType.value = "";
+                unit.value = "";
+                currentStock.value = "";
+                if (availableInboundQty) availableInboundQty.value = "";
+                return;
+            }
+            itemCode.value = selected.dataset.code || "";
+            itemName.value = selected.dataset.name || "";
+            itemType.value = selected.dataset.type || "";
+            unit.value = selected.dataset.unit || "";
+            currentStock.value = selected.dataset.stock || "0";
+            if (availableInboundQty) availableInboundQty.value = selected.dataset.inbound || "0";
+            syncQtyGuide();
+        });
+    }
 
-    itemSelect.addEventListener("change", function() {
-        const selected = this.options[this.selectedIndex];
+    const checkAll = document.getElementById("checkAll");
+    function syncQtyGuide() {
+        if (!itemSelect || !qtyInput || !inoutTypeSelect) return;
+        const selected = itemSelect.options[itemSelect.selectedIndex];
         if (!selected || !selected.value) {
-            itemCode.value = "";
-            itemName.value = "";
-            itemType.value = "";
-            unit.value = "";
-            currentStock.value = "";
+            qtyInput.removeAttribute("max");
+            qtyInput.placeholder = "";
             return;
         }
-        itemCode.value = selected.dataset.code || "";
-        itemName.value = selected.dataset.name || "";
-        itemType.value = selected.dataset.type || "";
-        unit.value = selected.dataset.unit || "";
-        currentStock.value = selected.dataset.stock || "0";
-    });
+        if (inoutTypeSelect.value === "입고") {
+            const maxQty = selected.dataset.inbound || "0";
+            qtyInput.setAttribute("max", maxQty);
+            qtyInput.placeholder = "입고 가능 수량: " + maxQty;
+        } else {
+            const maxQty = selected.dataset.stock || "0";
+            qtyInput.setAttribute("max", maxQty);
+            qtyInput.placeholder = "출고 가능 수량: " + maxQty;
+        }
+    }
+
+    if (inoutTypeSelect) {
+        inoutTypeSelect.addEventListener("change", syncQtyGuide);
+    }
+
+    syncQtyGuide();
+
+    if (checkAll) {
+        checkAll.addEventListener("change", function() {
+            document.querySelectorAll("input[name='inoutIds']").forEach(function(cb) {
+                cb.checked = checkAll.checked;
+            });
+        });
+    }
 })();
 </script>

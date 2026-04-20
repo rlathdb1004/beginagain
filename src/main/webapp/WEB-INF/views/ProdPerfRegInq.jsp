@@ -1,18 +1,21 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<c:set var="canManage" value="${sessionScope.loginUser.roleName eq 'MES_ADMIN' or sessionScope.loginUser.roleName eq 'SITE_MANAGER'}" />
 
 <c:if test="${not empty errorMsg}">
 	<script>alert("${errorMsg}");</script>
 </c:if>
 
 <div class="prodperf-page">
+	<c:if test="${canManage}">
 	<div class="taPageActions">
 		<button type="button" class="taBtn taBtnPrimary"
 			data-modal-target="registerModal">등록</button>
 		<button type="submit" form="deleteForm" class="taBtn taBtnOutline"
 			onclick="return confirmDeleteProdPerf();">선택 삭제</button>
 	</div>
+	</c:if>
 
 	<form id="paSearchForm" method="get"
 		action="${pageContext.request.contextPath}/prodperf">
@@ -32,8 +35,8 @@
 					<option value="lotNo" ${param.searchType eq 'lotNo' ? "selected" : ""}>LOT</option>
 				</select>
 			</div>
-			<div class="taToolbarField taToolbarSpan2"><input type="date" class="taSearchInput" name="startDate" value="${param.startDate}"></div>
-			<div class="taToolbarField taToolbarSpan2"><input type="date" class="taSearchInput" name="endDate" value="${param.endDate}"></div>
+			<div class="taToolbarField taToolbarSpan2"><label class="taDateLabel">시작일</label><input type="date" class="taSearchInput" name="startDate" value="${param.startDate}"></div>
+			<div class="taToolbarField taToolbarSpan2"><label class="taDateLabel">종료일</label><input type="date" class="taSearchInput" name="endDate" value="${param.endDate}"></div>
 			<div class="taToolbarField taToolbarFieldGrow taToolbarSpan6">
 				<div class="taSearchBox">
 					<input type="text" class="taSearchInput" name="keyword" placeholder="검색키워드" value="${param.keyword}">
@@ -136,18 +139,11 @@
 				<div class="form-row"><label>현재 누적 생산량</label><input type="text" id="registerCurrentProduced" readonly></div>
 				<div class="form-row"><label>현재 누적 손실량</label><input type="text" id="registerCurrentLoss" readonly></div>
 				<div class="form-row"><label>남은 가능 수량</label><input type="text" id="registerRemainingQty" readonly></div>
-				<div class="form-row"><label>생산량</label><input type="number" name="producedQty" min="0" required></div>
+				<div class="form-row"><label>생산량</label><input type="number" name="producedQty" id="registerProducedQty" min="0" required><small class="taAutoCodeHint">작업지시 선택 시 남은 가능 수량이 기본값으로 채워집니다. 필요하면 수정 가능합니다.</small></div>
 				<div class="form-row"><label>손실량</label><input type="number" name="lossQty" min="0" value="0"></div>
 				<div class="form-row"><label>단위</label><input type="text" id="registerUnit" readonly></div>
 				<div class="form-row"><label>라인</label><input type="text" id="registerLineCode" readonly></div>
-				<div class="form-row"><label>LOT</label><input type="text" name="lotNo" required></div>
-				<div class="form-row"><label>상태</label>
-					<select name="status" required>
-						<option value="대기">대기</option>
-						<option value="진행중">진행중</option>
-						<option value="완료">완료</option>
-					</select>
-				</div>
+				<div class="form-row"><label>LOT</label><input type="text" name="lotNo" id="registerLotNo" required readonly><small class="taAutoCodeHint">작업지시 선택 시 LOT-날짜-작업지시ID-라인 형식으로 자동 채워지며, 수동 수정은 불가합니다.</small></div>
 				<div class="form-row full"><label>비고</label><textarea name="remark"></textarea></div>
 			</div>
 			<div class="taModalFooter">
@@ -174,7 +170,10 @@ document.addEventListener("DOMContentLoaded", function() {
 		currentLoss: document.getElementById("registerCurrentLoss"),
 		remainingQty: document.getElementById("registerRemainingQty"),
 		lineCode: document.getElementById("registerLineCode"),
-		unit: document.getElementById("registerUnit")
+		unit: document.getElementById("registerUnit"),
+		lotNo: document.getElementById("registerLotNo"),
+		resultDate: document.querySelector("#registerModal input[name=\"resultDate\"]"),
+		producedQty: document.getElementById("registerProducedQty")
 	};
 
 	if (checkAll) {
@@ -201,6 +200,27 @@ document.addEventListener("DOMContentLoaded", function() {
 		return confirm("선택한 생산실적을 삭제하시겠습니까?");
 	};
 
+	function formatLotDate(value) {
+		if (!value) return "";
+		return value.replace(/-/g, "");
+	}
+
+	function buildDefaultLotNo(opt) {
+		if (!opt || !opt.value) return "";
+		const resultDate = fields.resultDate && fields.resultDate.value ? fields.resultDate.value : "";
+		const datePart = formatLotDate(resultDate);
+		if (!datePart) return "";
+		const workOrderPart = String(opt.value).padStart(4, "0");
+		const rawLineCode = opt.dataset.lineCode || "";
+		let linePart = rawLineCode.replace(/\s+/g, "").toUpperCase();
+		linePart = linePart.replace(/^LN-?/, "");
+		linePart = linePart.replace(/[^A-Z0-9]/g, "");
+		if (!linePart) {
+			linePart = "A";
+		}
+		return "LOT-" + datePart + "-" + workOrderPart + "-" + linePart;
+	}
+
 	function syncRegisterWorkOrderMeta() {
 		const opt = registerWorkOrderId && registerWorkOrderId.options[registerWorkOrderId.selectedIndex];
 		fields.planId.value = opt ? (opt.dataset.planId || "") : "";
@@ -212,12 +232,24 @@ document.addEventListener("DOMContentLoaded", function() {
 		fields.remainingQty.value = opt ? (opt.dataset.remainingQty || "") : "";
 		fields.lineCode.value = opt ? (opt.dataset.lineCode || "") : "";
 		fields.unit.value = opt ? (opt.dataset.unit || "") : "";
+
+		if (fields.producedQty) {
+			fields.producedQty.value = opt ? (opt.dataset.remainingQty || "") : "";
+		}
+
+		if (fields.lotNo) {
+			fields.lotNo.value = buildDefaultLotNo(opt);
+		}
+
 	}
 
 	if (registerOpenBtn) {
 		registerOpenBtn.addEventListener("click", function() {
 			registerModal.hidden = false;
 			registerModal.setAttribute("aria-hidden", "false");
+			if (fields.resultDate && !fields.resultDate.value) {
+				fields.resultDate.value = new Date().toISOString().slice(0, 10);
+			}
 			syncRegisterWorkOrderMeta();
 		});
 	}
@@ -237,6 +269,7 @@ document.addEventListener("DOMContentLoaded", function() {
 	}
 	if (registerWorkOrderId) {
 		registerWorkOrderId.addEventListener("change", syncRegisterWorkOrderMeta);
+		if (fields.resultDate) fields.resultDate.addEventListener("change", syncRegisterWorkOrderMeta);
 		syncRegisterWorkOrderMeta();
 	}
 });

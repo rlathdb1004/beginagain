@@ -61,7 +61,7 @@ public class RoutingListController extends HttpServlet {
             try {
                 selectedItemId = Integer.parseInt(itemIdParam);
                 List<RoutingDTO> routingList = routingService.getRoutingListByItemId(selectedItemId);
-                request.setAttribute("routingList", routingList);
+                request.setAttribute("list", routingList);
                 request.setAttribute("selectedItemId", selectedItemId);
             } catch (NumberFormatException e) {
                 request.setAttribute("errorMessage", "잘못된 품목 번호입니다.");

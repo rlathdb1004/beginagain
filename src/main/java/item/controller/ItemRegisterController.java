@@ -27,7 +27,6 @@ public class ItemRegisterController extends HttpServlet {
             safetyStock = Double.parseDouble(safetyStockStr);
         }
         ItemDTO dto = new ItemDTO();
-        dto.setItemCode(request.getParameter("itemCode"));
         dto.setItemName(request.getParameter("itemName"));
         dto.setItemType(request.getParameter("itemType"));
         dto.setUnit(request.getParameter("unit"));

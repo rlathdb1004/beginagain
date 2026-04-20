@@ -317,7 +317,17 @@
 					</tr>
 					<tr>
 						<th>권한</th>
-						<td><div class="my-page-value">${user.roleName}</div></td>
+						<td>
+							<div class="my-page-value">
+								<c:choose>
+									<c:when test="${user.roleName eq 'CEO'}">ceo</c:when>
+									<c:when test="${user.roleName eq 'MES_ADMIN'}">mes관리자</c:when>
+									<c:when test="${user.roleName eq 'SITE_MANAGER'}">현장관리자</c:when>
+									<c:when test="${user.roleName eq 'WORKER'}">작업자</c:when>
+									<c:otherwise>${user.roleName}</c:otherwise>
+								</c:choose>
+							</div>
+						</td>
 					</tr>
 					<tr>
 						<th>상태</th>
@@ -497,12 +507,14 @@
 		var ruleEmpNo = document.getElementById('ruleEmpNo');
 
 		var empNo = '${user.empNo}';
-		var hasPwdError = ${hasPwdError};
+		var hasPwdError = ${hasPwdError ? 'true' : 'false'};
 
 		function openModal() {
 			pwdModal.style.display = 'flex';
 			document.body.style.overflow = 'hidden';
-			currentPassword.focus();
+			if (currentPassword) {
+				currentPassword.focus();
+			}
 		}
 
 		function closeModal() {

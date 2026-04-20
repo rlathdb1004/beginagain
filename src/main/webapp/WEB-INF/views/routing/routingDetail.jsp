@@ -1,54 +1,106 @@
-<%@ page contentType="text/html; charset=UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<c:choose>
-  <c:when test="${empty routing}">
-    <div class="taFormShell taEmptyState">
-      <p>조회된 라우팅 정보가 없습니다.</p>
-      <div class="taPageActions" style="justify-content:center; margin-top:16px;">
-        <a class="taBtn taBtnOutline" href="${pageContext.request.contextPath}/routing/list" style="text-decoration:none;">목록</a>
-      </div>
-    </div>
-  </c:when>
-  <c:otherwise>
-    <c:if test="${not empty errorMessage}"><script>alert('${errorMessage}');</script></c:if>
-    <form id="routingUpdateForm" action="${pageContext.request.contextPath}/routing/update" method="post">
-      <input type="hidden" name="routingId" value="${routing.routingId}">
-      <input type="hidden" name="itemId" value="${routing.itemId}">
-      <input type="hidden" name="processId" value="${routing.processId}">
-      <input type="hidden" name="equipmentId" value="${routing.equipmentId}">
-      <div class="taPageActions">
-        <button type="button" id="routingUpdateFormEditBtn" class="taBtn taBtnPrimary">수정</button>
-        <button type="submit" id="routingUpdateFormSaveBtn" class="taBtn taBtnPrimary" style="display:none;">수정완료</button>
-        <button type="button" id="routingUpdateFormCancelBtn" class="taBtn taBtnOutline" style="display:none;">취소</button>
-        <a class="taBtn taBtnOutline" href="${pageContext.request.contextPath}/routing/list?itemId=${routing.itemId}" style="text-decoration:none;">목록</a>
-      </div>
-      <div class="taFormShell">
-        <table class="taFormTable">
-          <tr><th class="taFormLabel">라우팅번호</th><td class="taFormValue"><span class="taReadonlyText">${routing.routingId}</span></td></tr>
-          <tr><th class="taFormLabel">품목</th><td class="taFormValue"><span class="taReadonlyText">${routing.itemCode} - ${routing.itemName}</span></td></tr>
-          <tr><th class="taFormLabel">공정</th><td class="taFormValue"><span class="taReadonlyText">${routing.processCode} - ${routing.processName}</span></td></tr>
-          <tr><th class="taFormLabel">설비</th><td class="taFormValue"><span class="taReadonlyText">${routing.equipmentCode} - ${routing.equipmentName}</span></td></tr>
-          <tr><th class="taFormLabel">공정순서</th><td class="taFormValue"><input class="taFormInput taEditableField" type="number" min="1" name="processSeq" value="${routing.processSeq}"></td></tr>
-          <tr><th class="taFormLabel">비고</th><td class="taFormValue"><textarea class="taFormTextarea taEditableField" name="remark">${routing.remark}</textarea></td></tr>
-        </table>
-      </div>
-    </form>
+<%@ page contentType="text/html; charset=UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
+<c:set var="isMesAdmin"
+	value="${sessionScope.loginUser.roleName eq 'MES_ADMIN'}" />
+
+<div class="page-title">라우팅 상세</div>
+
+<form id="routingUpdateForm" method="post"
+	action="${pageContext.request.contextPath}/routing/update">
+
+	<input type="hidden" name="routingId" value="${routing.routingId}">
+	<input type="hidden" name="itemId" value="${routing.itemId}">
+
+	<div class="table-box">
+		<table class="ta">
+			<tbody>
+				<tr>
+					<th>공정순서</th>
+					<td><input type="number" name="sequence"
+						value="${routing.sequence}" class="editable-field" readonly>
+					</td>
+				</tr>
+
+				<tr>
+					<th>공정</th>
+					<td><select name="processId" class="editable-field" disabled>
+							<c:forEach var="p" items="${processList}">
+								<option value="${p.processId}"
+									${p.processId == routing.processId ? 'selected' : ''}>
+									${p.processName}</option>
+							</c:forEach>
+					</select></td>
+				</tr>
+
+				<tr>
+					<th>설비</th>
+					<td><select name="equipmentId" class="editable-field" disabled>
+							<c:forEach var="e" items="${equipmentList}">
+								<option value="${e.equipmentId}"
+									${e.equipmentId == routing.equipmentId ? 'selected' : ''}>
+									${e.equipmentName}</option>
+							</c:forEach>
+					</select></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<!-- 🔥 버튼 영역 -->
+	<div class="taPageActions">
+
+		<c:if test="${isMesAdmin}">
+			<button type="button" id="editBtn" class="taBtn taBtnPrimary">수정</button>
+			<button type="submit" id="saveBtn" class="taBtn taBtnPrimary"
+				style="display: none;">수정완료</button>
+			<button type="button" id="cancelBtn" class="taBtn taBtnOutline"
+				style="display: none;">취소</button>
+		</c:if>
+
+		<a
+			href="${pageContext.request.contextPath}/routing/list?itemId=${routing.itemId}"
+			class="taBtn taBtnOutline">목록</a>
+	</div>
+
+</form>
+
 <script>
-(function() {
-    const form = document.getElementById("routingUpdateForm");
-    if (!form) return;
-    const editBtn = document.getElementById("routingUpdateFormEditBtn");
-    const saveBtn = document.getElementById("routingUpdateFormSaveBtn");
-    const cancelBtn = document.getElementById("routingUpdateFormCancelBtn");
-    const fields = form.querySelectorAll('.taEditableField');
-    function setViewMode() { fields.forEach(function(field){ field.readOnly = true; }); editBtn.style.display=''; saveBtn.style.display='none'; cancelBtn.style.display='none'; }
-    function setEditMode() { fields.forEach(function(field){ field.readOnly = false; }); editBtn.style.display='none'; saveBtn.style.display=''; cancelBtn.style.display=''; }
-    fields.forEach(function(field) { field.dataset.originalValue = field.value; });
-    editBtn.addEventListener('click', function(){ setEditMode(); });
-    cancelBtn.addEventListener('click', function(){ fields.forEach(function(field){ field.value = field.dataset.originalValue || ''; }); setViewMode(); });
-    form.addEventListener('submit', function(e){ if(saveBtn.style.display==='none'){ e.preventDefault(); return; } if(!confirm('수정하시겠습니까?')) e.preventDefault(); });
-    setViewMode();
-})();
+const editBtn = document.getElementById("editBtn");
+const saveBtn = document.getElementById("saveBtn");
+const cancelBtn = document.getElementById("cancelBtn");
+
+const fields = document.querySelectorAll(".editable-field");
+
+// 🔥 CEO 대응 (버튼 없음)
+if (!editBtn || !saveBtn || !cancelBtn) {
+    fields.forEach(field => {
+        if (field.tagName === 'SELECT') {
+            field.disabled = true;
+        } else {
+            field.readOnly = true;
+        }
+    });
+}
+
+// 수정 모드
+if (editBtn) {
+    editBtn.addEventListener("click", function () {
+        fields.forEach(field => {
+            if (field.tagName === 'SELECT') {
+                field.disabled = false;
+            } else {
+                field.readOnly = false;
+            }
+        });
+
+        editBtn.style.display = "none";
+        saveBtn.style.display = "inline-block";
+        cancelBtn.style.display = "inline-block";
+    });
+
+    cancelBtn.addEventListener("click", function () {
+        location.reload();
+    });
+}
 </script>
-  </c:otherwise>
-</c:choose>

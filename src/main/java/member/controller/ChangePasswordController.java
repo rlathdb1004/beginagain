@@ -94,7 +94,7 @@ public class ChangePasswordController extends HttpServlet {
             }
 
             if (tempPasswordUser) {
-                response.sendRedirect(request.getContextPath() + "/ceomain");
+                response.sendRedirect(request.getContextPath() + getMainPageByRole(refreshedUser.getRoleName()));
                 return;
             }
 
@@ -104,6 +104,17 @@ public class ChangePasswordController extends HttpServlet {
         }
 
         response.sendRedirect(returnUrl);
+    }
+    
+    private String getMainPageByRole(String roleName) {
+        if ("CEO".equals(roleName)) {
+            return "/ceomain";
+        } else if ("MES_ADMIN".equals(roleName)) {
+            return "/adminmain";
+        } else if ("SITE_MANAGER".equals(roleName) || "WORKER".equals(roleName)) {
+            return "/prodmain";
+        }
+        return "/ceomain";
     }
 
     private String nvl(String value) {

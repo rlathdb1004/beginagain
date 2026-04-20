@@ -1,106 +1,55 @@
 <%@ page contentType="text/html; charset=UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<c:choose>
-    <c:when test="${empty equipment}">
-        <div class="taFormShell taEmptyState">
-            <p>조회된 설비 정보가 없습니다.</p>
-            <div class="taPageActions" style="justify-content:center; margin-top:16px;">
-                <a class="taBtn taBtnOutline" href="${pageContext.request.contextPath}/equipment/list" style="text-decoration:none;">목록</a>
-            </div>
-        </div>
-    </c:when>
-    <c:otherwise>
-        <form id="equipmentUpdateForm" action="${pageContext.request.contextPath}/equipment/update" method="post">
-            <input type="hidden" name="equipmentId" value="${equipment.equipmentId}">
-            <div class="taPageActions">
-                <button type="button" id="equipmentUpdateFormEditBtn" class="taBtn taBtnPrimary">수정</button>
-                <button type="submit" id="equipmentUpdateFormSaveBtn" class="taBtn taBtnPrimary" style="display:none;">수정완료</button>
-                <button type="button" id="equipmentUpdateFormCancelBtn" class="taBtn taBtnOutline" style="display:none;">취소</button>
-                <a class="taBtn taBtnOutline" href="${pageContext.request.contextPath}/equipment/list" style="text-decoration:none;">목록</a>
-            </div>
-            <div class="taFormShell">
-                <table class="taFormTable">
-                    <tr><th class="taFormLabel">설비번호</th><td class="taFormValue"><span class="taReadonlyText">${equipment.equipmentId}</span></td></tr>
-                    <tr><th class="taFormLabel">설비코드</th><td class="taFormValue"><span class="taReadonlyText">${equipment.equipmentCode}</span></td></tr>
-                    <tr><th class="taFormLabel">설비명</th><td class="taFormValue"><input class="taFormInput taEditableField" type="text" name="equipmentName" value="${equipment.equipmentName}"></td></tr>
-                    <tr><th class="taFormLabel">모델명</th><td class="taFormValue"><input class="taFormInput taEditableField" type="text" name="modelName" value="${equipment.modelName}"></td></tr>
-                    <tr><th class="taFormLabel">위치</th><td class="taFormValue"><input class="taFormInput taEditableField" type="text" name="location" value="${equipment.location}"></td></tr>
-                    <tr><th class="taFormLabel">제조사</th><td class="taFormValue"><input class="taFormInput taEditableField" type="text" name="manufacturer" value="${equipment.manufacturer}"></td></tr>
-                    <tr><th class="taFormLabel">공급업체</th><td class="taFormValue"><input class="taFormInput taEditableField" type="text" name="vendorName" value="${equipment.vendorName}"></td></tr>
-                    <tr><th class="taFormLabel">설비가격</th><td class="taFormValue"><input class="taFormInput taEditableField" type="number" name="equipmentPrice" value="${equipment.equipmentPrice}"></td></tr>
-                    <tr><th class="taFormLabel">구매일자</th><td class="taFormValue"><input class="taFormInput taEditableField" type="date" name="purchaseDate" value="${equipment.purchaseDate}"></td></tr>
-                    <tr><th class="taFormLabel">비고</th><td class="taFormValue"><textarea class="taFormTextarea taEditableField" name="remark">${equipment.remark}</textarea></td></tr>
-                </table>
-            </div>
-        </form>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+
+<c:set var="isMesAdmin" value="${sessionScope.loginUser.roleName eq 'MES_ADMIN'}" />
+
+<div class="page-title">설비 상세</div>
+
+<form id="equipmentUpdateForm" method="post" action="${pageContext.request.contextPath}/equipment/update">
+    <input type="hidden" name="equipmentId" value="${equipment.equipmentId}">
+
+    <div class="table-box">
+        <table class="ta">
+            <tbody>
+                <tr><th>설비코드</th><td><input type="text" name="equipmentCode" value="${equipment.equipmentCode}" readonly></td></tr>
+                <tr><th>설비명</th><td><input type="text" name="equipmentName" value="${equipment.equipmentName}" class="editable-field" readonly></td></tr>
+                <tr><th>모델명</th><td><input type="text" name="modelName" value="${equipment.modelName}" class="editable-field" readonly></td></tr>
+                <tr><th>위치</th><td><input type="text" name="location" value="${equipment.location}" class="editable-field" readonly></td></tr>
+                <tr><th>제조사</th><td><input type="text" name="manufacturer" value="${equipment.manufacturer}" class="editable-field" readonly></td></tr>
+                <tr><th>공급처</th><td><input type="text" name="vendorName" value="${equipment.vendorName}" class="editable-field" readonly></td></tr>
+                <tr><th>금액</th><td><input type="number" step="0.01" name="equipmentPrice" value="${equipment.equipmentPrice}" class="editable-field" readonly><div class="taAutoCodeHint">현재 표시: <fmt:formatNumber value="${equipment.equipmentPrice / 10000}" pattern="#,##0.##"/>만원</div></td></tr>
+                <tr><th>구매일</th><td><input type="date" name="purchaseDate" value="${equipment.purchaseDate}" class="editable-field" readonly></td></tr>
+                <tr><th>비고</th><td><input type="text" name="remark" value="${equipment.remark}" class="editable-field" readonly></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="taPageActions">
+        <c:if test="${isMesAdmin}">
+            <button type="button" id="editBtn" class="taBtn taBtnPrimary">수정</button>
+            <button type="submit" id="saveBtn" class="taBtn taBtnPrimary" style="display:none;">수정완료</button>
+            <button type="button" id="cancelBtn" class="taBtn taBtnOutline" style="display:none;">취소</button>
+        </c:if>
+        <a href="${pageContext.request.contextPath}/equipment/list" class="taBtn taBtnOutline">목록</a>
+    </div>
+</form>
+
 <script>
-(function() {
-    const form = document.getElementById("equipmentUpdateForm");
-    if (!form) return;
-
-    const editBtn = document.getElementById("equipmentUpdateFormEditBtn");
-    const saveBtn = document.getElementById("equipmentUpdateFormSaveBtn");
-    const cancelBtn = document.getElementById("equipmentUpdateFormCancelBtn");
-    const fields = form.querySelectorAll('.taEditableField');
-
-    function setViewMode() {
-        fields.forEach(function(field) {
-            if (field.tagName === 'SELECT') {
-                field.disabled = true;
-            } else {
-                field.readOnly = true;
-            }
-        });
-        editBtn.style.display = '';
-        saveBtn.style.display = 'none';
-        cancelBtn.style.display = 'none';
-    }
-
-    function setEditMode() {
-        fields.forEach(function(field) {
-            if (field.tagName === 'SELECT') {
-                field.disabled = false;
-            } else {
-                field.readOnly = false;
-            }
-        });
-        editBtn.style.display = 'none';
-        saveBtn.style.display = '';
-        cancelBtn.style.display = '';
-    }
-
-    fields.forEach(function(field) {
-        field.dataset.originalValue = field.value;
+const editBtn = document.getElementById("editBtn");
+const saveBtn = document.getElementById("saveBtn");
+const cancelBtn = document.getElementById("cancelBtn");
+const fields = document.querySelectorAll(".editable-field");
+if (!editBtn || !saveBtn || !cancelBtn) {
+    fields.forEach(field => field.readOnly = true);
+}
+if (editBtn) {
+    editBtn.addEventListener("click", function () {
+        fields.forEach(field => field.readOnly = false);
+        editBtn.style.display = "none";
+        saveBtn.style.display = "inline-block";
+        cancelBtn.style.display = "inline-block";
     });
-
-    editBtn.addEventListener('click', function() {
-        setEditMode();
-    });
-
-    cancelBtn.addEventListener('click', function() {
-        fields.forEach(function(field) {
-            field.value = field.dataset.originalValue || '';
-        });
-        setViewMode();
-    });
-
-    form.addEventListener('submit', function(e) {
-        if (saveBtn.style.display === 'none') {
-            e.preventDefault();
-            return;
-        }
-        fields.forEach(function(field) {
-            if (field.tagName === 'SELECT') {
-                field.disabled = false;
-            }
-        });
-        if (!confirm('수정하시겠습니까?')) {
-            e.preventDefault();
-        }
-    });
-
-    setViewMode();
-})();
+    cancelBtn.addEventListener("click", function () { location.reload(); });
+}
 </script>
-    </c:otherwise>
-</c:choose>

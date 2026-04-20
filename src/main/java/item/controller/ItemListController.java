@@ -85,7 +85,7 @@ public class ItemListController extends HttpServlet {
             endPage = totalPage;
         }
 
-        request.setAttribute("itemList", pageList);
+        request.setAttribute("list", pageList);
         request.setAttribute("searchType", searchType);
         request.setAttribute("keyword", keyword);
 

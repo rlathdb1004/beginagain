@@ -1,10 +1,14 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<c:set var="canManage" value="${sessionScope.loginUser.roleName eq 'MES_ADMIN' or sessionScope.loginUser.roleName eq 'SITE_MANAGER'}" />
 <c:if test="${not empty errorMsg}"><script>alert('${errorMsg}');</script></c:if>
+<c:if test="${canManage}">
 <div class="taPageActions">
     <button type="button" class="taOpenModal taBtn taBtnPrimary" data-modal-target="matInspRegisterModal">등록</button>
     <button type="submit" form="matInspDeleteForm" class="taBtn taBtnOutline">선택 삭제</button>
 </div>
+</c:if>
+<c:if test="${canManage}">
 <div id="matInspRegisterModal" class="taModal" hidden aria-hidden="true">
     <div class="taModalDialog">
         <div class="taModalHeader">
@@ -29,7 +33,7 @@
                 <div class="form-row"><label>검사수량</label><input type="number" step="0.001" min="0.001" name="inspectQty" required></div>
                 <div class="form-row"><label>양품수량</label><input type="number" step="0.001" min="0" name="goodQty" required></div>
                 <div class="form-row"><label>불량수량</label><input type="number" step="0.001" min="0" name="defectQty" required></div>
-                <div class="form-row"><label>판정</label><select name="result" class="taSelect"><option value="합격">합격</option><option value="부분합격">부분합격</option><option value="불합격">불합격</option></select></div>
+                <div class="form-row"><label>판정</label><select name="result" class="taSelect"><option value="합격">합격</option><option value="불합격">불합격</option></select></div>
                 <div class="form-row"><label>검사일</label><input type="date" name="inspectionDate" required></div>
                 <div class="form-row full"><label>비고</label><textarea name="remark"></textarea></div>
             </div>
@@ -40,6 +44,7 @@
         </form>
     </div>
 </div>
+</c:if>
 
 <form id="paSearchForm" method="post" action="${pageContext.request.contextPath}/matInspRegInq">
     <input type="hidden" name="cmd" value="list">
@@ -47,7 +52,7 @@
     <div class="taToolbarRow">
         <div class="taToolbarField taToolbarSpan2">
             <select class="taSelect taAutoSelectColor ${empty matInspRegInqSearchDTO.resultType or matInspRegInqSearchDTO.resultType eq '전체' ? 'taSelectPlaceholder' : ''}" name="resultType">
-                <option value="" hidden <c:if test="${empty matInspRegInqSearchDTO.resultType or matInspRegInqSearchDTO.resultType eq '전체'}">selected</c:if>>전체 / 합격 / 부분합격 / 불합격</option>
+                <option value="" hidden <c:if test="${empty matInspRegInqSearchDTO.resultType or matInspRegInqSearchDTO.resultType eq '전체'}">selected</c:if>>전체 / 합격 / 불합격</option>
                 <option value="all">전체</option>
                 <option value="합격" <c:if test="${matInspRegInqSearchDTO.resultType eq '합격'}">selected</c:if>>합격</option>
                 <option value="부분합격" <c:if test="${matInspRegInqSearchDTO.resultType eq '부분합격'}">selected</c:if>>부분합격</option>
@@ -62,8 +67,8 @@
                 <option value="itemName" <c:if test="${matInspRegInqSearchDTO.searchType eq 'itemName'}">selected</c:if>>품목명</option>
             </select>
         </div>
-        <div class="taToolbarField taToolbarSpan2"><input type="date" class="taSearchInput" name="startDate" value="${matInspRegInqSearchDTO.startDate}"></div>
-        <div class="taToolbarField taToolbarSpan2"><input type="date" class="taSearchInput" name="endDate" value="${matInspRegInqSearchDTO.endDate}"></div>
+        <div class="taToolbarField taToolbarSpan2"><label class="taDateLabel">시작일</label><input type="date" class="taSearchInput" name="startDate" value="${matInspRegInqSearchDTO.startDate}"></div>
+        <div class="taToolbarField taToolbarSpan2"><label class="taDateLabel">종료일</label><input type="date" class="taSearchInput" name="endDate" value="${matInspRegInqSearchDTO.endDate}"></div>
         <div class="taToolbarField taToolbarFieldGrow taToolbarSpan4">
             <div class="taSearchBox">
                 <input type="text" class="taSearchInput" name="keyword" placeholder="검색키워드" value="${matInspRegInqSearchDTO.keyword}">

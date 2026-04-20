@@ -1,5 +1,6 @@
 package QualityMgmt.FPInspRegInq.DAO;
 
+import java.sql.SQLException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -169,6 +170,7 @@ public class FPInspRegInqDAO {
         Connection conn = null; PreparedStatement ps = null;
         try {
             conn = getConnection();
+            conn.setAutoCommit(false);
             String sql = "INSERT INTO FINAL_INSPECTION (FINAL_INSPECTION_ID, RESULT_ID, EMP_ID, INSPECT_QTY, STATUS, INSPECTION_DATE, REMARK, USE_YN, CREATED_AT, UPDATED_AT) VALUES ((SELECT NVL(MAX(FINAL_INSPECTION_ID),0)+1 FROM FINAL_INSPECTION), ?, ?, ?, ?, ?, ?, 'Y', SYSDATE, SYSDATE)";
             ps = conn.prepareStatement(sql);
             ps.setInt(1, dto.getResultId());
@@ -177,10 +179,23 @@ public class FPInspRegInqDAO {
             ps.setString(4, dto.getResult());
             ps.setDate(5, dto.getInspectionDate());
             ps.setString(6, dto.getRemark());
-            return ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
-        finally { close(null, ps, conn); }
-        return 0;
+            int result = ps.executeUpdate();
+            close(null, ps, null); ps = null;
+
+            if (result > 0 && "합격".equals(dto.getResult())) {
+                int itemId = getItemIdByResultId(conn, dto.getResultId());
+                applyInventoryDelta(conn, itemId, dto.getInspectQty());
+            }
+
+            conn.commit();
+            return result;
+        } catch (Exception e) {
+            rollback(conn);
+            throw new RuntimeException("완제품 검사 등록 실패", e);
+        } finally {
+            resetAutoCommit(conn);
+            close(null, ps, conn);
+        }
     }
 
     public int deleteFPInspRegInq(int[] ids) {
@@ -188,14 +203,30 @@ public class FPInspRegInqDAO {
         try {
             if (ids == null || ids.length == 0) return 0;
             conn = getConnection();
+            conn.setAutoCommit(false);
+
+            for (int id : ids) {
+                FPInspRegInqDTO origin = selectFPInspRegInqCore(conn, id);
+                if (origin != null && "합격".equals(origin.getResult())) {
+                    int itemId = getItemIdByResultId(conn, origin.getResultId());
+                    applyInventoryDelta(conn, itemId, -origin.getInspectQty());
+                }
+            }
+
             StringBuilder sql = new StringBuilder("UPDATE FINAL_INSPECTION SET USE_YN='N', UPDATED_AT=SYSDATE WHERE FINAL_INSPECTION_ID IN (");
-            for (int i = 0; i < ids.length; i++) { if (i > 0) sql.append(','); sql.append('?'); }
-            sql.append(')');
+            for (int i = 0; i < ids.length; i++) { if (i > 0) sql.append(","); sql.append("?"); }
+            sql.append(")");
             ps = conn.prepareStatement(sql.toString());
             for (int i = 0; i < ids.length; i++) ps.setInt(i + 1, ids[i]);
             result = ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
-        finally { close(null, ps, conn); }
+            conn.commit();
+        } catch (Exception e) {
+            rollback(conn);
+            throw new RuntimeException("완제품 검사 삭제 실패", e);
+        } finally {
+            resetAutoCommit(conn);
+            close(null, ps, conn);
+        }
         return result;
     }
 
@@ -203,6 +234,10 @@ public class FPInspRegInqDAO {
         Connection conn = null; PreparedStatement ps = null;
         try {
             conn = getConnection();
+            conn.setAutoCommit(false);
+            FPInspRegInqDTO origin = selectFPInspRegInqCore(conn, dto.getFinalInspectionId());
+            if (origin == null) throw new RuntimeException("존재하지 않는 완제품 검사입니다.");
+
             String sql = "UPDATE FINAL_INSPECTION SET INSPECT_QTY = ?, STATUS = ?, INSPECTION_DATE = ?, REMARK = ?, UPDATED_AT = SYSDATE WHERE FINAL_INSPECTION_ID = ?";
             ps = conn.prepareStatement(sql);
             ps.setDouble(1, dto.getInspectQty());
@@ -210,10 +245,99 @@ public class FPInspRegInqDAO {
             ps.setDate(3, dto.getInspectionDate());
             ps.setString(4, dto.getRemark());
             ps.setInt(5, dto.getFinalInspectionId());
-            return ps.executeUpdate();
-        } catch (Exception e) { e.printStackTrace(); }
-        finally { close(null, ps, conn); }
-        return 0;
+            int result = ps.executeUpdate();
+            close(null, ps, null); ps = null;
+
+            if (result > 0) {
+                int itemId = getItemIdByResultId(conn, origin.getResultId());
+                double delta = 0;
+                if ("합격".equals(origin.getResult())) delta -= origin.getInspectQty();
+                if ("합격".equals(dto.getResult())) delta += dto.getInspectQty();
+                if (delta != 0) applyInventoryDelta(conn, itemId, delta);
+            }
+
+            conn.commit();
+            return result;
+        } catch (Exception e) {
+            rollback(conn);
+            throw new RuntimeException("완제품 검사 수정 실패", e);
+        } finally {
+            resetAutoCommit(conn);
+            close(null, ps, conn);
+        }
+    }
+
+
+    private FPInspRegInqDTO selectFPInspRegInqCore(Connection conn, int finalInspectionId) throws Exception {
+        PreparedStatement ps = null; ResultSet rs = null;
+        try {
+            String sql = "SELECT FINAL_INSPECTION_ID, RESULT_ID, INSPECT_QTY, STATUS AS RESULT FROM FINAL_INSPECTION WHERE FINAL_INSPECTION_ID = ? AND NVL(USE_YN,'Y')='Y'";
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, finalInspectionId);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                FPInspRegInqDTO dto = new FPInspRegInqDTO();
+                dto.setFinalInspectionId(rs.getInt("FINAL_INSPECTION_ID"));
+                dto.setResultId(rs.getInt("RESULT_ID"));
+                dto.setInspectQty(rs.getDouble("INSPECT_QTY"));
+                dto.setResult(rs.getString("RESULT"));
+                return dto;
+            }
+            return null;
+        } finally { close(rs, ps, null); }
+    }
+
+    private int getItemIdByResultId(Connection conn, int resultId) throws Exception {
+        PreparedStatement ps = null; ResultSet rs = null;
+        try {
+            String sql = "SELECT pp.ITEM_ID FROM PRODUCTION_RESULT pr JOIN WORK_ORDER wo ON pr.WORK_ORDER_ID = wo.WORK_ORDER_ID JOIN PRODUCTION_PLAN pp ON wo.PLAN_ID = pp.PLAN_ID WHERE pr.RESULT_ID = ?";
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, resultId);
+            rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+            throw new RuntimeException("생산실적에 연결된 품목을 찾을 수 없습니다.");
+        } finally { close(rs, ps, null); }
+    }
+
+    private void applyInventoryDelta(Connection conn, int itemId, double delta) throws Exception {
+        double currentStock = selectCurrentStockByItemId(conn, itemId);
+        double nextStock = currentStock + delta;
+        if (nextStock < 0) throw new RuntimeException("재고가 부족하여 완제품 검사 흐름을 처리할 수 없습니다.");
+
+        PreparedStatement ps = null;
+        try {
+            ps = conn.prepareStatement("UPDATE INVENTORY SET QTY_ON_HAND = ?, UPDATED_AT = SYSDATE WHERE ITEM_ID = ?");
+            ps.setDouble(1, nextStock);
+            ps.setInt(2, itemId);
+            int updated = ps.executeUpdate();
+            close(null, ps, null); ps = null;
+            if (updated == 0) {
+                ps = conn.prepareStatement("INSERT INTO INVENTORY (INVENTORY_ID, ITEM_ID, QTY_ON_HAND, SAFETY_STOCK, REMARK, CREATED_AT, UPDATED_AT) VALUES ((SELECT NVL(MAX(INVENTORY_ID),0)+1 FROM INVENTORY), ?, ?, 0, NULL, SYSDATE, SYSDATE)");
+                ps.setInt(1, itemId);
+                ps.setDouble(2, nextStock);
+                ps.executeUpdate();
+            }
+        } finally { close(null, ps, null); }
+    }
+
+    private double selectCurrentStockByItemId(Connection conn, int itemId) throws Exception {
+        PreparedStatement ps = null; ResultSet rs = null;
+        try {
+            ps = conn.prepareStatement("SELECT NVL(QTY_ON_HAND, 0) AS QTY_ON_HAND FROM INVENTORY WHERE ITEM_ID = ?");
+            ps.setInt(1, itemId);
+            rs = ps.executeQuery();
+            return rs.next() ? rs.getDouble("QTY_ON_HAND") : 0.0;
+        } finally { close(rs, ps, null); }
+    }
+
+    private void rollback(Connection conn) {
+        if (conn == null) return;
+        try { conn.rollback(); } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    private void resetAutoCommit(Connection conn) {
+        if (conn == null) return;
+        try { conn.setAutoCommit(true); } catch (Exception e) { e.printStackTrace(); }
     }
 
     private void mapBase(ResultSet rs, FPInspRegInqDTO dto) throws Exception {

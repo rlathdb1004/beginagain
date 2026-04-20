@@ -12,6 +12,8 @@ public class ItemDTO {
 	private String spec;
 	private String supplierName;
 	private double safetyStock;
+	private double currentStock;
+	private double availableInboundQty;
 	private String useYn;
 	private String remark;
 	private Date createdAt;
@@ -82,6 +84,23 @@ public class ItemDTO {
 
 	public void setSafetyStock(double safetyStock) {
 		this.safetyStock = safetyStock;
+	}
+
+
+	public double getCurrentStock() {
+		return currentStock;
+	}
+
+	public void setCurrentStock(double currentStock) {
+		this.currentStock = currentStock;
+	}
+
+	public double getAvailableInboundQty() {
+		return availableInboundQty;
+	}
+
+	public void setAvailableInboundQty(double availableInboundQty) {
+		this.availableInboundQty = availableInboundQty;
 	}
 
 	public String getUseYn() {

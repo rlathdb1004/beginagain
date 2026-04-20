@@ -8,26 +8,36 @@ import MaterialMgmt.IORegInq.DTO.IORegInqDTO;
 import item.dto.ItemDTO;
 
 public class IORegInqService {
-    private static final List<String> ALLOWED_TYPES = Arrays.asList("입고", "출고", "반품", "폐기");
-    private static final List<String> ALLOWED_STATUS = Arrays.asList("대기", "완료");
+    private static final List<String> ALLOWED_TYPES = Arrays.asList("입고", "출고");
+    private static final List<String> ALLOWED_STATUS = Arrays.asList("완료");
 
     private final IORegInqDAO dao = new IORegInqDAO();
 
     public List<IORegInqDTO> getIORegInqList(IORegInqDTO searchDTO) { return dao.selectIORegInqList(searchDTO); }
     public IORegInqDTO getIORegInqDetail(int inoutId) { return dao.selectIORegInqOne(inoutId); }
-    public List<ItemDTO> getMaterialItemList() { return dao.selectMaterialItemList(); }
+    public List<ItemDTO> getItemList() { return dao.selectItemList(); }
 
     public int register(IORegInqDTO dto) {
-        ItemDTO item = dao.selectMaterialItemById(dto.getItemId());
-        if (item == null) throw new RuntimeException("유효한 자재 품목만 등록할 수 있습니다.");
+        ItemDTO item = dao.selectItemById(dto.getItemId());
+        if (item == null) throw new RuntimeException("유효한 품목만 등록할 수 있습니다.");
         validateCommon(dto);
         dto.setItemCode(item.getItemCode());
         dto.setItemName(item.getItemName());
         dto.setUnit(item.getUnit());
-        if (isStockDecrease(dto.getInoutType()) && "완료".equals(dto.getStatus())) {
-            double currentStock = dao.selectCurrentStockByItemId(dto.getItemId());
-            if (dto.getQty() > currentStock) {
-                throw new RuntimeException("현재고보다 많이 " + dto.getInoutType() + "할 수 없습니다.");
+        if ("완료".equals(dto.getStatus())) {
+            if (isInbound(dto.getInoutType())) {
+                double availableInboundQty = Math.max(0, item.getAvailableInboundQty());
+                if (availableInboundQty <= 0) {
+                    throw new RuntimeException("검사 합격 수량이 남아있는 품목만 입고할 수 있습니다.");
+                }
+                if (dto.getQty() > availableInboundQty) {
+                    throw new RuntimeException("검사 합격 기준 남은 입고 가능 수량(" + trimQty(availableInboundQty) + ")을 초과할 수 없습니다.");
+                }
+            } else if (isStockDecrease(dto.getInoutType())) {
+                double currentStock = dao.selectCurrentStockByItemId(dto.getItemId());
+                if (dto.getQty() > currentStock) {
+                    throw new RuntimeException("현재고보다 많이 " + dto.getInoutType() + "할 수 없습니다.");
+                }
             }
         }
         return dao.insertIORegInq(dto);
@@ -67,6 +77,17 @@ public class IORegInqService {
     }
 
     private boolean isStockDecrease(String inoutType) {
-        return "출고".equals(inoutType) || "폐기".equals(inoutType);
+        return "출고".equals(inoutType);
+    }
+
+    private boolean isInbound(String inoutType) {
+        return "입고".equals(inoutType);
+    }
+
+    private String trimQty(double qty) {
+        if (Math.floor(qty) == qty) {
+            return String.valueOf((long) qty);
+        }
+        return String.valueOf(qty);
     }
 }
