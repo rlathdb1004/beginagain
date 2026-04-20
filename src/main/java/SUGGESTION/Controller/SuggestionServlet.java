@@ -72,6 +72,11 @@ public class SuggestionServlet extends HttpServlet {
                 hide(request, response);
                 return;
             }
+            
+            if ("/restore".equals(suPath)) {
+                restore(request, response);
+                return;
+            }
 
             if ("/answerInsert".equals(suPath)) {
                 answerInsert(request, response);
@@ -234,6 +239,12 @@ public class SuggestionServlet extends HttpServlet {
     private void hide(HttpServletRequest request, HttpServletResponse response) throws Exception {
         long suSuggestionId = parseLong(request.getParameter("suggestionId"), 0L);
         suSuggestionService.hideSuggestion(suSuggestionId);
+        response.sendRedirect(request.getContextPath() + "/suggestion/list?mode=detail&id=" + suSuggestionId);
+    }
+    
+    private void restore(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        long suSuggestionId = parseLong(request.getParameter("suggestionId"), 0L);
+        suSuggestionService.restoreSuggestion(suSuggestionId);
         response.sendRedirect(request.getContextPath() + "/suggestion/list?mode=detail&id=" + suSuggestionId);
     }
 

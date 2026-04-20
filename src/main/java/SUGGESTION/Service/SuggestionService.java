@@ -25,6 +25,10 @@ public class SuggestionService {
         return suggestionDAO.selectSuggestionById(suggestionId);
     }
 
+    public int restoreSuggestion(long suggestionId) {
+        return suggestionDAO.restoreSuggestion(suggestionId);
+    }
+    
     public SuggestionDTO getSuggestionDetail(long suggestionId, boolean increaseViewCount) {
         if (increaseViewCount) {
             suggestionDAO.updateViewCount(suggestionId);

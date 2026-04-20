@@ -21,8 +21,7 @@ public class SuggestionDAO {
         sql.append(" SELECT COUNT(*) ");
         sql.append(" FROM SUGGESTION_BOARD s ");
         sql.append(" LEFT JOIN EMP e ON s.WRITER_EMP_ID = e.EMP_ID ");
-        sql.append(" WHERE NVL(s.STATUS, '-') <> '내림' ");
-        sql.append("   AND NVL(s.USE_YN, 'Y') = 'Y' ");
+        sql.append(" WHERE NVL(s.USE_YN, 'Y') = 'Y' ");
 
         List<Object> params = new ArrayList<>();
 
@@ -85,8 +84,7 @@ public class SuggestionDAO {
         sql.append("            s.UPDATED_AT ");
         sql.append("     FROM SUGGESTION_BOARD s ");
         sql.append("     LEFT JOIN EMP e ON s.WRITER_EMP_ID = e.EMP_ID ");
-        sql.append("     WHERE NVL(s.STATUS, '-') <> '내림' ");
-        sql.append("       AND NVL(s.USE_YN, 'Y') = 'Y' ");
+        sql.append("     WHERE NVL(s.USE_YN, 'Y') = 'Y' ");
 
         List<Object> params = new ArrayList<>();
 
@@ -177,8 +175,10 @@ public class SuggestionDAO {
         int result = 0;
         String sql = ""
                 + " UPDATE SUGGESTION_BOARD "
-                + " SET VIEW_COUNT = NVL(VIEW_COUNT, 0) + 1 "
-                + " WHERE SUGGESTION_ID = ? ";
+                + " SET VIEW_COUNT = NVL(VIEW_COUNT, 0) + 1, "
+                + "     UPDATED_AT = SYSDATE "
+                + " WHERE SUGGESTION_ID = ? "
+                + "   AND NVL(USE_YN, 'Y') = 'Y' ";
 
         try (
             Connection conn = DBCPUtil.getConnection();
@@ -199,9 +199,9 @@ public class SuggestionDAO {
         String sql = ""
                 + " INSERT INTO SUGGESTION_BOARD ( "
                 + "     SUGGESTION_ID, TITLE, CONTENT, WRITER_EMP_ID, "
-                + "     STATUS, VIEW_COUNT, REMARK, CREATED_AT, UPDATED_AT "
+                + "     STATUS, VIEW_COUNT, USE_YN, REMARK, CREATED_AT, UPDATED_AT "
                 + " ) VALUES ( "
-                + "     SEQ_SUGGESTION_BOARD.NEXTVAL, ?, ?, ?, ?, 0, ?, SYSDATE, SYSDATE "
+                + "     SEQ_SUGGESTION_BOARD.NEXTVAL, ?, ?, ?, ?, 0, 'Y', ?, SYSDATE, SYSDATE "
                 + " ) ";
 
         try (
@@ -231,7 +231,8 @@ public class SuggestionDAO {
                 + "     STATUS = ?, "
                 + "     REMARK = ?, "
                 + "     UPDATED_AT = SYSDATE "
-                + " WHERE SUGGESTION_ID = ? ";
+                + " WHERE SUGGESTION_ID = ? "
+                + "   AND NVL(USE_YN, 'Y') = 'Y' ";
 
         try (
             Connection conn = DBCPUtil.getConnection();
@@ -257,7 +258,31 @@ public class SuggestionDAO {
                 + " UPDATE SUGGESTION_BOARD "
                 + " SET STATUS = '내림', "
                 + "     UPDATED_AT = SYSDATE "
-                + " WHERE SUGGESTION_ID = ? ";
+                + " WHERE SUGGESTION_ID = ? "
+                + "   AND NVL(USE_YN, 'Y') = 'Y' ";
+
+        try (
+            Connection conn = DBCPUtil.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)
+        ) {
+            pstmt.setLong(1, suggestionId);
+            result = pstmt.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+    
+    public int restoreSuggestion(long suggestionId) {
+        int result = 0;
+
+        String sql = ""
+                + " UPDATE SUGGESTION_BOARD "
+                + " SET STATUS = '접수', "
+                + "     UPDATED_AT = SYSDATE "
+                + " WHERE SUGGESTION_ID = ? "
+                + "   AND NVL(USE_YN, 'Y') = 'Y' ";
 
         try (
             Connection conn = DBCPUtil.getConnection();

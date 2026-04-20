@@ -687,8 +687,7 @@ textarea.suField {
 }
 
 /* 댓글취소버튼 */
-.suCommentCancelBtn,
-.suCommentCancelBtn:visited {
+.suCommentCancelBtn, .suCommentCancelBtn:visited {
 	background: #ffffff;
 	border: 1px solid #d7e7ff;
 	color: #0047AB;
@@ -706,21 +705,16 @@ textarea.suField {
 	.suSearchRow {
 		grid-template-columns: 44px 1fr;
 	}
-
-	.suSearchRow .suSearchItem:nth-child(1),
-	.suSearchRow .suSearchItem:nth-child(2),
-	.suSearchRow .suSearchItem:nth-child(3) {
-		grid-column: 1 / -1;
+	.suSearchRow .suSearchItem:nth-child(1), .suSearchRow .suSearchItem:nth-child(2),
+		.suSearchRow .suSearchItem:nth-child(3) {
+		grid-column: 1/-1;
 	}
-
 	.suSearchRow .suSearchItem:nth-child(4) {
-		grid-column: 1 / 2;
+		grid-column: 1/2;
 	}
-
 	.suSearchRow .suSearchItem:nth-child(5) {
-		grid-column: 2 / 3;
+		grid-column: 2/3;
 	}
-
 	.suResetBtn {
 		width: 100%;
 		min-width: 0;
@@ -983,6 +977,8 @@ if ("detail".equals(suMode)) {
 											<%="반영완료".equals(suSelectedSuggestion.getStatus()) ? "selected" : ""%>>답변완료</option>
 										<option value="반려"
 											<%="반려".equals(suSelectedSuggestion.getStatus()) ? "selected" : ""%>>반려</option>
+										<option value="내림"
+											<%="내림".equals(suSelectedSuggestion.getStatus()) ? "selected" : ""%>>내림</option>
 									</select>
 								</div>
 							</div>
@@ -1002,6 +998,19 @@ if ("detail".equals(suMode)) {
 					<div class="suModalSection">
 						<h4 class="suModalSectionTitle">게시글 빠른 처리</h4>
 						<div class="suBtnRow">
+							<%
+							if ("내림".equals(suSelectedSuggestion.getStatus())) {
+							%>
+							<form method="post"
+								action="<%=suContextPath + "/suggestion/restore"%>"
+								style="margin: 0;">
+								<input type="hidden" name="suggestionId"
+									value="<%=suSelectedSuggestion.getSuggestionId()%>" />
+								<button type="submit" class="suBtn suBtnPrimary">게시글복구</button>
+							</form>
+							<%
+							} else {
+							%>
 							<form method="post"
 								action="<%=suContextPath + "/suggestion/hide"%>"
 								style="margin: 0;">
@@ -1009,6 +1018,10 @@ if ("detail".equals(suMode)) {
 									value="<%=suSelectedSuggestion.getSuggestionId()%>" />
 								<button type="submit" class="suBtn suBtnWarn">게시글내리기</button>
 							</form>
+							<%
+							}
+							%>
+
 							<form method="post"
 								action="<%=suContextPath + "/suggestion/delete"%>"
 								style="margin: 0;" onsubmit="return confirm('정말 삭제하시겠습니까?');">
@@ -1124,6 +1137,7 @@ if ("detail".equals(suMode)) {
 					<option value="검토중" <%="검토중".equals(suStatus) ? "selected" : ""%>>검토중</option>
 					<option value="반영완료" <%="반영완료".equals(suStatus) ? "selected" : ""%>>답변완료</option>
 					<option value="반려" <%="반려".equals(suStatus) ? "selected" : ""%>>반려</option>
+					<option value="내림" <%="내림".equals(suStatus) ? "selected" : ""%>>내림</option>
 				</select>
 			</div>
 			<div class="suSearchItem">
